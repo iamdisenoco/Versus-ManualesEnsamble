@@ -1099,6 +1099,8 @@ window.zoomSolidWorks = function (o) {
       u.cPiso = V(s[0] - cb.x, -b.min.y + 0.0005, s[1] - cb.z);
       u.q = QI.clone(); u.c = u.piv.clone();
     });
+    // el rótulo del cojín lumbar se ancla abajo del cojín, para que no tape el logo bordado (Jon, 19-nov)
+    unidades.forEach(function (u) { if (u.nombre === "Q") u.ancla.y -= 0.09; });
     unidades.sort(function (a, b) { return a.nombre < b.nombre ? -1 : 1; });
     porTipo = {};
     unidades.forEach(function (u) { (porTipo[u.tipo] = porTipo[u.tipo] || []).push(u); });
