@@ -1098,6 +1098,9 @@ window.zoomSolidWorks = function (o) {
       u.cPiso = V(s[0] - cb.x, -b.min.y + 0.0005, s[1] - cb.z);
       u.q = QI.clone(); u.c = u.piv.clone();
     });
+    // el rótulo del cojín lumbar se ancla abajo del cojín, para que no tape el logo (como la V40, 19-nov); el de la V30
+    // mide 190 de alto: 6 cm
+    unidades.forEach(function (u) { if (u.nombre === "Q") u.ancla.y -= 0.06; });
     unidades.sort(function (a, b) { return a.nombre < b.nombre ? -1 : 1; });
     porTipo = {};
     unidades.forEach(function (u) { (porTipo[u.tipo] = porTipo[u.tipo] || []).push(u); });
@@ -1252,7 +1255,10 @@ window.zoomSolidWorks = function (o) {
   const ENTRA = 0.012, FUERA = 0.06, BOCA = 0.002;     // m: lo que falta para asentar; la llave a 6 cm; 2 mm dentro del hexágono
   let ENCAJES = [];                                     // [{paso, tornillo, t0, t1}] la llave en el eje de ese tornillo
   const RITMO = { lento: { llega: 2.0, viaje: 1.5, encaja: 0.8, gira: 2.8, vueltas: 3, sale: 0.7 },
-    rapido: { llega: 1.1, viaje: 0.8, encaja: 0.35, gira: 1.1, vueltas: 2, sale: 0.35 } };
+    rapido: { llega: 1.1, viaje: 0.8, encaja: 0.35, gira: 1.1, vueltas: 2, sale: 0.35 },
+    // paso 3 (Jon, 21-nov, observación 6: «pon esa parte de tantos tornillos mucho más rápida»): los 11 L después del
+    // primero, a un poco más de la mitad del tiempo del «rápido»
+    veloz: { llega: 0.7, viaje: 0.45, encaja: 0.2, gira: 0.55, vueltas: 1.5, sale: 0.2 } };
   function bocaEn(u, pose) { return u.cabeza.clone().sub(u.piv).applyQuaternion(pose.q).add(pose.c); }
   function entraEn(u, q) { return u.dirCana.clone().applyQuaternion(q).normalize(); }
   function poseLlave(boca, a, manija) {
@@ -1282,11 +1288,13 @@ window.zoomSolidWorks = function (o) {
   function atornillar(recs, L, k, lista, t0, op) {
     let t = t0;
     lista.forEach(function (u, i) {
-      const R = RITMO[i === 0 && op.lento !== false ? "lento" : "rapido"];
+      const R = RITMO[i === 0 && op.lento !== false ? "lento" : (op.ritmo || "rapido")];
       const F = op.fin(u), a = entraEn(u, F.q), pre = { q: F.q, c: F.c.clone().addScaledVector(a, -ENTRA) };
       const vueltas = R.vueltas, sg = Math.sign(u.eje.dot(u.dirCana)) || 1;
       // el siguiente tornillo llega mientras la llave aprieta el anterior
-      const tLlega = i === 0 ? t : Math.max(t0, t - R.llega);
+      // (con el ritmo «veloz», a la mitad: si no, el tornillo baja a su agujero mientras la llave todavía está en el de al
+      // lado, a 28 mm)
+      const tLlega = i === 0 ? t : Math.max(t0, t - R.llega * (op.ritmo === "veloz" ? 0.5 : 1));
       const pts = op.llega(u, tLlega, pre, R);
       const fl = pts.reduce(function (s, p) { return s + p.d; }, tLlega);
       // la llave: hasta 6 cm fuera de la boca del tornillo (ya entrado un poco), por su eje
@@ -1312,7 +1320,11 @@ window.zoomSolidWorks = function (o) {
   // pares que la revisión NO descuenta aunque se toquen armados: se revisan malla contra malla (cada arista de una contra
   // los triángulos de la otra). El pistón dentro del cubre pistón se descontaba por cajas y tapaba una colisión real
   // (Jon, 12-nov: «Cubre pistón no tiene perforación para que salga el pistón»)
-  const FINOS = ["E|F", "A|I", "B|I", "I|M", "C|I", "A|J", "B|J", "J|M", "C|J"];
+  // I y J con A y B no van malla contra malla desde el 21-nov (como la V40 desde el 19-nov): son los protectores del STL
+  // de la V40 y, armados, se meten en el cuero del espaldar (I hasta 8 mm, J hasta 11) y J en la tapa de la bisagra
+  // (hasta 12,5 mm, de 447 a 498 mm del piso); esos pares se descuentan por tocarse armados (LEEME, «Observaciones de Jon
+  // del 21-nov»). Contra los M y los reposabrazos siguen malla contra malla.
+  const FINOS = ["E|F", "I|M", "C|I", "J|M", "C|J"];
   const tipoN = function (x) { return x.replace(/[_\d].*$/, ""); };
   function esFino(par) { const n = par.split("|").map(tipoN).sort().join("|"); return FINOS.indexOf(n) >= 0; }
   function trisMundo(o) {
@@ -1565,8 +1577,13 @@ window.zoomSolidWorks = function (o) {
     const H = uni("H");
     r3.push(alBanco(H, 0, 1.0, 0.3, [0.8, 0.9, 0.8]));
     const Ls = porTipo.L.slice().sort(function (a, b) { return Number(a.nombre.slice(1)) - Number(b.nombre.slice(1)); });
-    const Lmar = Ls.filter(function (u) { return Math.abs(u.piv.x) < 0.15; });
-    const Lder = Ls.filter(function (u) { return u.piv.x <= -0.15; }), Lizq = Ls.filter(function (u) { return u.piv.x >= 0.15; });
+    // cada L va con lo que sujeta según su nombre en el GLB («… (mariposa)», «… (reposabrazos derecho)»). Antes se
+    // repartían por |x| < 0,15 m y los de adentro de cada reposabrazos (x = ±0,1497) caían con la mariposa: se
+    // atornillaban antes de que llegara el reposabrazos (Jon, 21-nov, observación 6: «en el paso 3 los tornillos del
+    // apoyabrazos van después de poner el apoyabrazos no antes»)
+    const de = function (q) { return function (u) { return (u.ex.nombre || "").indexOf(q) >= 0; }; };
+    const Lmar = Ls.filter(de("(mariposa)"));
+    const Lder = Ls.filter(de("(reposabrazos derecho)")), Lizq = Ls.filter(de("(reposabrazos izquierdo)"));
     // los tornillos en el banco: llegan por arriba y quedan entrados un poco; la llave baja por encima, por su eje
     const ALTO_B = 1.05;
     const opBanco = {
@@ -1591,7 +1608,7 @@ window.zoomSolidWorks = function (o) {
       }
     };
     const L3 = nuevaLlave();
-    let tt3 = atornillar(r3, L3, 3, Lmar, 2.7, Object.assign({}, opBanco, { fin: function (u) { return u.banco0; } }));
+    let tt3 = atornillar(r3, L3, 3, Lmar, 2.7, Object.assign({}, opBanco, { ritmo: "veloz", fin: function (u) { return u.banco0; } }));
     llaveAlPiso(L3, tt3, ALTO_B); tt3 = L3.t;
     const C1 = uni("C1"), C2 = uni("C2");
     const tC1 = tt3 + 0.2;
@@ -1606,11 +1623,12 @@ window.zoomSolidWorks = function (o) {
       r.t1 = Math.max(tC1, r.t1) + 0.6;
     });
     r3.push(deLado(C1, tC1));
-    tt3 = atornillar(r3, L3, 3, Lder, tC1 + 2.9, opBanco);
+    // los tornillos salen del piso cuando el reposabrazos ya está puesto (deLado dura 3,0 s)
+    tt3 = atornillar(r3, L3, 3, Lder, tC1 + 3.1, Object.assign({}, opBanco, { lento: false, ritmo: "veloz" }));
     llaveAlPiso(L3, tt3, ALTO_B); tt3 = L3.t;
     const tC2 = tt3 + 0.2;
     r3.push(deLado(C2, tC2));
-    tt3 = atornillar(r3, L3, 3, Lizq, tC2 + 2.9, Object.assign({}, opBanco, { lento: false }));
+    tt3 = atornillar(r3, L3, 3, Lizq, tC2 + 3.1, Object.assign({}, opBanco, { lento: false, ritmo: "veloz" }));
     llaveAlPiso(L3, tt3, ALTO_B);
     r3.unshift(recLlave(L3));
     const g3 = ENCAJES.filter(function (e) { return e.paso === 3; });
