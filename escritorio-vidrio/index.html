@@ -740,7 +740,7 @@ body { font-synthesis: none; }
 <article class="anim-texto" data-paso="1" data-titulo="Los pies en las patas"><h3><span class="anim-paso-n">Paso 1</span>Los pies en las patas</h3><p class="anim-linea">Patas ① y ② patas arriba; cada pie ③ con 4 tornillos <span class="cod">(A)</span> y la llave <span class="cod">(E)</span>.</p><p>Pon las patas ① y ② patas arriba. Sobre cada una pon un pie ③ y fíjalo con 4 tornillos <span class="cod">(A)</span> (M6×40), apretándolos con la llave <span class="cod">(E)</span> (S4).</p></article>
 <article class="anim-texto" data-paso="2" data-titulo="Las patas en la bandeja"><h3><span class="anim-paso-n">Paso 2</span>Las patas en la bandeja</h3><p class="anim-linea">La bandeja ④ boca abajo; las patas encima con 8 tornillos <span class="cod">(B)</span> y la llave <span class="cod">(E)</span>.</p><p>Pon la bandeja ④ boca abajo. Ubica las patas sobre ella y fija cada soporte con los tornillos <span class="cod">(B)</span> (M6×16), 8 en total, apretándolos con la llave <span class="cod">(E)</span> (S4).</p></article>
 <article class="anim-texto" data-paso="3" data-titulo="Las barras ⑤ y ⑥"><h3><span class="anim-paso-n">Paso 3</span>Las barras ⑤ y ⑥</h3><p class="anim-linea">Mete ⑥ y ⑤ hasta el fondo girando suavemente <span class="cod">(D)</span>; la perilla de ⑤: aflojar antes del acople, ajustar después.</p><p>Gira suavemente <span class="cod">(D)</span> al insertar ⑤ y ⑥ hasta que encaje; debe quedar completamente insertado hasta el fondo. Antes del acople: aflojar. Después del acople: ajustar.</p></article>
-<article class="anim-texto" data-paso="4" data-titulo="La conexión"><h3><span class="anim-paso-n">Paso 4</span>La conexión</h3><p class="anim-linea">Patas arriba: los amarres <span class="cod">(C)</span> en la bandeja y el cable ⑦ al control.</p><p>Diagrama de conexión: con el escritorio patas arriba, pega los amarres <span class="cod">(C)</span> en la bandeja, entre el motor y el control, y conecta el cable de alimentación ⑦ al control.</p></article>
+<article class="anim-texto" data-paso="4" data-titulo="La conexión"><h3><span class="anim-paso-n">Paso 4</span>La conexión</h3><p class="anim-linea">Patas arriba: los amarres <span class="cod">(C)</span> en la bandeja, el cable del motor y el cable ⑦ al control.</p><p>Diagrama de conexión: con el escritorio patas arriba, pega los amarres <span class="cod">(C)</span> en la bandeja, entre el motor y el control, conecta el cable del motor al control y después el cable de alimentación ⑦.</p></article>
       </div>
     </div>
     <nav class="anim-barra" aria-label="Pasos del armado">
@@ -936,16 +936,22 @@ window.zoomSolidWorks = function (o) {
   const Q_V = new THREE.Quaternion().setFromAxisAngle(V(1, 0, 0), Math.PI);          // el escritorio patas arriba
   const Q_ACOST = new THREE.Quaternion().setFromAxisAngle(V(0, 0, 1), Math.PI / 2);  // patas y tornillos acostados
   const Q_CABLE = new THREE.Quaternion().setFromAxisAngle(V(1, 0, 0), Math.PI / 2);  // el cable ⑦ acostado
+  // la pata con motor acostada con el motor hacia arriba (Jon, 22-nov, obs. 1: «cuando se muestra la primera pieza
+  // voltéala»): con Q_ACOST el motor, que va del lado de adentro de la columna, quedaba contra el piso y no se veía
+  const Q_ACOST_MOTOR = new THREE.Quaternion().setFromAxisAngle(V(1, 0, 0), Math.PI).multiply(Q_ACOST);
   const esLlave = function (u) { return u.tipo === "D" || u.tipo === "E"; };
   // dónde queda cada pieza en el piso (x, z en metros; el escritorio armado va en el centro, el frente hacia +z). La
-  // bandeja espera al centro, boca arriba, donde se arma
-  const SITIO = { p4: [0, 0], p2: [-0.42, 0.78], p1: [0.42, 0.78], p3b: [-1.05, 0.05], p3a: [1.05, 0.05], p5: [-0.12, 0.52],
+  // bandeja espera al centro, boca arriba, donde se arma. Los dos pies ③ van juntos, a la izquierda (Jon, 22-nov, obs. 2:
+  // uno a cada lado de la bandeja hacía que la parada «③ Pie ×2» se viera desde muy lejos)
+  const SITIO = { p4: [0, 0], p2: [-0.42, 0.78], p1: [0.42, 0.78], p3b: [-1.1, 0.05], p3a: [-0.98, 0.05], p5: [-0.12, 0.52],
     p6: [0.62, 0.6], p7: [1.12, 0.62], D: [-0.5, 1.12], E: [0.5, 1.12] };
   function sitioEnPiso(u) {
     const n = u.nombre, k = Number((n.match(/(\d+)$/) || [0, 1])[1]);
     if (SITIO[n]) return SITIO[n];
-    if (u.tipo === "A") return [-0.32 + 0.045 * (k - 1), 1.0];
-    if (u.tipo === "B") return [0.0 + 0.04 * (k - 1), 1.0];
+    // los tornillos acostados uno al lado del otro, paralelos y con aire entre cabezas (Jon, 22-nov, obs. 3: en fila,
+    // punta con cabeza, quedaban pegados y el último Ⓐ se metía en el primer Ⓑ)
+    if (u.tipo === "A") return [-0.26, 0.93 + 0.024 * (k - 1)];
+    if (u.tipo === "B") return [0.02, 0.93 + 0.024 * (k - 1)];
     if (u.tipo === "C") return [-0.18 + 0.1 * (k - 1), 1.14];
     return [0, 1.3];
   }
@@ -1058,6 +1064,7 @@ window.zoomSolidWorks = function (o) {
     const porNombre = {};
     raiz.children.slice().forEach(function (o) {
       if (!o.isMesh) return;
+      if (o.name === "k1" || o.name === "k1c") { CABLE_M[o.name] = o; return; }
       const base = o.name.replace(/_.*/, ""), t = tipoDe(base);
       if (!t) return;
       if (porNombre[base]) { porNombre[base].objs.push(o); return; }
@@ -1069,7 +1076,7 @@ window.zoomSolidWorks = function (o) {
       if (ex.cabeza) { u.cabeza = V(ex.cabeza[0], ex.cabeza[1], ex.cabeza[2]); u.dirCana = V(ex.dir_cana[0], ex.dir_cana[1], ex.dir_cana[2]); u.conLlave = !!ex.llave; }
       // la etiqueta de un tornillo va pegada a su cabeza (4 mm afuera): el centro queda dentro del agujero y se taparía
       if (ex.cabeza) u.ancla = u.cabeza.clone().addScaledVector(u.dirCana, -0.004);
-      u.qPiso = (t === "①" || t === "②" || t === "A" || t === "B") ? Q_ACOST : t === "⑦" ? Q_CABLE : t === "C" ? Q_V : QI;
+      u.qPiso = t === "①" ? Q_ACOST_MOTOR : (t === "②" || t === "A" || t === "B") ? Q_ACOST : t === "⑦" ? Q_CABLE : t === "C" ? Q_V : QI;
       unidades.push(u);
     });
     // la barra ⑤ son dos unidades (tubo con su perilla y la varilla que corre adentro): las dos del mismo tipo
@@ -1112,6 +1119,118 @@ window.zoomSolidWorks = function (o) {
       PATA1[g] = V(0, 0.0005 - ymin, -0.85);
     });
     TOTAL = {}; Object.keys(ETQ).forEach(function (k) { TOTAL[k] = ETQ[k].f; });
+    prepararCableMotor();
+  }
+  /* ---------- el cable del motor (Jon, 22-nov, obs. 7: «en el paso 4 veo dos cables en el manual pero en la animación
+     solo 1»). El STL no lo trae: glb_vidrio.py lo dibuja como un tubo por su camino (extras.ruta, escritorio derecho) y
+     su conector aparte. En el paso 4 se tiende desde el motor: el conector recorre el camino y el cable crece detrás de
+     él hasta que el conector entra en el control. No es una unidad (no tiene número ni etiqueta en el manual): no se
+     revisa en la de choques de la página; su holgura la mide glb_vidrio.py contra las piezas armadas ---------- */
+  let CABLE_M = {}, RUTA_M = null;
+  function prepararCableMotor() {
+    const k1 = CABLE_M.k1, kc = CABLE_M.k1c;
+    if (!k1 || !kc) return;
+    const ruta = (k1.userData.ruta || []).map(function (p) { return V(p[0], p[1], p[2]); });
+    const largo = [0];
+    for (let i = 1; i < ruta.length; i++) largo.push(largo[i - 1] + ruta[i].distanceTo(ruta[i - 1]));
+    // los triángulos del tubo, ordenados por el punto del camino más cercano a su centro: así «tender» es dibujar solo
+    // los primeros (aunque el exportador los haya reordenado)
+    const g = k1.geometry, pos = g.attributes.position, idx = g.index, n = idx.count / 3, tri = [];
+    const a = V(0, 0, 0), b = V(0, 0, 0), c = V(0, 0, 0);
+    for (let k = 0; k < n; k++) {
+      a.fromBufferAttribute(pos, idx.getX(3 * k)); b.fromBufferAttribute(pos, idx.getX(3 * k + 1)); c.fromBufferAttribute(pos, idx.getX(3 * k + 2));
+      const m = a.clone().add(b).add(c).multiplyScalar(1 / 3);
+      let mejor = 0, dm = 1e9;
+      for (let i = 0; i < ruta.length; i++) { const d = ruta[i].distanceToSquared(m); if (d < dm) { dm = d; mejor = i; } }
+      tri.push([largo[mejor], idx.getX(3 * k), idx.getX(3 * k + 1), idx.getX(3 * k + 2)]);
+    }
+    tri.sort(function (x, y) { return x[0] - y[0]; });
+    const nuevo = new Uint32Array(3 * n), hasta = new Float32Array(n);
+    tri.forEach(function (x, k) { nuevo[3 * k] = x[1]; nuevo[3 * k + 1] = x[2]; nuevo[3 * k + 2] = x[3]; hasta[k] = x[0]; });
+    g.setIndex(new THREE.BufferAttribute(nuevo, 1));
+    // el conector se lleva por el punto donde termina el cable (el último del camino, dentro de su agarre): ahí queda puesto
+    // cuando llega al final. LARGO_K es su largo (agarre + cuerpo + punta, 47 mm)
+    RUTA_M = { ruta: ruta, largo: largo, total: largo[largo.length - 1], hasta: hasta, base: ruta[ruta.length - 1].clone(), t0: null, t1: null };
+    [k1, kc].forEach(function (o) { o.visible = false; o.castShadow = true; o.raycast = function () {}; });
+  }
+  // el punto del camino a `s` metros del motor (pasado el final, sigue derecho por la última tangente)
+  const LARGO_K = 0.047, SALE_K = 0.018;
+  function puntoRuta(R, s) {
+    const n = R.ruta.length;
+    if (s >= R.total) return R.ruta[n - 1].clone().add(R.ruta[n - 1].clone().sub(R.ruta[n - 2]).normalize().multiplyScalar(s - R.total));
+    let i = 1; while (i < n - 1 && R.largo[i] < s) i++;
+    const w = (s - R.largo[i - 1]) / Math.max(1e-9, R.largo[i] - R.largo[i - 1]);
+    return R.ruta[i - 1].clone().lerp(R.ruta[i], Math.min(1, Math.max(0, w)));
+  }
+  // la pose del conector cuando la punta del cable va a `s` metros del motor: su eje (+y del escritorio derecho) va de
+  // ese punto al que está LARGO_K más adelante en el camino, como un vagón sobre su riel (por la tangente, en las curvas
+  // se salía del camino y antes de subir al control lo atravesaba). Arranca a SALE_K, ya fuera de la tapa del motor
+  function cableMotorEn(k, tt) {
+    const k1 = CABLE_M.k1, kc = CABLE_M.k1c, R = RUTA_M;
+    if (!R) return;
+    if (k !== 4 || R.t0 === null || tt < R.t0) { k1.visible = kc.visible = false; return; }
+    const f = suave(Math.min(1, (tt - R.t0) / (R.t1 - R.t0))), s = SALE_K + f * (R.total - SALE_K);
+    const p = puntoRuta(R, s);
+    const tg = puntoRuta(R, s + LARGO_K).sub(p).normalize();
+    const rq = new THREE.Quaternion().setFromUnitVectors(V(0, 1, 0), tg);
+    kc.quaternion.copy(Q_V).multiply(rq);
+    kc.position.copy(p.clone().sub(R.base.clone().applyQuaternion(rq)).applyQuaternion(Q_V).add(VOL));
+    k1.quaternion.copy(Q_V); k1.position.copy(VOL);
+    let cuantos = 0; while (cuantos < R.hasta.length && R.hasta[cuantos] <= s + 1e-6) cuantos++;
+    k1.geometry.setDrawRange(0, 3 * cuantos);
+    k1.visible = cuantos > 0; kc.visible = true;
+  }
+  /* ---------- la lupa del paso 3 («Antes del acople: Aflojar», «Después del acople: Ajustar», con su flecha de giro):
+     una flecha celeste alrededor de la perilla de ⑤ mientras se afloja y mientras se ajusta, girando hacia el mismo lado
+     que la perilla (Jon, 22-nov, obs. 6: «hay que poner más explícito lo de antes del acople aflojar y después
+     ajustar») ---------- */
+  let FLECHA_T = [];
+  function flechaGiro(centro, sentido) {
+    const R = 0.021, pts = [], th0 = 0.35 * Math.PI, arco = 1.45 * Math.PI;
+    for (let i = 0; i <= 40; i++) { const th = th0 + sentido * arco * i / 40; pts.push(V(0, R * Math.cos(th), R * Math.sin(th))); }
+    const mat = new THREE.MeshBasicMaterial({ color: NEON_CELESTE, fog: false });
+    const g = new THREE.Group();
+    g.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 40, 0.0022, 8, false), mat));
+    const thf = th0 + sentido * arco, tg = V(0, -Math.sin(thf), Math.cos(thf)).multiplyScalar(sentido);
+    const punta = new THREE.Mesh(new THREE.ConeGeometry(0.0058, 0.012, 16), mat);
+    punta.quaternion.setFromUnitVectors(V(0, 1, 0), tg);
+    punta.position.copy(pts[pts.length - 1]).addScaledVector(tg, 0.0045);
+    g.add(punta);
+    g.position.copy(centro); g.visible = false;
+    g.traverse(function (o) { o.raycast = function () {}; });
+    escena.add(g);
+    return g;
+  }
+  // para pruebas/obs_jon_22nov.mjs: qué tan a la vista queda una pieza (rayos desde la cámara a sus vértices: la parte
+  // que llega sin tocar otra cosa; las llaves no tapan) y dónde están las cosas
+  window.__vidrio = {
+    aLaVista: function (nombre) {
+      const u = unidades.find(function (x) { return x.nombre === nombre; }), o = u ? u.objs[0] : CABLE_M[nombre];
+      if (!o || !o.visible) return 0;
+      const mallas = []; unidades.forEach(function (x) { if (!esLlave(x)) x.objs.forEach(function (m) { mallas.push(m); }); });
+      if (o.parent === null) return 0;
+      o.updateMatrixWorld(true);
+      const pos = o.geometry.attributes.position, p = V(0, 0, 0), ray = new THREE.Raycaster(); let si = 0, n = 0;
+      const rc = o.raycast; o.raycast = THREE.Mesh.prototype.raycast; if (mallas.indexOf(o) < 0) mallas.push(o);
+      for (let i = 0; i < pos.count; i += Math.max(1, Math.floor(pos.count / 60))) {
+        p.fromBufferAttribute(pos, i).applyMatrix4(o.matrixWorld);
+        const d = p.clone().sub(camara.position), L = d.length(); ray.set(camara.position, d.normalize()); ray.far = L + 0.001;
+        const h = ray.intersectObjects(mallas, false)[0]; n++;
+        if (!h || h.object === o || h.distance > L - 0.0015) si++;
+      }
+      o.raycast = rc;
+      return si / n;
+    },
+    piso: function () { return unidades.map(function (u) { return { n: u.nombre, c: [u.cPiso.x, u.cPiso.y, u.cPiso.z] }; }); },
+    camara: function () { return { d: camara.position.distanceTo(controles.target), c: camara.position.toArray(), m: controles.target.toArray() }; },
+    motorArriba: function () { const u = uni("p1"); const m = cajaDe(u.objs).getCenter(V(0, 0, 0)); const pm = V(0.58, 0.59, 0).sub(u.piv).applyQuaternion(u.qPiso).add(u.cPiso); return { motorY: pm.y, centroY: u.cPiso.y, pisoMin: 0 }; },
+    cable: function () { const R = RUTA_M; return R ? { vis: CABLE_M.k1.visible, con: CABLE_M.k1c.visible, dibujados: CABLE_M.k1.geometry.drawRange.count, total: CABLE_M.k1.geometry.index.count, t0: R.t0, t1: R.t1 } : null; },
+    flechas: function () { return FLECHA_T.map(function (f) { return { t0: f.t0, t1: f.t1, vis: f.g.visible }; }); },
+    // deja quieto el paso donde está (para medir y fotografiar sin que el tiempo corra entre una cosa y otra)
+    pausar: function () { enMarcha = false; }
+  };
+  function flechasEn(k, tt) {
+    FLECHA_T.forEach(function (f) { f.g.visible = k === 3 && tt >= f.t0 && tt <= f.t1; });
   }
   const ENC5 = 0.07;   // m: lo que la varilla de ⑤ va encogida en el tubo antes del acople
   function uni(nombre) { return unidades.find(function (u) { return u.nombre === nombre || u.tipo === nombre; }); }
@@ -1154,6 +1273,7 @@ window.zoomSolidWorks = function (o) {
       });
     }
     if (SUBPASOS[k]) pintarSubpaso(k, tt); else subVisto = null;
+    cableMotorEn(k, tt); flechasEn(k, tt);
   }
   function paradaActual() {
     if (paso !== 0 || !TOUR.length) return null;
@@ -1310,7 +1430,13 @@ window.zoomSolidWorks = function (o) {
   // pares que se revisan malla contra malla aunque se toquen armados. Ninguno: las barras ⑤ y ⑥ entran en agujeros
   // ajustados del STL (la punta de ⑥ en el motor, el tubo de ⑤ en el acople, la varilla en la pata) y malla contra
   // malla el ajuste mismo cuenta como choque (19-nov: p1|p6, p5|p6, p2|p5b). Se revisan por cajas, como lo demás
+  // Los Ⓑ contra la placa del soporte de su pata sí van malla contra malla (Jon, 22-nov, obs. 5): sus cajas se tocan
+  // armados y, descontados, la revisión no vio que la cabeza atravesaba la placa. Lo mismo los Ⓐ contra su pie y su pata
   const FINOS = [];
+  [1, 2, 3, 4, 5, 6, 7, 8].forEach(function (k) {
+    FINOS.push(["B" + k, k <= 4 ? "p2" : "p1"].sort().join("|"));
+    FINOS.push(["A" + k, k <= 4 ? "p3b" : "p3a"].sort().join("|"), ["A" + k, k <= 4 ? "p2" : "p1"].sort().join("|"));
+  });
   function esFino(par) { const n = par.split("|").sort().join("|"); return FINOS.indexOf(n) >= 0; }
   function trisMundo(o) {
     o.updateMatrixWorld(true);
@@ -1431,12 +1557,14 @@ window.zoomSolidWorks = function (o) {
     const f = w[w.length - 1];
     return { q: f.q.clone(), c: f.c.clone() };
   }
-  // u viaja pegado al recorrido de su padre (desde t0 hasta t1 del padre), como un solo cuerpo: un punto cada 1/30 s
+  // u viaja pegado al recorrido de su padre (desde t0 hasta t1 del padre), como un solo cuerpo: un punto cada 1/120 s
+  // (con uno cada 1/30 s, entre punto y punto el hijo se corría del padre lo bastante para que la revisión malla contra
+  // malla viera a los Ⓐ meterse en su pata mientras la pata viaja; 22-nov)
   function seguir(u, padre, ini, t0, t1) {
     t0 = t0 === undefined ? padre.t0 : t0; t1 = t1 === undefined ? padre.t1 : t1;
     const P0 = poseEn(padre, t0), qi = P0.q.clone().invert();
     const qRel = qi.clone().multiply(ini.q), cRel = ini.c.clone().sub(P0.c).applyQuaternion(qi);
-    const pts = [], n = Math.max(1, Math.ceil((t1 - t0) * 30));
+    const pts = [], n = Math.max(1, Math.ceil((t1 - t0) * 120));
     for (let i = 1; i <= n; i++) {
       const P = poseEn(padre, t0 + (t1 - t0) * i / n);
       pts.push({ c: cRel.clone().applyQuaternion(P.q).add(P.c), q: P.q.clone().multiply(qRel), d: (t1 - t0) / n, ease: lineal });
@@ -1587,14 +1715,20 @@ window.zoomSolidWorks = function (o) {
     llaveAlPiso(L2, tt2, HB);
     r2.unshift(recLlave(L2));
     const g2 = ENCAJES.filter(function (e) { return e.paso === 2; });
+    const b1 = bocaEn(Bizq[0], volteado(Bizq[0])), b6 = bocaEn(Bder[1], volteado(Bder[1]));
     const vb = volteado(p4).c;
     const p2d = {
       recs: r2,
       tomas: [{ at: 0, mira: V(0, 0.3, 0), dir: V(0.3, 0.6, 1), r: 0.95 },
         { at: 3.7, mira: V(0, 0.35, -0.3), dir: V(0.25, 0.65, 1), r: 1.0 },
-        { at: g2[0].t0 - 0.5, mira: bocaEn(Bizq[0], volteado(Bizq[0])), dir: V(-0.45, 0.7, 0.95), r: 0.15 },
+        // el primer Ⓑ se mira desde su lado de la columna (Jon, 22-nov, obs. 5: «el primer tornillo no se ve cuando se
+        // atornilla»): patas arriba B1 queda en z < 0 y la cámara lo miraba desde z > 0, con la columna en medio
+        { at: g2[0].t0 - 0.5, mira: b1, dir: V(-0.45, 0.75, 0.95 * Math.sign(b1.z)), r: 0.17 },
         { at: g2[0].t1 + 0.1, mira: V(-0.6, 0.15, 0), dir: V(0.5, 0.9, 0.8), r: 0.3 },
         { at: g2[4].t0 - 0.5, mira: V(0.6, 0.15, 0), dir: V(-0.5, 0.9, 0.8), r: 0.3 },
+        // B6 (afuera, z < 0 patas arriba) queda detrás de la columna mirado desde z > 0: se mira desde su lado
+        { at: g2[5].t0 - 0.4, mira: b6, dir: V(0.45, 0.75, 0.95 * Math.sign(b6.z)), r: 0.17 },
+        { at: g2[6].t0 - 0.4, mira: V(0.6, 0.15, 0), dir: V(-0.5, 0.9, 0.8), r: 0.3 },
         { at: L2.t - 1.0, mira: V(vb.x, 0.3, vb.z), dir: V(0.3, 0.7, 1), r: 0.95 }]
     };
     etiquetasDelPaso(p2d, 2); P.push(p2d);
@@ -1651,7 +1785,9 @@ window.zoomSolidWorks = function (o) {
     const ptsR = rT.way.slice(1).map(function (w, i) { return { c: preR(w), q: w.q, d: w.t - rT.way[i].t }; });
     // la lupa del paso 3: «Antes del acople: Aflojar» y «Después del acople: Ajustar», con flecha de giro: la perilla
     // de ⑤ se afloja (una vuelta), la barra se estira y la perilla se ajusta (una vuelta al otro lado)
-    const tPuesta = rT.t1, tAfloja = tPuesta + 0.3, tEstira = tAfloja + 1.4, tAjusta = tEstira + 2.3;
+    // la perilla gira despacio (2 s por vuelta) con su flecha, para que se vea qué se hace antes y qué después
+    const GIRO_K = 2.0;
+    const tPuesta = rT.t1, tAfloja = tPuesta + 0.3, tEstira = tAfloja + GIRO_K + 0.4, tAjusta = tEstira + 2.3;
     rT.way.push({ q: Q_V, c: preT.c.clone(), t: tEstira, giro: 0, ease: suave });
     rT.way.push({ q: Q_V, c: FT.c.clone(), t: tEstira + 2.0, giro: 0, ease: lineal }); rT.t1 = tEstira + 2.0;
     ptsR.push({ c: ptsR[ptsR.length - 1].c, q: Q_V, d: tEstira - tPuesta });
@@ -1661,19 +1797,23 @@ window.zoomSolidWorks = function (o) {
     const ptsK = rT.way.slice(1, 4).map(function (w, i) { return { c: w.c.clone().add(relK.clone().applyQuaternion(w.q)), q: w.q, d: w.t - rT.way[i].t }; });
     const preK = FK.c.clone().add(V(-DT, 0, 0));
     ptsK.push({ c: preK, q: Q_V, d: tAfloja - tPuesta });
-    ptsK.push({ c: preK, q: Q_V, d: 1.2, giro: 1, ease: lineal });              // aflojar
-    ptsK.push({ c: preK, q: Q_V, d: tEstira - tAfloja - 1.2 });
+    ptsK.push({ c: preK, q: Q_V, d: GIRO_K, giro: 1, ease: lineal });           // aflojar
+    ptsK.push({ c: preK, q: Q_V, d: tEstira - tAfloja - GIRO_K });
     ptsK.push({ c: FK.c, q: Q_V, d: 2.0, ease: lineal });                        // con el tubo, hasta el acople
     ptsK.push({ c: FK.c, q: Q_V, d: tAjusta - tEstira - 2.0 });
-    ptsK.push({ c: FK.c, q: Q_V, d: 1.2, giro: -1, ease: lineal });             // ajustar
+    ptsK.push({ c: FK.c, q: Q_V, d: GIRO_K, giro: -1, ease: lineal });          // ajustar
     r3.push(recorrido(K5, tT, enPiso(K5), ptsK));
+    // las flechas de la lupa: la perilla gira (en evaluar) −giro·2π sobre su eje, que patas arriba sigue siendo +x
+    FLECHA_T.forEach(function (f) { escena.remove(f.g); });
+    FLECHA_T = [{ g: flechaGiro(preK, -1), t0: tAfloja - 0.5, t1: tAfloja + GIRO_K + 0.3 },
+      { g: flechaGiro(FK.c, 1), t0: tAjusta - 0.5, t1: tAjusta + GIRO_K + 0.6 }];
     giraD(-0.652 + 0.002, -1, tEstira, 2.0, "p2");
-    llaveAlPiso(LD, Math.max(LD.t, tAjusta + 1.2), 0.55);
+    llaveAlPiso(LD, Math.max(LD.t, tAjusta + GIRO_K + 0.6), 0.55);
     r3.unshift(recLlave(LD));
     SUBPASOS[3] = [{ t0: 0, n: "3.1", corto: "La barra ⑥", txt: "Mete la barra ⑥ hasta el fondo en la pata con motor, girando suavemente la llave Ⓓ." },
-      { t0: tT - 0.2, n: "3.2", corto: "Aflojar", txt: "Pon la barra ⑤. Antes del acople: afloja la perilla de ⑤." },
+      { t0: tT - 0.2, n: "3.2", corto: "Antes del acople: aflojar", txt: "Pon la barra ⑤. <b>Antes del acople, afloja</b> la perilla de ⑤: gírala como indica la flecha, para que la barra se pueda estirar." },
       { t0: tEstira - 0.1, n: "3.3", corto: "La barra ⑤", txt: "Estira ⑤ hasta el fondo, una punta en la pata y la otra en ⑥, girando suavemente Ⓓ hasta que encaje." },
-      { t0: tAjusta - 0.1, n: "3.4", corto: "Ajustar", txt: "Después del acople: ajusta la perilla de ⑤." }];
+      { t0: tAjusta - 0.6, n: "3.4", corto: "Después del acople: ajustar", txt: "<b>Después del acople, ajusta</b> la perilla de ⑤: gírala al otro lado, como indica la flecha, hasta que quede firme." }];
     const xK = FK.c.x;
     const p3d = {
       recs: r3,
@@ -1701,7 +1841,11 @@ window.zoomSolidWorks = function (o) {
     // ⑦: llega acostado por delante, se para encima del control y baja: el conector entra 6 mm en la cara de abajo del
     // control y el cable y el adaptador quedan apoyados en el piso
     const p7 = uni("p7"), F7 = volteado(p7), sobre7 = F7.c.clone().add(V(0, 0.06, 0));
-    const t7 = tC + 0.4;
+    // el cable del motor: el conector sale de la tapa del motor, recorre el camino (el cable crece detrás) y entra en la
+    // cara de abajo del control; se queda quieto ESPERA_K con la cámara cerca
+    const tK0 = tC + 0.3, DUR_K = 5.0, ESPERA_K = 1.0;
+    if (RUTA_M) { RUTA_M.t0 = tK0; RUTA_M.t1 = tK0 + DUR_K; }
+    const t7 = tK0 + DUR_K + ESPERA_K + 0.3;
     // por encima de las patas (llegan a 69 cm), no por entre ellas. El conector termina de entrar con la cámara cerca, se
     // queda puesto ESPERA_7 y recién ahí la cámara se aleja (Jon, 19-nov, #582, con el tapón de la V40: «hay que tenerlo
     // ahí, que se ponga el tapón, y ahí sí nos alejamos»); antes la cámara se alejaba 0,6 s antes de que entrara
@@ -1711,7 +1855,8 @@ window.zoomSolidWorks = function (o) {
       { c: F7.c, q: F7.q, d: ESPERA_7 }]));
     const fin7 = t7 + 4.2;                            // cuando ⑦ termina de entrar; las tomas de abajo salen de ahí
     SUBPASOS[4] = [{ t0: 0, n: "4.1", corto: "Amarres Ⓒ", txt: "Con el escritorio patas arriba, pega los 4 amarres Ⓒ en la bandeja, entre el motor y el control." },
-      { t0: t7 - 0.2, n: "4.2", corto: "Cable ⑦", txt: "Conecta el cable de alimentación ⑦ al control, por su cara de abajo." }];
+      { t0: tK0 - 0.2, n: "4.2", corto: "Cable del motor", txt: "Lleva el cable del motor de la pata ① hasta el control y conéctalo por su cara de abajo." },
+      { t0: t7 - 0.2, n: "4.3", corto: "Cable ⑦", txt: "Conecta el cable de alimentación ⑦ al control, por su cara de abajo, al lado del cable del motor." }];
     // el final: el escritorio armado, patas arriba como en el manual, al centro
     const esc = caja(unidades.filter(function (u) { return !esLlave(u); }), function (u) { return volteado(u); });
     const centro = esc.getCenter(V(0, 0, 0)), radio = esc.getSize(V(0, 0, 0)).length() * 0.36;
@@ -1721,6 +1866,8 @@ window.zoomSolidWorks = function (o) {
     const p4d = {
       recs: r4,
       tomas: [{ at: 0, mira: V(0.46, 0.06, 0.0), dir: V(0.3, 0.85, 0.8), r: 0.36 },
+        { at: tK0 - 0.3, mira: V(0.54, VOL.y - 0.6, -0.15), dir: V(0.6, 0.9, -0.9), r: 0.14 },
+        { at: tK0 + DUR_K - 1.4, mira: V(0.50, VOL.y - 0.63, -0.29), dir: V(0.35, 0.8, -0.75), r: 0.2 },
         { at: t7 - 0.2, mira: V(0.54, 0.08, c7.z - 0.05), dir: V(0.45, 0.8, -0.75), r: 0.3 },
         { at: fin7 + 0.6, mira: FINAL.mira, dir: FINAL.dir, r: FINAL.r }]
     };
