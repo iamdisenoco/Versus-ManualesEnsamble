@@ -1734,7 +1734,12 @@ window.zoomSolidWorks = function (o) {
     const K4 = porTipo.K.filter(function (u) { return u.paso === 4; }).sort(porNumero);
     const K5 = porTipo.K.filter(function (u) { return u.paso === 5; }).sort(porNumero);
     Ms.forEach(function (u, i) { r4.push(desdeArriba(u, 0.3 + 0.75 * i, ALTO_B, u.banco, 0.1, [0.45, 0.6, 0.4])); });
-    const tD = 0.3 + 0.75 * Ms.length + 0.3;
+    // la última arandela M termina de entrar con la cámara cerca, se queda puesta ESPERA_M y recién ahí la cámara se aleja y
+    // baja el mecanismo (Jon, 19-nov, #582, con el tapón de la V40: «hay que tenerlo ahí, que se ponga el tapón, y ahí sí
+    // nos alejamos»). Antes la cámara se alejaba justo cuando esa M terminaba de entrar y D ya venía en camino
+    const ESPERA_M = 1.2, ultM = r4[r4.length - 1], mFin = ultM.t1;   // mFin: cuándo termina de entrar la última M
+    alargar(ultM, [{ c: Ms[Ms.length - 1].banco.c, q: Q_VOLTEO, d: ESPERA_M }], mFin);
+    const tD = mFin + 0.2;
     r4.push(recorrido(Dm, tD, enPiso(Dm), [{ c: V(Dm.cPiso.x, 1.15, Dm.cPiso.z), q: QI, d: 0.8 },
       { c: V(Dm.banco.c.x, 1.15, Dm.banco.c.z), q: Q_VOLTEO, d: 1.3 }, { c: Dm.banco.c.clone().add(V(0, 0.12, 0)), q: Q_VOLTEO, d: 0.7 },
       { c: Dm.banco.c, q: Q_VOLTEO, d: 0.8 }]));
@@ -1750,7 +1755,7 @@ window.zoomSolidWorks = function (o) {
     P.push({
       recs: r4,
       tomas: [{ at: 0, mira: cM, dir: V(0.3, 1, 0.5), r: 0.5 },
-        { at: tD + 0.4, mira: V(cM.x, cM.y + 0.1, cM.z), dir: V(0.45, 0.85, 0.75), r: 0.7 },
+        { at: mFin + 0.6, mira: V(cM.x, cM.y + 0.1, cM.z), dir: V(0.45, 0.85, 0.75), r: 0.7 },
         { at: g4[0].t0 - 0.5, mira: bocaEn(K4[0], K4[0].banco), dir: V(0.45, 0.95, 0.6), r: 0.22 },
         { at: g4[0].t1 + 0.1, mira: cM, dir: V(0.4, 1, 0.6), r: 0.55 },
         { at: L4.t - 0.5, mira: V(banco.c.x, banco.c.y, banco.c.z), dir: V(0.4, 0.9, 0.8), r: 0.85 }],
@@ -1797,8 +1802,12 @@ window.zoomSolidWorks = function (o) {
       { c: V(A1.cPiso.x, sobreA1.y, A1.cPiso.z), q: QI, d: 1.0 }, { c: V(sobreA1.x, sobreA1.y, sobreA1.z - 0.3), q: QI, d: 1.2 },
       { c: sobreA1, q: QI, d: 0.6 }, { c: enAlto(A1).c, q: QI, d: 1.2 }]));
     const tBaja = tA1 + 5.1;
+    // la silla termina de bajar al pistón con la cámara cerca, se queda puesta ESPERA_6 y la cámara pasa al encuadre del
+    // final mientras tanto (Jon, 19-nov, #582: primero «que se ponga» y después «nos alejamos»)
+    const ESPERA_6 = 1.2;
     const rB6 = moverJuntos(silla, B, enAlto, tBaja, [{ c: B.piv.clone().add(V(0, 0.015, 0)), q: QI, d: 1.6 },
-      { c: B.piv, q: QI, d: 0.3, ease: lineal }], r6);
+      { c: B.piv, q: QI, d: 0.3, ease: lineal }, { c: B.piv, q: QI, d: ESPERA_6, ease: lineal }], r6);
+    const sentada = rB6.t1 - ESPERA_6;   // cuándo termina de entrar la silla
     // al final, la silla armada al centro, de frente en tres cuartos suave y cerca
     const caja = new THREE.Box3();
     unidades.forEach(function (u) { if (u.tipo !== "N") u.objs.forEach(function (o) { o.geometry.computeBoundingBox(); caja.union(o.geometry.boundingBox); }); });
@@ -1810,8 +1819,8 @@ window.zoomSolidWorks = function (o) {
       tomas: [{ at: 0, mira: V(banco.c.x / 2, 0.7, 0), dir: V(0.3, 0.45, 1), r: 1.3 },
         { at: tA1 + 0.2, mira: V(-0.45, 1.15, -0.1), dir: V(0.45, 0.3, 1), r: 1.15 },
         { at: tA1 + 3.4, mira: V(0, 1.45, -0.15), dir: V(0.6, 0.3, 0.85), r: 1.25 },
-        { at: rB6.t1 - 1.6, mira: V(0, 0.75, 0), dir: V(0.5, 0.3, 0.9), r: 1.0 },
-        { at: rB6.t1 + 0.3, mira: FINAL.mira, dir: FINAL.dir, r: FINAL.r }],
+        { at: sentada - 1.6, mira: V(0, 0.75, 0), dir: V(0.5, 0.3, 0.9), r: 1.0 },
+        { at: sentada + 0.6, mira: FINAL.mira, dir: FINAL.dir, r: FINAL.r }],
       get etiq() { return etiqMovil(6, ["A"], r6); }   // la silla que baja entera no lleva etiqueta de una pieza
     });
     P.forEach(function (p) { p.dur = Math.max.apply(null, p.recs.map(function (r) { return r.t1; })) + 0.3; });
