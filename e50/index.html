@@ -930,10 +930,16 @@ window.zoomSolidWorks = function (o) {
   const Q_PATAS = new THREE.Quaternion().setFromAxisAngle(V(1, 0, 0), Math.PI);   // la base patas arriba
   const Q_ESPALDA = new THREE.Quaternion().setFromAxisAngle(V(1, 0, 0), -Math.PI / 2);   // el espaldar acostado, cara arriba
   const Q_ACOSTADO = new THREE.Quaternion().setFromAxisAngle(V(0, 0, 1), Math.PI / 2);   // pistón, reposabrazos y tornillos acostados
+  // el eje G y su tornillo en el piso, en línea y girados para que la cámara vea la punta del eje con su agujero roscado
+  // y el tornillo apuntándole (Jon, 22-nov: «se debe ver la rosca del pasador para que se vea que el tornillo pequeño
+  // entra ahí»). Armados, la punta del agujero mira a −x y el tornillo entra por +x; girados ANG_G alrededor de y, la
+  // punta mira hacia la cámara del recorrido, de tres cuartos
+  const ANG_G = 2.68, Q_G = new THREE.Quaternion().setFromAxisAngle(V(0, 1, 0), ANG_G);
+  const DIR_G = [-Math.cos(ANG_G), Math.sin(ANG_G)];   // hacia dónde mira la punta del agujero en el piso (x, z)
   // dónde queda cada pieza en el piso (x, z en metros; la silla armada va en el centro, el frente hacia +z; la base A
   // se queda donde va)
   const SITIO = { D: [1.12, -0.05], E: [-1.12, -0.05], H: [-0.78, 0.82], F1: [0.78, 0.86], F2: [1.12, 0.86], C: [0.5, 0.62],
-    G1: [-0.08, 0.88], G2: [0.02, 0.88], O1: [0.48, 0.98], O2: [0.66, 0.98] };
+    G1: [-0.08, 0.86], G2: [-0.08 + 0.085 * DIR_G[0], 0.86 + 0.085 * DIR_G[1]], O1: [0.48, 0.98], O2: [0.66, 0.98] };
   function sitioEnPiso(u) {
     const n = u.nombre, k = Number((n.match(/(\d+)$/) || [0, 1])[1]);
     if (SITIO[n]) return SITIO[n];
@@ -1075,7 +1081,7 @@ window.zoomSolidWorks = function (o) {
       if (ex.punta) { u.piv = V(ex.punta[0], ex.punta[1], ex.punta[2]); u.ancla = cajaDe(u.objs).getCenter(V(0, 0, 0)); }
       // tornillos que se aprietan con la llave: la boca del hexágono (extras.cabeza) y hacia dónde entra (extras.dir_cana)
       if (ex.cabeza) { u.cabeza = V(ex.cabeza[0], ex.cabeza[1], ex.cabeza[2]); u.dirCana = V(ex.dir_cana[0], ex.dir_cana[1], ex.dir_cana[2]); u.conLlave = !!ex.llave; }
-      u.qPiso = t === "E" ? Q_ESPALDA : (t === "C" || t === "F" || t === "J" || t === "K") ? Q_ACOSTADO : QI;
+      u.qPiso = t === "E" ? Q_ESPALDA : (t === "C" || t === "F" || t === "J" || t === "K") ? Q_ACOSTADO : t === "G" ? Q_G : QI;
       unidades.push(u);
     });
     unidades.forEach(function (u) {
@@ -1478,7 +1484,12 @@ window.zoomSolidWorks = function (o) {
         caja.expandByPoint(u.cPiso.clone().sub(h)); caja.expandByPoint(u.cPiso.clone().add(h));
       });
       const mira = caja.getCenter(V(0, 0, 0)), r = Math.max(0.07, caja.getSize(V(0, 0, 0)).length() * 0.5);
-      tomas0.push({ at: t0, mira: mira, dir: V(0.35, 0.95, 0.8), r: r });
+      if (l === "G") {
+        // el eje G: la cámara se acerca a la punta del tubo con su rosca, de frente y un poco de lado, con el tornillo
+        // al lado apuntándole (Jon, 22-nov)
+        const g1 = uni("G1"), g2 = uni("G2"), punta = g1.cPiso.clone().add(V(DIR_G[0] * 0.035, 0.01, DIR_G[1] * 0.035));
+        tomas0.push({ at: t0, mira: punta.lerp(g2.cPiso, 0.35), dir: V(DIR_G[0] + 0.5 * DIR_G[1], 0.9, DIR_G[1] - 0.5 * DIR_G[0]), r: 0.06 });
+      } else tomas0.push({ at: t0, mira: mira, dir: V(0.35, 0.95, 0.8), r: r });
       TOUR.push({ letra: l, t0: t0 + 0.3, t1: t0 + 2.5 });
       t0 += 2.5;
     });
