@@ -1611,17 +1611,24 @@ window.zoomSolidWorks = function (o) {
     });
 
     // 3 · (dibujo 03) las 5 ruedas A entran derechas, de arriba hacia abajo, en las puntas de las patas (base boca abajo)
-    const r3 = [], As = porTipo.A, CADA = 1.5, EMPUJE = 0.015;
+    // la primera rueda entra con la cámara cerca (se ve que baja derecha, como pide el aviso del dibujo), se queda puesta
+    // ESPERA_A y recién ahí la cámara se aleja y entran las otras cuatro (Jon, 19-nov, #582: «hay que tenerlo ahí, que se
+    // ponga el tapón, y ahí sí nos alejamos»)
+    const r3 = [], As = porTipo.A, CADA = 1.5, EMPUJE = 0.015, ESPERA_A = 1.2, T_RUEDA = 0.5 + 0.6 + 0.5 + 0.25;
     RUEDAS = [];
+    const tA1 = 0.4, tSale3 = tA1 + T_RUEDA + ESPERA_A;       // cuándo se aleja la cámara; las otras ruedas arrancan 0,3 s después
     As.forEach(function (u, i) {
-      const F = u.volteada, ti = 0.4 + CADA * i, arriba = F.c.clone().add(V(0, 0.12, 0));
+      const F = u.volteada, ti = i === 0 ? tA1 : tSale3 + 0.3 + CADA * (i - 1), arriba = F.c.clone().add(V(0, 0.12, 0));
       r3.push(recorrido(u, ti, enPiso(u), [{ c: V(u.cPiso.x, F.c.y + 0.12, u.cPiso.z), q: Q_PATAS, d: 0.5 }, { c: arriba, q: Q_PATAS, d: 0.6 },
         { c: F.c.clone().add(V(0, EMPUJE, 0)), q: Q_PATAS, d: 0.5 }, { c: F.c, q: Q_PATAS, d: 0.25, ease: lineal }]));
       RUEDAS.push(ti);
     });
+    // la cámara de la primera rueda mira desde adentro de la base hacia la punta de su pata
+    const F1 = As[0].volteada, haciaFuera = F1.c.clone().sub(cV); haciaFuera.y = 0; haciaFuera.normalize();
     P.push({
       recs: r3,
-      tomas: [{ at: 0, mira: V(-0.05, 0.12, 0.15), dir: V(0.4, 0.85, 0.85), r: 0.62 }],
+      tomas: [{ at: 0, mira: F1.c.clone().add(V(0, 0.03, 0)), dir: haciaFuera.clone().multiplyScalar(-0.7).add(V(0, 0.75, 0)).add(V(haciaFuera.z, 0, -haciaFuera.x).multiplyScalar(0.55)), r: 0.17 },
+        { at: tSale3, mira: V(-0.05, 0.12, 0.15), dir: V(0.4, 0.85, 0.85), r: 0.62 }],
       etiq: ["A", "E"]
     });
 
@@ -1663,14 +1670,18 @@ window.zoomSolidWorks = function (o) {
     // la flecha del manual: la punta del respaldo entra hacia el frente del asiento, siguiendo el mecanismo
     const dirH = V(0, -0.25, 1).normalize().applyQuaternion(banco.q0);
     const preH = H.banco0.c.clone().addScaledVector(dirH, -0.16);
-    r6.push(recorrido(H, 1.2, enPiso(H), [{ c: V(H.cPiso.x, 1.25, H.cPiso.z), q: H.qPiso, d: 1.0 },
-      { c: preH.clone().add(V(0, 0.25, 0)), q: banco.q0, d: 1.4 }, { c: preH, q: banco.q0, d: 0.7 }, { c: H.banco0.c, q: banco.q0, d: 1.1 }]));
+    // la punta del respaldo termina de entrar con la cámara cerca, se queda puesta ESPERA_6 y recién ahí la cámara se aleja
+    const ESPERA_6 = 1.2;
+    const rH6 = recorrido(H, 1.2, enPiso(H), [{ c: V(H.cPiso.x, 1.25, H.cPiso.z), q: H.qPiso, d: 1.0 },
+      { c: preH.clone().add(V(0, 0.25, 0)), q: banco.q0, d: 1.4 }, { c: preH, q: banco.q0, d: 0.7 }, { c: H.banco0.c, q: banco.q0, d: 1.1 },
+      { c: H.banco0.c, q: banco.q0, d: ESPERA_6, ease: lineal }]);
+    r6.push(rH6);
     P.push({
       recs: r6,
       tomas: [{ at: 0, mira: V(G.cPiso.x, 0.35, G.cPiso.z), dir: V(-0.6, 0.45, 0.9), r: 0.85 },
         { at: 3.3, mira: V(G.banco0.c.x, 0.2, G.banco0.c.z), dir: V(-0.95, 0.22, 0.35), r: 0.62 },
         { at: 4.0, mira: Lpunta, dir: V(-0.55, 0.55, 0.65), r: 0.24 },
-        { at: 5.6, mira: V(G.banco0.c.x, 0.2, G.banco0.c.z), dir: V(-0.95, 0.22, 0.35), r: 0.62 }],
+        { at: rH6.t1, mira: V(G.banco0.c.x, 0.2, G.banco0.c.z), dir: V(-0.95, 0.22, 0.35), r: 0.62 }],
       etiq: ["G", "H"]
     });
 
@@ -1691,12 +1702,14 @@ window.zoomSolidWorks = function (o) {
       etiq: ["L", "D"], cant: { L: "×3" }
     });
 
-    // 8 · (dibujo 08) los reposabrazos I entran en las puntas de la barra del asiento; 4 tornillos M con 4 arandelas N,
-    //     dos por lado, con la llave D. Al ponerlos, el asiento se apoya en sus almohadillas: quien arma lo levanta y
-    //     lo ladea eso mientras arrima el primero.
+    // 8 · (dibujo 08) los dos reposabrazos I entran en las puntas de la barra del asiento (8.1 y 8.2, con el asiento
+    //     sostenido 13 cm arriba); el asiento baja y queda apoyado en sus almohadillas y en el cabecero; después los 4
+    //     tornillos M con 4 arandelas N, dos por lado, con la llave D (8.3 y 8.4). Nada flota (Jon, 12-nov): el asiento solo
+    //     está en el aire mientras entran los reposabrazos (10 s a 13 cm; antes eran 26, mientras entraban también los
+    //     tornillos) y las piezas que lleva no se mueven hasta que baja.
     const r8 = [], grupo = unidades.filter(function (u) { return enBanco(u) && u.paso < 8; });
     // mientras se ponen los reposabrazos, quien arma sostiene el asiento 13 cm arriba (el poste entra a lo largo de su
-    // eje, desde el lado de las almohadillas, y las almohadillas quedan abajo); al final lo baja y queda apoyado en las
+    // eje, desde el lado de las almohadillas, y las almohadillas quedan abajo); luego lo baja y queda apoyado en las
     // almohadillas y en el cabecero
     const ALZA = V(0, 0.13, 0);
     unidades.filter(enBanco).forEach(function (u) { u.bancoA = { q: banco.q, c: u.banco.c.clone().add(ALZA) }; });
@@ -1714,51 +1727,58 @@ window.zoomSolidWorks = function (o) {
       // afuera del asiento: boca abajo, la derecha de quien se sienta queda en +x
       const fuera = Math.sign(F.c.x - G.bancoA.c.x) || 1;
       const lejos = V(pre.x + fuera * 0.25, Math.max(pre.y, G.bancoA.c.y + 0.45), pre.z);
-      sub8.push({ t0: Math.max(0, tt8 - 0.2), n: "8." + (iLado * 2 + 1), corto: "Reposabrazos " + (s < 0 ? "derecho" : "izquierdo"),
+      sub8.push({ t0: Math.max(0, tt8 - 0.2), n: "8." + (iLado + 1), corto: "Reposabrazos " + (s < 0 ? "derecho" : "izquierdo"),
         txt: "Pon el reposabrazos " + (s < 0 ? "derecho" : "izquierdo") + " " + cod("I") + " en la punta de la barra del asiento, como indica la flecha." });
       r8.push(recorrido(u, tt8 + 1.0, enPiso(u), [{ c: V(u.cPiso.x, lejos.y, u.cPiso.z), q: u.qPiso, d: 0.8 }, { c: lejos, q: banco.q, d: 1.2 },
         { c: pre, q: banco.q, d: 0.7 }, { c: F.c, q: banco.q, d: 1.2 }]));
       // la toma: de lado, por afuera del asiento y baja, mirando el pie del poste y la punta de la barra
       TOMA_I.push({ at: tt8 + 2.6, mira: pre.clone().lerp(F.c, 0.6), dir: V(fuera * 0.95, 0.12, 0.3), r: 0.3 });
       tt8 += 5.1;
-      const mios = Ms.filter(function (m) { return Math.sign(m.piv.x) === s; }), nn = Ns.filter(function (m) { return Math.sign(m.piv.x) === s; });
-      sub8.push({ t0: tt8 - 0.2, n: "8." + (iLado * 2 + 2), corto: "Tornillos M y arandelas N",
-        txt: "Fíjalo con 2 tornillos " + cod("M") + " y 2 arandelas " + cod("N") + ". Aprieta con la llave " + cod("D") + "." });
-      nn.forEach(function (w, i) {
-        const Fw = w.bancoA, ew = V(0, 1, 0).applyQuaternion(banco.q);
-        r8.push(recorrido(w, tt8 + 0.3 * i, enPiso(w), [{ c: V(w.cPiso.x, 0.7, w.cPiso.z), q: banco.q, d: 0.5 },
-          { c: Fw.c.clone().addScaledVector(ew, -0.06), q: banco.q, d: 0.7 }, { c: Fw.c, q: banco.q, d: 0.35 }]));
-      });
-      const alto = mios[0].bancoA.c.y + 0.3;
-      tt8 = atornillar(r8, L8, 8, mios, tt8 + 1.6, Object.assign(opArriba(function (m) { return m.bancoA; }, alto, G.bancoA.c), { lento: iLado === 0, ritmo: "veloz" }));
-      llaveAlPiso(L8, tt8, alto);
-      tt8 = L8.t - 0.4;
     });
-    // lo baja: todo lo del banco termina apoyado
-    const tBaja = Math.max.apply(null, r8.map(function (r) { return r.t1; })) + 0.2;
+    // el último reposabrazos se queda puesto ESPERA_8 con la cámara cerca (#582) y recién ahí la cámara se aleja y el asiento
+    // baja, con los dos reposabrazos puestos, hasta apoyarse en sus almohadillas y en el cabecero; todo lo que lleva se queda quieto
+    // hasta ese momento (#916: sin ese punto cada pieza bajaba despacio desde su último punto y se corrían entre sí)
+    const ESPERA_8 = 1.2, BAJA_8 = 1.0;
+    const tBaja = Math.max.apply(null, r8.map(function (r) { return r.t1; })) + ESPERA_8;
     r8.forEach(function (r) {
       if (!enBanco(r.u)) return;
-      // (#916) cada pieza se queda quieta hasta tBaja y ahí bajan todas juntas: sin este punto cada una bajaba despacio
-      // desde su último punto (el asiento desde 1,6 s, cada tornillo desde que quedó puesto) y se corrían entre sí: así
-      // chocaban M1 con N2 y M3 con N4 (la revisión los marcaba; malla contra malla)
-      const w = r.way[r.way.length - 1];
-      if (w.t < tBaja) r.way.push({ q: w.q.clone(), c: w.c.clone(), t: tBaja, giro: 0, ease: lineal });
-      r.way.push({ q: banco.q, c: r.u.banco.c.clone(), t: tBaja + 0.9, giro: 0, ease: suave });
-      r.t1 = tBaja + 0.9;
+      const f = r.way[r.way.length - 1];
+      r.way.push({ q: f.q.clone(), c: f.c.clone(), t: tBaja, giro: 0, ease: lineal });
+      r.way.push({ q: banco.q, c: r.u.banco.c.clone(), t: tBaja + BAJA_8, giro: 0, ease: suave });
+      r.t1 = tBaja + BAJA_8;
+    });
+    // 8.3 y 8.4: con el asiento apoyado, los tornillos M con las arandelas N de cada lado
+    let tS8 = tBaja + BAJA_8 + 0.3;
+    porTipo.I.forEach(function (u, iLado) {
+      const s = Math.sign(u.piv.x);
+      const mios = Ms.filter(function (m) { return Math.sign(m.piv.x) === s; }), nn = Ns.filter(function (m) { return Math.sign(m.piv.x) === s; });
+      sub8.push({ t0: tS8 - 0.2, n: "8." + (iLado + 3), corto: "Tornillos M y arandelas N",
+        txt: "Fija el reposabrazos " + (s < 0 ? "derecho" : "izquierdo") + " " + cod("I") + " con 2 tornillos " + cod("M") + " y 2 arandelas " + cod("N") + ". Aprieta con la llave " + cod("D") + "." });
+      nn.forEach(function (w, i) {
+        const Fw = w.banco, ew = V(0, 1, 0).applyQuaternion(banco.q);
+        r8.push(recorrido(w, tS8 + 0.3 * i, enPiso(w), [{ c: V(w.cPiso.x, 0.7, w.cPiso.z), q: banco.q, d: 0.5 },
+          { c: Fw.c.clone().addScaledVector(ew, -0.06), q: banco.q, d: 0.7 }, { c: Fw.c, q: banco.q, d: 0.35 }]));
+      });
+      const alto = mios[0].banco.c.y + 0.3;
+      tS8 = atornillar(r8, L8, 8, mios, tS8 + 1.6, Object.assign(opArriba(function (m) { return m.banco; }, alto, G.banco.c), { lento: iLado === 0, ritmo: "veloz" }));
+      llaveAlPiso(L8, tS8, alto);
+      tS8 = L8.t - 0.4;
     });
     r8.unshift(recLlave(L8));
     SUBPASOS[8] = sub8;
     const g8 = ENCAJES.filter(function (e) { return e.paso === 8; }), I1 = porTipo.I[0], I2 = porTipo.I[1];
+    // la toma de cada M, de cerca y desde afuera del asiento (#929); el asiento ya está apoyado, en `banco`
     const tomaM = function (m, at) {
-      const fuera = Math.sign(m.bancoA.c.x - G.bancoA.c.x) || 1;
-      return { at: at, mira: m.bancoA.c, dir: V(fuera * 0.66, 0.34, 0.66), r: 0.14 };
+      const fuera = Math.sign(m.banco.c.x - G.banco.c.x) || 1;
+      return { at: at, mira: m.banco.c, dir: V(fuera * 0.66, 0.34, 0.66), r: 0.14 };
     };
     P.push({
       recs: r8,
       tomas: [{ at: 0, mira: G.banco.c, dir: V(-0.6, 0.5, 0.8), r: 0.6 },
         TOMA_I[0],
-        tomaM(Ms.filter(function (m) { return m.piv.x < 0; })[0], g8[0].t0 - 0.4),
         TOMA_I[1],
+        { at: tBaja, mira: V(G.banco.c.x, 0.2, G.banco.c.z), dir: V(-0.95, 0.25, 0.35), r: 0.65 },
+        tomaM(Ms.filter(function (m) { return m.piv.x < 0; })[0], g8[0].t0 - 0.4),
         tomaM(Ms.filter(function (m) { return m.piv.x > 0; })[0], g8[2].t0 - 0.4),
         { at: L8.t - 0.6, mira: V(G.banco.c.x, 0.2, G.banco.c.z), dir: V(-0.95, 0.25, 0.35), r: 0.65 }],
       etiq: ["I", "M", "N", "D"], cant: { M: "×4", N: "×4" }
@@ -1766,9 +1786,11 @@ window.zoomSolidWorks = function (o) {
 
     // 9 · (dibujo 09) el asiento se voltea y baja sobre el pistón F, a presión
     const r9 = [];
+    const ESPERA_9 = 1.2;      // el asiento se queda puesto sobre el pistón y recién ahí la cámara se aleja al encuadre final
     const rG9 = recorrido(G, 0, G.banco, [{ c: V(G.banco.c.x, 1.25, G.banco.c.z), q: banco.q, d: 1.2 },
       { c: V(G.banco.c.x, 1.25, G.banco.c.z), q: QI, d: 1.6 }, { c: G.piv.clone().add(V(0, 0.4, 0)), q: QI, d: 1.6 },
-      { c: G.piv.clone().add(V(0, 0.015, 0)), q: QI, d: 1.0 }, { c: G.piv, q: QI, d: 0.25, ease: lineal }]);
+      { c: G.piv.clone().add(V(0, 0.015, 0)), q: QI, d: 1.0 }, { c: G.piv, q: QI, d: 0.25, ease: lineal },
+      { c: G.piv, q: QI, d: ESPERA_9, ease: lineal }]);
     r9.push(rG9);
     // (#929) el asiento viene boca abajo del dibujo 08 y el 09 lo muestra derecho sobre F, con la flecha hacia abajo: se voltea
     // (los 2,8 s de subir y girar) y baja. El dibujo 09 solo trae la flecha de bajar; el giro es de la diferencia entre el 08 y el 09
@@ -1784,7 +1806,7 @@ window.zoomSolidWorks = function (o) {
       recs: r9,
       tomas: [{ at: 0, mira: V(0.6, 0.55, 0), dir: V(0.3, 0.45, 1), r: 0.95 },
         { at: 4.0, mira: V(0, 0.45, 0), dir: V(0.6, 0.4, 0.85), r: 0.62 },
-        { at: rG9.t1 - 0.2, mira: FINAL.mira, dir: FINAL.dir, r: FINAL.r }],
+        { at: rG9.t1, mira: FINAL.mira, dir: FINAL.dir, r: FINAL.r }],
       etiq: ["G", "F"]
     });
     P.forEach(function (p) { p.dur = Math.max.apply(null, p.recs.map(function (r) { return r.t1; })) + 0.3; });
