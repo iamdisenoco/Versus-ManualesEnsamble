@@ -630,7 +630,7 @@ body { font-synthesis: none; }
   display: inline-flex; gap: 6px; align-items: center; cursor: pointer;
   font-family: var(--display); font-weight: 500; font-size: 0.95rem;
 }
-.anim-centrar-btn:focus-visible { outline: 3px solid currentColor; outline-offset: 2px; }
+.anim-centrar-btn:focus-visible { outline: 3px solid #ffffff; outline-offset: 2px; }
 /* el logo de Versus: en las tarjetas y, discreto, arriba a la derecha del visor */
 .v40-logo { height: 60px; margin: 0 0 14px; }
 .v40-logo svg, .v40-marca svg { height: 100%; width: auto; display: block; }
@@ -689,7 +689,7 @@ body { font-synthesis: none; }
               <circle cx="12" cy="12" r="7"/>
               <path d="M12 2v5m0 10v5M2 12h5m10 0h5"/>
             </svg>
-            <span class="anim-centrar-txt">Centrar</span>
+            <span>Centrar</span>
           </button>
         </div>
         <div class="anim-gestos" id="anim-gestos" role="dialog" aria-label="Cómo se usa: toca la pantalla, o pulsa Enter, para empezar" tabindex="-1" hidden>
@@ -2625,7 +2625,7 @@ window.zoomSolidWorks = function (o) {
     ir: function (tt) { t = Math.min(PASOS[paso].dur, tt); manual = false; vuelo = null;
       const tm = PASOS[paso].tomas; toma = tm.filter(function (x) { return x.at <= t; }).length; volarA(tm[Math.max(0, toma - 1)], true); aplicar(paso, t); },
     centrar: function () { centrar(); },
-    camara: function () { return { p: camara.position.toArray(), m: controles.target.toArray(), manual: manual, toma: toma, paso: paso, t: t }; },
+    camaraEstado: function () { return { p: camara.position.toArray(), m: controles.target.toArray(), manual: manual, toma: toma, paso: paso, t: t }; },
     recorridoPiezas: function () { return TOUR.slice(); },
     encajes: function () { return ENCAJES.slice(); },
     ruedas: function () { return RUEDAS.slice(); },
