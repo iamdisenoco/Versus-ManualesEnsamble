@@ -1320,11 +1320,13 @@ window.zoomSolidWorks = function (o) {
   // pares que la revisión NO descuenta aunque se toquen armados: se revisan malla contra malla (cada arista de una contra
   // los triángulos de la otra). El pistón dentro del cubre pistón se descontaba por cajas y tapaba una colisión real
   // (Jon, 12-nov: «Cubre pistón no tiene perforación para que salga el pistón»)
-  // I y J con A y B no van malla contra malla desde el 21-nov (como la V40 desde el 19-nov): son los protectores del STL
-  // de la V40 y, armados, se meten en el cuero del espaldar (I hasta 8 mm, J hasta 11) y J en la tapa de la bisagra
-  // (hasta 12,5 mm, de 447 a 498 mm del piso); esos pares se descuentan por tocarse armados (LEEME, «Observaciones de Jon
-  // del 21-nov»). Contra los M y los reposabrazos siguen malla contra malla.
-  const FINOS = ["E|F", "I|M", "C|I", "J|M", "C|J"];
+  // I y J con A (espaldar) y B (asiento, con el herraje y la tapa de la bisagra) también van malla contra malla desde el
+  // 23-nov: Jon vio que se metían en el espaldar («esa pieza como que colisiona con el espaldar, en los dos lados») y el
+  // 21-nov esos pares se descontaban. Ya no se descuentan: glb_v30.py saca el herraje y el protector del cuero y el J es
+  // el I en espejo (LEEME, «Observaciones de Jon del 23-nov»).
+  // I|K y J|K malla contra malla (23-nov, tarea 992): con la pestaña del J por fuera de la tapa, el J queda 31 mm afuera del
+  // herraje y K, puesto, ya no cae dentro de la caja del J; entra por el agujero del protector y eso solo lo mide la malla
+  const FINOS = ["E|F", "I|M", "C|I", "J|M", "C|J", "A|I", "B|I", "A|J", "B|J", "I|K", "J|K"];
   const tipoN = function (x) { return x.replace(/[_\d].*$/, ""); };
   function esFino(par) { const n = par.split("|").map(tipoN).sort().join("|"); return FINOS.indexOf(n) >= 0; }
   function trisMundo(o) {
