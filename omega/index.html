@@ -618,10 +618,27 @@ body { font-synthesis: none; }
 .anim-lista-btn .nota { font-size: 0.8rem; }
 .anim-lista-btn:hover { background: color-mix(in srgb, currentColor 7%, transparent); }
 .anim-lista-btn:focus-visible { outline: 2px solid currentColor; outline-offset: -2px; }
+.anim-centrar-btn {
+  background-color: var(--vidrio);
+  background-image: linear-gradient(160deg, var(--vidrio-luz), transparent 55%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid var(--vidrio-borde);
+  color: var(--tinta);
+  box-shadow: inset 0 1px 0 var(--vidrio-luz), 0 6px 18px var(--vidrio-sombra);
+  min-height: 44px; min-width: 44px; padding: 6px 12px; border-radius: 10px;
+  display: inline-flex; gap: 6px; align-items: center; cursor: pointer;
+  font-family: var(--display); font-weight: 500; font-size: 0.95rem;
+}
+.anim-centrar-btn:focus-visible { outline: 3px solid #ffffff; outline-offset: 2px; }
 /* el logo de Versus: en las tarjetas y, discreto, arriba a la derecha del visor */
 .v40-logo { height: 60px; margin: 0 0 14px; }
 .v40-logo svg, .v40-marca svg { height: 100%; width: auto; display: block; }
 .v40-marca { position: absolute; top: 25px; right: 90px; height: 18px; opacity: 0.6; pointer-events: none; z-index: 2; }
+/* en pantallas angostas el logo queda debajo de la fila de botones */
+@media (max-width: 420px) {
+  .v40-marca { top: 68px; }
+}
 /* las tarjetas de bienvenida y del final: oscuras, letra blanca, acento celeste */
 .v40-tarjeta { position: absolute; inset: 0; z-index: 9; display: grid; place-items: center; padding: 16px 16px calc(var(--alto-barra, 76px) + 24px);
   background: rgba(5, 6, 8, 0.55); }
@@ -667,6 +684,13 @@ body { font-synthesis: none; }
         <div class="anim-esquina">
           <button type="button" class="anim-pantalla-btn" id="anim-pantalla" aria-pressed="false"><span aria-hidden="true">⛶</span> <span class="anim-pantalla-txt">Pantalla completa</span></button>
           <button type="button" class="anim-ayuda-btn" id="anim-ayuda-abrir" aria-label="Ver cómo se mueve el modelo" aria-controls="anim-gestos">?</button>
+          <button type="button" class="anim-centrar-btn" id="anim-centrar" aria-label="Centrar" title="Volver a la vista de este paso">
+            <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <circle cx="12" cy="12" r="7"/>
+              <path d="M12 2v5m0 10v5M2 12h5m10 0h5"/>
+            </svg>
+            <span>Centrar</span>
+          </button>
         </div>
         <div class="anim-gestos" id="anim-gestos" role="dialog" aria-label="Cómo se usa: toca la pantalla, o pulsa Enter, para empezar" tabindex="-1" hidden>
           <svg width="0" height="0" class="anim-gestos-defs" aria-hidden="true"><defs><g id="mano-indice"> <path class="silueta" fill="rgba(255,255,255,0.88)" stroke="rgba(30,40,50,0.30)" stroke-width="1.4" stroke-linejoin="round" d="M-12 14 C-12 -3 12 -3 12 14 L12 64 C14 56 33 54 36 64 C39 57 54 58 56 68 C59 63 71 64 72 76 C78 98 76 130 66 150 C57 166 12 170 -4 155 C-15 145 -24 130 -35 119 C-47 107 -50 95 -42 89 C-34 83 -25 91 -18 98 C-14 92 -12 84 -12 76 Z"/> <path class="pliegue" fill="none" stroke="rgba(30,40,50,0.24)" stroke-width="1.6" stroke-linecap="round" d="M-9 38 C-3 40 3 40 9 38 M36 64 C37 72 35 78 31 82 M56 68 C57 76 55 81 51 85 M14 70 C16 80 15 88 10 92 M-18 98 C-10 104 -4 110 0 118"/> </g> <g id="mano-pinza"> <path class="silueta" fill="rgba(255,255,255,0.88)" stroke="rgba(30,40,50,0.30)" stroke-width="1.4" stroke-linejoin="round" d="M-12 14 C-12 -3 12 -3 12 14 L12 64 C14 56 33 54 36 64 C39 57 54 58 56 68 C59 63 71 64 72 76 C78 98 76 130 66 150 C57 166 12 170 -4 155 C-16 146 -30 124 -46 104 C-56 92 -66 84 -63 75 C-60 67 -49 70 -40 79 C-30 88 -18 93 -12 84 Z"/> <path class="pliegue" fill="none" stroke="rgba(30,40,50,0.24)" stroke-width="1.6" stroke-linecap="round" d="M-9 38 C-3 40 3 40 9 38 M36 64 C37 72 35 78 31 82 M56 68 C57 76 55 81 51 85 M14 70 C16 80 15 88 10 92 M-40 79 C-32 92 -22 100 -12 104"/> </g> <g id="mano-dos"> <path class="silueta" fill="rgba(255,255,255,0.88)" stroke="rgba(30,40,50,0.30)" stroke-width="1.4" stroke-linejoin="round" d="M-12 18 C-12 1 11 1 11 16 C11 0 36 -2 36 14 L36 66 C40 60 54 60 56 70 C59 65 71 66 72 78 C78 100 76 132 66 152 C57 168 12 172 -4 157 C-15 147 -24 132 -35 121 C-47 109 -50 97 -42 91 C-34 85 -25 93 -18 100 C-14 94 -12 86 -12 78 Z"/> <path class="pliegue" fill="none" stroke="rgba(30,40,50,0.24)" stroke-width="1.6" stroke-linecap="round" d="M11 18 L11 70 M-9 42 C-3 44 3 44 8 42 M14 40 C20 42 27 42 33 40 M56 70 C57 78 55 83 51 87 M-18 100 C-10 106 -4 112 0 120"/> </g><g id="raton"><rect x="-17" y="-26" width="34" height="52" rx="17" fill="rgba(255,255,255,0.9)" stroke="rgba(30,40,50,0.35)" stroke-width="1.6"/><path d="M0 -26v18M-17 -8h34" fill="none" stroke="rgba(30,40,50,0.35)" stroke-width="1.6"/></g></defs></svg>
@@ -1934,6 +1958,21 @@ window.zoomSolidWorks = function (o) {
     if (document.activeElement === guia) bAyuda.focus({ preventScroll: true });
   }
   bAyuda.addEventListener("click", function () { abrirGuia(true); });
+  function centrar() {
+    if (!PASOS.length) return;
+    const tm = PASOS[paso].tomas;
+    if (!tm || !tm.length) return;
+    const n = tm.filter(function (x) { return x.at <= t; }).length;
+    manual = false;
+    // Descarta la inercia pendiente para que la cámara termine en la toma.
+    const amortiguado = controles.enableDamping;
+    controles.enableDamping = false;
+    controles.update();
+    controles.enableDamping = amortiguado;
+    volarA(tm[n === 0 ? 0 : n - 1], reducido);
+    toma = Math.max(1, n);
+  }
+  document.getElementById("anim-centrar").addEventListener("click", centrar);
   guia.addEventListener("click", cerrarGuia);
   // abierta sola el foco no está en ella: Escape se escucha en el documento, sin mover el foco
   document.addEventListener("keydown", function (ev) { if (ev.key === "Escape" && !guia.hidden && document.activeElement !== guia) { ev.stopImmediatePropagation(); cerrarGuia(); } }, true);
@@ -2227,6 +2266,8 @@ window.zoomSolidWorks = function (o) {
     etiquetas: function () { return Object.keys(etiquetas).filter(function (k) { return !etiquetas[k].div.hidden; }).map(function (k) { const r = etiquetas[k].div.getBoundingClientRect(); return { tipo: k, x: r.x, y: r.y, w: r.width, h: r.height, txt: etiquetas[k].div.textContent }; }); },
     ir: function (tt) { t = Math.min(PASOS[paso].dur, tt); manual = false; vuelo = null;
       const tm = PASOS[paso].tomas; toma = tm.filter(function (x) { return x.at <= t; }).length; volarA(tm[Math.max(0, toma - 1)], true); aplicar(paso, t); },
+    centrar: function () { centrar(); },
+    camaraEstado: function () { return { p: camara.position.toArray(), m: controles.target.toArray(), manual: manual, toma: toma, paso: paso, t: t }; },
     recorridoPiezas: function () { return TOUR.slice(); },
     encajes: function () { return ENCAJES.slice(); },
     ruedas: function () { return RUEDAS.slice(); },
