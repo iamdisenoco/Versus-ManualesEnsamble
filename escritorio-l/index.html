@@ -595,6 +595,33 @@ dialog.lupa::backdrop { background: rgba(0, 0, 0, 0.6); }
 .vs-vel-menu button:hover { background: rgba(255, 255, 255, 0.08); }
 .vs-vel-btn:focus-visible, .vs-vel-menu button:focus-visible { outline: 3px solid #ffffff; outline-offset: 2px; }
 
+/* números de pieza en círculo (#1064): el número como texto normal, con la misma letra, dentro de un círculo de 1 px del
+   alto del texto. Con dos cifras (10, 11, 12) la cifra se cierra un poco para que siga siendo un círculo */
+.pz { display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box;
+  width: 1.5em; height: 1.5em; margin: 0 0.06em; padding: 0; border: 1px solid currentColor; border-radius: 50%;
+  font: inherit; font-size: 0.76em; font-weight: 600; line-height: 1; letter-spacing: 0; font-variant-numeric: tabular-nums;
+  vertical-align: 0.12em; text-transform: none; white-space: nowrap; }
+.pz.pz2 { font-size: 0.66em; width: 1.73em; height: 1.73em; letter-spacing: -0.03em; }
+.cod .pz, .eti-anim b.pz, .anim-b-i .pz { margin: 0; }
+.eti-anim b.pz { margin-right: 6px; vertical-align: 0.06em; }
+.anim-b-i .pz { font-size: 0.72em; vertical-align: 0.1em; }
+
+/* pausa con mensaje: la animación espera la flecha › (Jon, 23-nov) */
+.vs-pausa { position: absolute; left: 0; right: 0; bottom: calc(var(--alto-barra, 76px) + 16px); z-index: 4; display: flex; justify-content: center;
+  padding: 0 16px; pointer-events: none; }
+.vs-pausa[hidden] { display: none; }
+.vs-pausa-caja { width: min(440px, 100%); background: #0b0f17; color: #ffffff; border: 1px solid rgba(92, 200, 255, 0.55); border-left: 4px solid #5cc8ff;
+  border-radius: 14px; padding: 14px 16px 12px; box-shadow: 0 14px 40px rgba(0, 0, 0, 0.6); font-family: var(--texto); }
+.vs-pausa-caja p { margin: 0; }
+.vs-pausa-t { font-family: var(--titulo-marca); text-transform: uppercase; letter-spacing: 0.02em; font-size: 0.95rem; line-height: 1.35; margin-bottom: 6px !important; }
+.vs-pausa-x { font-size: 1rem; line-height: 1.5; color: #e6edf5; }
+.vs-pausa-sigue { margin-top: 10px !important; font-size: 0.9375rem; line-height: 1.45; color: #5cc8ff; font-weight: 550; }
+.vs-pausa-f { display: inline-grid; place-items: center; width: 1.6em; height: 1.6em; border-radius: 6px; background: #5cc8ff; color: #04131d; font-weight: 600; line-height: 1; }
+@media (prefers-reduced-motion: no-preference) {
+  .solo-armado .anim-b-flecha.fuerte.vs-espera { animation: vs-espera 1.6s ease-in-out infinite; }
+  @keyframes vs-espera { 0%, 100% { box-shadow: 0 0 0 0 rgba(92, 200, 255, 0.55); } 50% { box-shadow: 0 0 0 10px rgba(92, 200, 255, 0); } }
+}
+
 /* tipografías de Versus (David Bernal, 17-nov): IBM Plex Sans en todo, también en las letras y cantidades (con cifras
    tabulares, a su tamaño: la reducción del motor es para una monoespaciada), y Michroma en mayúsculas para los títulos,
    como el manual y la caja usan su letra de títulos. Michroma trae un solo peso: sin negrita inventada */
@@ -727,7 +754,7 @@ body { font-synthesis: none; }
           <p class="anim-gestos-pie"><span data-pie-tactil>Toca la pantalla para empezar</span><span data-pie-mouse>Haz clic para empezar</span></p>
         </div>
         <div class="v40-marca" aria-hidden="true"><svg role="img" aria-label="Versus" focusable="false" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 412 72" xml:space="preserve"><g>	<polygon fill="#FFFFFF" points="26,1.5 82,1.5 66.7,28.6 61,19.7 66.1,10.7 42.9,10.7 60.8,39.3 43.3,70.5 1.2,1.5 12.5,1.5   43,50.9 49.7,39.3  "></polygon>	<g>		<path fill="#FFFFFF" d="M162.6,13.6l-20.9,42.6c-0.3,0.7-0.8,1.2-1.5,1.6c-0.6,0.4-1.4,0.6-2.1,0.6c-0.8,0-1.5-0.2-2.1-0.6   c-0.6-0.4-1.1-0.9-1.5-1.6l-20.9-42.6h9l15.5,31.8l15.6-31.8H162.6z"></path>		<path fill="#FFFFFF" d="M207,57.8h-28.9c-1.1,0-2.3-0.2-3.6-0.6c-1.3-0.4-2.5-1-3.6-1.9c-1.1-0.9-2.1-2.1-2.8-3.5   c-0.7-1.4-1.1-3.2-1.1-5.2V17.7c0-0.6,0.1-1.1,0.3-1.6c0.2-0.5,0.5-0.9,0.8-1.3c0.4-0.4,0.8-0.7,1.3-0.9c0.5-0.2,1-0.3,1.6-0.3h36   v8h-32.1v24.9c0,1,0.3,1.8,0.8,2.4c0.6,0.6,1.4,0.8,2.4,0.8H207V57.8z M203.4,39.7h-25.3v-8.1h25.3V39.7z"></path>		<path fill="#FFFFFF" d="M258.8,28.5c0,1.8-0.2,3.5-0.7,4.9c-0.5,1.4-1.1,2.7-1.8,3.8c-0.8,1.1-1.7,2-2.7,2.8   c-1,0.8-2.1,1.4-3.2,1.9c-1.1,0.5-2.2,0.9-3.3,1.1c-1.1,0.2-2.2,0.3-3.2,0.3l16.7,14.4h-12.4l-16.7-14.4h-5.8v-8H244   c1-0.1,1.9-0.3,2.8-0.6c0.8-0.3,1.5-0.8,2.2-1.4c0.6-0.6,1.1-1.3,1.4-2.1c0.3-0.8,0.5-1.7,0.5-2.8v-5c0-0.5-0.1-0.8-0.2-1   c-0.1-0.2-0.3-0.4-0.4-0.5c-0.2-0.1-0.4-0.2-0.6-0.2c-0.2,0-0.4,0-0.5,0h-26.4v36.1h-8V17.7c0-0.6,0.1-1.1,0.3-1.6   c0.2-0.5,0.5-0.9,0.8-1.3c0.4-0.4,0.8-0.7,1.3-0.9c0.5-0.2,1-0.3,1.6-0.3h30.4c1.8,0,3.3,0.3,4.5,1c1.2,0.6,2.2,1.5,3,2.4   c0.8,1,1.3,2,1.7,3.2c0.3,1.1,0.5,2.2,0.5,3.2V28.5z"></path>		<path fill="#FFFFFF" d="M309.2,44.8c0,1.6-0.2,3-0.6,4.3c-0.4,1.3-0.9,2.4-1.6,3.3c-0.7,1-1.4,1.8-2.3,2.5   c-0.9,0.7-1.8,1.2-2.7,1.7c-0.9,0.4-1.9,0.7-2.9,1c-1,0.2-1.9,0.3-2.8,0.3h-30.9v-8h30.9c1.5,0,2.7-0.5,3.6-1.4   c0.9-0.9,1.3-2.1,1.3-3.6c0-0.7-0.1-1.4-0.3-2c-0.2-0.6-0.5-1.1-1-1.6c-0.4-0.5-0.9-0.8-1.5-1c-0.6-0.2-1.3-0.4-2-0.4H278   c-1.3,0-2.7-0.2-4.2-0.7c-1.5-0.5-2.9-1.2-4.2-2.2c-1.3-1-2.3-2.4-3.2-4c-0.9-1.7-1.3-3.7-1.3-6.1s0.4-4.4,1.3-6.1   c0.9-1.7,1.9-3,3.2-4c1.3-1,2.7-1.8,4.2-2.2c1.5-0.5,2.9-0.7,4.2-0.7h27.2v8H278c-1.5,0-2.7,0.5-3.6,1.4c-0.9,0.9-1.3,2.1-1.3,3.7   c0,1.5,0.4,2.8,1.3,3.6c0.9,0.9,2,1.3,3.6,1.3h18.4h0.1c0.9,0,1.8,0.1,2.7,0.4c1,0.2,1.9,0.5,2.9,1c1,0.5,1.9,1,2.7,1.7   c0.9,0.7,1.6,1.5,2.3,2.5c0.7,1,1.2,2.1,1.6,3.3C309,41.8,309.2,43.2,309.2,44.8z"></path>		<path fill="#FFFFFF" d="M359.1,53.7c0,0.6-0.1,1.1-0.3,1.6c-0.2,0.5-0.5,0.9-0.9,1.3c-0.4,0.4-0.8,0.6-1.3,0.8   c-0.5,0.2-1,0.3-1.6,0.3h-18c-1.7,0-3.4-0.2-5.2-0.6c-1.7-0.4-3.4-0.9-5.1-1.7s-3.2-1.7-4.6-2.9c-1.4-1.2-2.7-2.6-3.8-4.2   c-1.1-1.6-1.9-3.5-2.5-5.6c-0.6-2.1-0.9-4.4-0.9-7V13.6h8v22.1c0,2.3,0.3,4.2,0.9,5.7c0.6,1.6,1.4,2.9,2.4,3.9c1,1,2,1.9,3.2,2.5   c1.1,0.6,2.2,1,3.3,1.3c1,0.3,1.9,0.5,2.7,0.5c0.8,0.1,1.3,0.1,1.6,0.1h14.1V13.6h8V53.7z"></path>		<path fill="#FFFFFF" d="M410.8,44.8c0,1.6-0.2,3-0.6,4.3c-0.4,1.3-0.9,2.4-1.6,3.3c-0.7,1-1.4,1.8-2.3,2.5   c-0.9,0.7-1.8,1.2-2.7,1.7c-0.9,0.4-1.9,0.7-2.9,1c-1,0.2-1.9,0.3-2.8,0.3h-30.9v-8h30.9c1.5,0,2.7-0.5,3.6-1.4   c0.9-0.9,1.3-2.1,1.3-3.6c0-0.7-0.1-1.4-0.3-2c-0.2-0.6-0.5-1.1-1-1.6c-0.4-0.5-0.9-0.8-1.5-1c-0.6-0.2-1.3-0.4-2-0.4h-18.4   c-1.3,0-2.7-0.2-4.2-0.7c-1.5-0.5-2.9-1.2-4.2-2.2c-1.3-1-2.3-2.4-3.2-4c-0.9-1.7-1.3-3.7-1.3-6.1s0.4-4.4,1.3-6.1   c0.9-1.7,1.9-3,3.2-4c1.3-1,2.7-1.8,4.2-2.2c1.5-0.5,2.9-0.7,4.2-0.7h27.2v8h-27.2c-1.5,0-2.7,0.5-3.6,1.4   c-0.9,0.9-1.3,2.1-1.3,3.7c0,1.5,0.4,2.8,1.3,3.6c0.9,0.9,2,1.3,3.6,1.3h18.4h0.1c0.9,0,1.8,0.1,2.7,0.4c1,0.2,1.9,0.5,2.9,1   c1,0.5,1.9,1,2.7,1.7c0.9,0.7,1.6,1.5,2.3,2.5c0.7,1,1.2,2.1,1.6,3.3C410.6,41.8,410.8,43.2,410.8,44.8z"></path>	</g></g></svg></div>
-        <div class="vs-vel" id="vs-vel"><button type="button" class="vs-vel-btn" id="vs-vel-btn" aria-expanded="false" aria-controls="vs-vel-menu" aria-label="Velocidad ×1">×1</button><ul class="vs-vel-menu" id="vs-vel-menu" aria-label="Velocidad de la animación" hidden><li><button type="button" data-vel="1" aria-pressed="false">×1</button></li><li><button type="button" data-vel="1.5" aria-pressed="false">×1,5</button></li><li><button type="button" data-vel="1.75" aria-pressed="false">×1,75</button></li><li><button type="button" data-vel="2" aria-pressed="false">×2</button></li></ul></div>
+        <div class="vs-vel" id="vs-vel"><button type="button" class="vs-vel-btn" id="vs-vel-btn" aria-expanded="false" aria-controls="vs-vel-menu" aria-label="Velocidad ×1">×1</button><ul class="vs-vel-menu" id="vs-vel-menu" aria-label="Velocidad de la animación" hidden><li><button type="button" data-vel="1" aria-pressed="false">×1</button></li><li><button type="button" data-vel="1.5" aria-pressed="false">×1,5</button></li><li><button type="button" data-vel="1.75" aria-pressed="false">×1,75</button></li><li><button type="button" data-vel="2" aria-pressed="false">×2</button></li></ul></div><div class="vs-pausa" id="vs-pausa" role="status" aria-live="polite" hidden><div class="vs-pausa-caja"><p class="vs-pausa-t" id="vs-pausa-t"></p><p class="vs-pausa-x" id="vs-pausa-x"></p><p class="vs-pausa-sigue">Cuando lo hayas hecho, toca la flecha <span class="vs-pausa-f" aria-hidden="true">›</span> para seguir.</p></div></div>
         <div class="v40-tarjeta" id="v40-hola" role="dialog" aria-modal="true" aria-labelledby="v40-hola-t" aria-describedby="v40-hola-d" hidden>
           <div class="v40-caja"><div class="v40-logo"><svg role="img" aria-label="Versus" focusable="false" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 268 196" xml:space="preserve"><g>	<polygon fill="#FFFFFF" points="94.6,1 213.7,1 181.3,58.7 169.2,39.8 180,20.7 130.6,20.7 168.7,81.5 131.6,147.8 42,1 65.9,1   130.9,106 145.1,81.3  "></polygon>	<g>		<path fill="#FFFFFF" d="M45,155l-18.7,38c-0.3,0.6-0.7,1.1-1.3,1.4c-0.6,0.4-1.2,0.5-1.9,0.5c-0.7,0-1.3-0.2-1.9-0.5   c-0.6-0.4-1-0.8-1.3-1.4L1.3,155h8l13.9,28.4L37,155H45z"></path>		<path fill="#FFFFFF" d="M84.7,194.4H58.9c-1,0-2.1-0.2-3.2-0.5c-1.2-0.3-2.3-0.9-3.3-1.7c-1-0.8-1.8-1.8-2.5-3.1   c-0.7-1.3-1-2.8-1-4.7v-25.8c0-0.5,0.1-1,0.3-1.4c0.2-0.4,0.4-0.8,0.8-1.2c0.3-0.3,0.7-0.6,1.1-0.8c0.4-0.2,0.9-0.3,1.4-0.3h32.2   v7.1H56v22.2c0,0.9,0.2,1.6,0.7,2.1c0.5,0.5,1.2,0.7,2.2,0.7h25.7V194.4z M81.5,178.3H58.9v-7.2h22.6V178.3z"></path>		<path fill="#FFFFFF" d="M130.9,168.3c0,1.6-0.2,3.1-0.6,4.4c-0.4,1.3-0.9,2.4-1.6,3.4c-0.7,1-1.5,1.8-2.4,2.5   c-0.9,0.7-1.8,1.3-2.8,1.7c-1,0.4-2,0.8-3,1c-1,0.2-1.9,0.3-2.8,0.3l14.9,12.9h-11l-14.9-12.9h-5.1v-7.1h16.2   c0.9-0.1,1.7-0.3,2.5-0.6c0.7-0.3,1.4-0.7,1.9-1.2c0.5-0.5,1-1.1,1.3-1.9c0.3-0.7,0.4-1.6,0.4-2.5v-4.5c0-0.4-0.1-0.7-0.2-0.9   c-0.1-0.2-0.2-0.4-0.4-0.5c-0.2-0.1-0.3-0.2-0.5-0.2c-0.2,0-0.3,0-0.5,0H98.7v32.3h-7.1v-35.8c0-0.5,0.1-1,0.3-1.4   c0.2-0.4,0.4-0.8,0.8-1.2c0.3-0.3,0.7-0.6,1.1-0.8c0.4-0.2,0.9-0.3,1.4-0.3h27.1c1.6,0,2.9,0.3,4,0.9s2,1.3,2.7,2.2   c0.7,0.9,1.2,1.8,1.5,2.8c0.3,1,0.5,2,0.5,2.8V168.3z"></path>		<path fill="#FFFFFF" d="M176,182.8c0,1.4-0.2,2.7-0.5,3.8s-0.8,2.1-1.4,3c-0.6,0.9-1.3,1.6-2.1,2.2c-0.8,0.6-1.6,1.1-2.4,1.5   c-0.8,0.4-1.7,0.7-2.6,0.9c-0.9,0.2-1.7,0.3-2.5,0.3h-27.6v-7.1h27.6c1.4,0,2.4-0.4,3.2-1.2c0.8-0.8,1.1-1.9,1.1-3.2   c0-0.7-0.1-1.3-0.3-1.8c-0.2-0.5-0.5-1-0.9-1.4c-0.4-0.4-0.8-0.7-1.4-0.9c-0.5-0.2-1.1-0.3-1.8-0.3h-16.4c-1.2,0-2.4-0.2-3.7-0.6   c-1.3-0.4-2.6-1.1-3.7-2c-1.1-0.9-2.1-2.1-2.9-3.6c-0.8-1.5-1.1-3.3-1.1-5.4s0.4-4,1.1-5.4c0.8-1.5,1.7-2.7,2.9-3.6   c1.1-0.9,2.4-1.6,3.7-2c1.3-0.4,2.6-0.6,3.7-0.6h24.3v7.1h-24.3c-1.4,0-2.4,0.4-3.2,1.2c-0.8,0.8-1.1,1.9-1.1,3.3   c0,1.4,0.4,2.5,1.1,3.3c0.8,0.8,1.8,1.2,3.2,1.2h16.4h0.1c0.8,0,1.6,0.1,2.4,0.3c0.9,0.2,1.7,0.5,2.6,0.9c0.9,0.4,1.7,0.9,2.4,1.5   c0.8,0.6,1.5,1.4,2,2.2c0.6,0.9,1.1,1.9,1.4,3C175.8,180.2,176,181.4,176,182.8z"></path>		<path fill="#FFFFFF" d="M220.5,190.8c0,0.5-0.1,1-0.3,1.4c-0.2,0.4-0.4,0.8-0.8,1.1c-0.3,0.3-0.7,0.6-1.2,0.8   c-0.4,0.2-0.9,0.3-1.4,0.3h-16.1c-1.5,0-3.1-0.2-4.6-0.5c-1.6-0.3-3.1-0.8-4.5-1.5c-1.5-0.7-2.8-1.6-4.1-2.6   c-1.3-1.1-2.4-2.3-3.4-3.8c-1-1.5-1.7-3.1-2.3-5c-0.5-1.9-0.8-4-0.8-6.3V155h7.1v19.7c0,2,0.3,3.7,0.8,5.1   c0.6,1.4,1.3,2.6,2.1,3.5c0.9,0.9,1.8,1.7,2.8,2.2c1,0.5,2,0.9,2.9,1.2c0.9,0.3,1.7,0.4,2.4,0.5c0.7,0.1,1.2,0.1,1.4,0.1h12.6V155   h7.1V190.8z"></path>		<path fill="#FFFFFF" d="M266.7,182.8c0,1.4-0.2,2.7-0.5,3.8s-0.8,2.1-1.4,3c-0.6,0.9-1.3,1.6-2.1,2.2c-0.8,0.6-1.6,1.1-2.4,1.5   c-0.8,0.4-1.7,0.7-2.6,0.9c-0.9,0.2-1.7,0.3-2.5,0.3h-27.6v-7.1h27.6c1.4,0,2.4-0.4,3.2-1.2c0.8-0.8,1.1-1.9,1.1-3.2   c0-0.7-0.1-1.3-0.3-1.8c-0.2-0.5-0.5-1-0.9-1.4c-0.4-0.4-0.8-0.7-1.4-0.9c-0.5-0.2-1.1-0.3-1.8-0.3h-16.4c-1.2,0-2.4-0.2-3.7-0.6   c-1.3-0.4-2.6-1.1-3.7-2c-1.1-0.9-2.1-2.1-2.9-3.6c-0.8-1.5-1.1-3.3-1.1-5.4s0.4-4,1.1-5.4c0.8-1.5,1.7-2.7,2.9-3.6   c1.1-0.9,2.4-1.6,3.7-2c1.3-0.4,2.6-0.6,3.7-0.6h24.3v7.1h-24.3c-1.4,0-2.4,0.4-3.2,1.2c-0.8,0.8-1.1,1.9-1.1,3.3   c0,1.4,0.4,2.5,1.1,3.3c0.8,0.8,1.8,1.2,3.2,1.2h16.4h0.1c0.8,0,1.6,0.1,2.4,0.3c0.9,0.2,1.7,0.5,2.6,0.9c0.9,0.4,1.7,0.9,2.4,1.5   c0.8,0.6,1.5,1.4,2,2.2c0.6,0.9,1.1,1.9,1.4,3C266.5,180.2,266.7,181.4,266.7,182.8z"></path>	</g></g></svg></div><h2 id="v40-hola-t">Bienvenido a Versus</h2>
             <p id="v40-hola-d">Acabas de adquirir tu escritorio elevable eléctrico en L. Aquí te mostramos, paso a paso, cómo armarlo.</p>
@@ -752,7 +779,7 @@ body { font-synthesis: none; }
     <div class="anim-panel" id="anim-panel">
       <button type="button" class="boton anim-cerrar" id="anim-cerrar">Cerrar ✕</button>
       <p class="anim-guia" id="anim-guia"><b>Estos son los pasos del armado.</b> Toca un paso, o Siguiente, para ver cómo se arma.</p>
-      <ol class="anim-puntos" aria-labelledby="anim-guia"><li><button type="button" class="anim-punto" data-paso="0" aria-label="Paso 0: Identifica las piezas">Paso 0</button></li><li><button type="button" class="anim-punto" data-paso="1" aria-label="Paso 1: Las patas y sus pies">Paso 1</button></li><li><button type="button" class="anim-punto" data-paso="2" aria-label="Paso 2: La barra ⑤">Paso 2</button></li><li><button type="button" class="anim-punto" data-paso="3" aria-label="Paso 3: Las varillas ⑦ y ⑥">Paso 3</button></li><li><button type="button" class="anim-punto" data-paso="4" aria-label="Paso 4: Los soportes ⑧ y ⑨">Paso 4</button></li><li><button type="button" class="anim-punto" data-paso="5" aria-label="Paso 5: El tablero">Paso 5</button></li><li><button type="button" class="anim-punto" data-paso="6" aria-label="Paso 6: La estructura en el tablero">Paso 6</button></li><li><button type="button" class="anim-punto" data-paso="7" aria-label="Paso 7: Diagrama de conexión">Paso 7</button></li></ol>
+      <ol class="anim-puntos" aria-labelledby="anim-guia"><li><button type="button" class="anim-punto" data-paso="0" aria-label="Paso 0: Identifica las piezas">Paso 0</button></li><li><button type="button" class="anim-punto" data-paso="1" aria-label="Paso 1: Las patas y sus pies">Paso 1</button></li><li><button type="button" class="anim-punto" data-paso="2" aria-label="Paso 2: La barra 5">Paso 2</button></li><li><button type="button" class="anim-punto" data-paso="3" aria-label="Paso 3: Las varillas 7 y 6">Paso 3</button></li><li><button type="button" class="anim-punto" data-paso="4" aria-label="Paso 4: Los soportes 8 y 9">Paso 4</button></li><li><button type="button" class="anim-punto" data-paso="5" aria-label="Paso 5: El tablero">Paso 5</button></li><li><button type="button" class="anim-punto" data-paso="6" aria-label="Paso 6: La estructura en el tablero">Paso 6</button></li><li><button type="button" class="anim-punto" data-paso="7" aria-label="Paso 7: Diagrama de conexión">Paso 7</button></li></ol>
       <div class="anim-mando">
         <button type="button" class="boton" id="anim-ant">‹ Anterior</button>
         <button type="button" class="boton" id="anim-rep">Repetir</button>
@@ -760,20 +787,20 @@ body { font-synthesis: none; }
       </div>
       <button type="button" class="boton anim-texto-btn" id="anim-texto-btn" aria-expanded="true" aria-controls="anim-textos">Ocultar texto</button>
       <div class="anim-textos" id="anim-textos" aria-live="polite">
-<article class="anim-texto" data-paso="0" data-titulo="Identifica las piezas"><h3><span class="anim-paso-n">Paso 0</span>Identifica las piezas</h3><p class="anim-linea">Mira cada pieza con su letra y su cantidad, de la ① a la O.</p><p>Esta es la lista de partes del manual. Toca una para verla:</p><p class='nota anim-lista-sigue'>Son 27 piezas, de la ① a la O: desliza para verlas todas ↓</p><ul class='anim-lista anim-lista-partes'><li><button type="button" class="anim-lista-btn" data-letra="①" aria-label="Ver Pata del motor, 1 und, letra ①"><b class="cod">①</b> <span>Pata del motor</span> <b class="num">×1</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="②" aria-label="Ver Pata, 1 und, letra ②"><b class="cod">②</b> <span>Pata</span> <b class="num">×1</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="③" aria-label="Ver Pie, 1 und, letra ③"><b class="cod">③</b> <span>Pie</span> <b class="num">×1</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="④" aria-label="Ver Pie, 1 und, letra ④"><b class="cod">④</b> <span>Pie</span> <b class="num">×1</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="⑤" aria-label="Ver Barra transversal, 1 und, letra ⑤"><b class="cod">⑤</b> <span>Barra transversal</span> <b class="num">×1</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="⑥" aria-label="Ver Varilla, 1 und, letra ⑥"><b class="cod">⑥</b> <span>Varilla</span> <b class="num">×1</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="⑦" aria-label="Ver Tubo con perilla, 1 und, letra ⑦"><b class="cod">⑦</b> <span>Tubo con perilla</span> <b class="num">×1</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="⑧" aria-label="Ver Soporte corto, 1 und, letra ⑧"><b class="cod">⑧</b> <span>Soporte corto</span> <b class="num">×1</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="⑨" aria-label="Ver Soporte largo, 1 und, letra ⑨"><b class="cod">⑨</b> <span>Soporte largo</span> <b class="num">×1</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="⑩" aria-label="Ver Control, 1 und, letra ⑩"><b class="cod">⑩</b> <span>Control</span> <b class="num">×1</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="⑪" aria-label="Ver Cable de alimentación, 1 und, letra ⑪"><b class="cod">⑪</b> <span>Cable de alimentación</span> <b class="num">×1</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="⑫" aria-label="Ver Motor, 1 und, letra ⑫"><b class="cod">⑫</b> <span>Motor</span> <b class="num">×1</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="A" aria-label="Ver Tornillo M6×40, 8 und, letra A"><b class="cod">A</b> <span>Tornillo M6×40</span> <b class="num">×8</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="B" aria-label="Ver Tornillo M6×16, 20 und, letra B"><b class="cod">B</b> <span>Tornillo M6×16</span> <b class="num">×20</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="C" aria-label="Ver Tornillo M6×12, 4 und, letra C"><b class="cod">C</b> <span>Tornillo M6×12</span> <b class="num">×4</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="D" aria-label="Ver Tornillo M6×20, 2 und, letra D"><b class="cod">D</b> <span>Tornillo M6×20</span> <b class="num">×2</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="E" aria-label="Ver Tornillo M6×50, 4 und, letra E"><b class="cod">E</b> <span>Tornillo M6×50</span> <b class="num">×4</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="F" aria-label="Ver Tornillo M4×12, 2 und, letra F"><b class="cod">F</b> <span>Tornillo M4×12</span> <b class="num">×2</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="G" aria-label="Ver Base de amarre de cable, 4 und, letra G"><b class="cod">G</b> <span>Base de amarre de cable</span> <b class="num">×4</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="H" aria-label="Ver Llave Allen S6, 1 und, letra H"><b class="cod">H</b> <span>Llave Allen S6</span> <b class="num">×1</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="I" aria-label="Ver Llave Allen S4, 1 und, letra I"><b class="cod">I</b> <span>Llave Allen S4</span> <b class="num">×1</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="J" aria-label="Ver Llave Allen S2.5, 1 und, letra J"><b class="cod">J</b> <span>Llave Allen S2.5</span> <b class="num">×1</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="K" aria-label="Ver Amarre de cable, 1 und, letra K"><b class="cod">K</b> <span>Amarre de cable</span> <b class="num">×1</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="L" aria-label="Ver Tornillo M5×40, 2 und, letra L"><b class="cod">L</b> <span>Tornillo M5×40</span> <b class="num">×2</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="M" aria-label="Ver Separador 5×9×18, 2 und, letra M"><b class="cod">M</b> <span>Separador 5×9×18</span> <b class="num">×2</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="N" aria-label="Ver Placa, 2 und, letra N"><b class="cod">N</b> <span>Placa</span> <b class="num">×2</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="O" aria-label="Ver Pasador, 3 und, letra O"><b class="cod">O</b> <span>Pasador</span> <b class="num">×3</b></button></li></ul><p hidden></p></article>
-<article class="anim-texto" data-paso="1" data-titulo="Las patas y sus pies"><h3><span class="anim-paso-n">Paso 1</span>Las patas y sus pies</h3><p class="anim-linea">El pie ④ en la pata ②, el pie ③ en la pata ① y el motor ⑫, con los tornillos <span class="cod">(A)</span> y <span class="cod">(L)</span> y la llave <span class="cod">(I)</span>.</p><p>Antes del ensamblaje, compara la diferencia de altura entre las dos patas. Si la diferencia de altura entre las patas supera los 3 mm, usa el botón para ajustar la altura hasta que sean consistentes. Pon el pie ④ en la pata ② y el pie ③ en la pata ①, cada uno con 4 tornillos <span class="cod">(A)</span> (M6×40), apretados con la llave <span class="cod">(I)</span> (S4). Pon el motor ⑫ en la pata ① con los 2 separadores <span class="cod">(M)</span> y los 2 tornillos <span class="cod">(L)</span> (M5×40).</p></article>
-<article class="anim-texto" data-paso="2" data-titulo="La barra ⑤"><h3><span class="anim-paso-n">Paso 2</span>La barra ⑤</h3><p class="anim-linea">La barra ⑤ sobre las dos patas, con 4 tornillos <span class="cod">(E)</span> y 2 <span class="cod">(D)</span> y la llave <span class="cod">(I)</span>.</p><p>Pon la barra ⑤ sobre las dos patas y fíjala con 4 tornillos <span class="cod">(E)</span> (M6×50) y 2 tornillos <span class="cod">(D)</span> (M6×20), apretados con la llave <span class="cod">(I)</span> (S4). Afloja los siguientes cuatro tornillos con el símbolo, pero no los desenrosques completamente, de lo contrario será difícil instalarlos.</p></article>
-<article class="anim-texto" data-paso="3" data-titulo="Las varillas ⑦ y ⑥"><h3><span class="anim-paso-n">Paso 3</span>Las varillas ⑦ y ⑥</h3><p class="anim-linea">Mete ⑦ y ⑥ hasta el fondo girando suavemente <span class="cod">(H)</span>: desenrosca la perilla antes y enrosca después.</p><p>1. Al insertar las piezas ⑥ y ⑦, gira suavemente <span class="cod">(H)</span> hasta el fondo. Asegúrate de insertar completamente la pieza. 2. Durante la instalación, puedes apoyar las patas de la mesa sobre objetos fijos o pedir ayuda a otra persona para sostenerlas y evitar que se caigan.</p></article>
-<article class="anim-texto" data-paso="4" data-titulo="Los soportes ⑧ y ⑨"><h3><span class="anim-paso-n">Paso 4</span>Los soportes ⑧ y ⑨</h3><p class="anim-linea">El soporte ⑧ en la pata ① y el ⑨ en la pata ②, con 4 tornillos <span class="cod">(C)</span> y la llave <span class="cod">(I)</span>.</p><p>Pon el soporte ⑧ en la cabeza de la pata ① y el soporte ⑨ en la de la pata ②. Fija cada uno con 2 tornillos <span class="cod">(C)</span> (M6×12), apretados con la llave <span class="cod">(I)</span> (S4).</p></article>
-<article class="anim-texto" data-paso="5" data-titulo="El tablero"><h3><span class="anim-paso-n">Paso 5</span>El tablero</h3><p class="anim-linea">Une los dos tableros con 3 pasadores <span class="cod">(O)</span> y 2 placas <span class="cod">(N)</span> con 8 tornillos <span class="cod">(B)</span> y la llave <span class="cod">(I)</span>.</p><p>Pon los 3 pasadores <span class="cod">(O)</span> en el canto de un tablero y junta los dos tableros. Pon las 2 placas <span class="cod">(N)</span> sobre la unión y fíjalas con 8 tornillos <span class="cod">(B)</span> (M6×16), apretados con la llave <span class="cod">(I)</span> (S4).</p></article>
-<article class="anim-texto" data-paso="6" data-titulo="La estructura en el tablero"><h3><span class="anim-paso-n">Paso 6</span>La estructura en el tablero</h3><p class="anim-linea">La estructura sobre el tablero, con 12 tornillos <span class="cod">(B)</span>; el control ⑩ con 2 <span class="cod">(F)</span> y la llave <span class="cod">(J)</span>; el amarre <span class="cod">(K)</span> hacia el control.</p><p>Pon la estructura sobre el tablero, con las patas hacia arriba. Fija los soportes ⑧ y ⑨ y las dos pestañas de la barra ⑤ con 12 tornillos <span class="cod">(B)</span> (M6×16), apretados con la llave <span class="cod">(I)</span> (S4). Pon el control ⑩ con 2 tornillos <span class="cod">(F)</span> (M4×12) y la llave <span class="cod">(J)</span> (S2.5). Lleva el amarre <span class="cod">(K)</span> hacia el control, como indica la flecha.</p></article>
-<article class="anim-texto" data-paso="7" data-titulo="Diagrama de conexión"><h3><span class="anim-paso-n">Paso 7</span>Diagrama de conexión</h3><p class="anim-linea">Los 4 amarres <span class="cod">(G)</span>, el cable del motor y el cable de alimentación ⑪ al control ⑩.</p><p>Diagrama de conexión: pega los 4 amarres <span class="cod">(G)</span>, conecta al control ⑩ el cable del motor y después el cable de alimentación ⑪. Después de la instalación, por favor mantén presionado el botón « ▽ » para reiniciar las patas de la mesa.</p></article>
+<article class="anim-texto" data-paso="0" data-titulo="Identifica las piezas" data-tit-html="Identifica las piezas"><h3><span class="anim-paso-n">Paso 0</span>Identifica las piezas</h3><p class="anim-linea">Mira cada pieza con su letra y su cantidad, de la <span class="pz">1</span> a la O.</p><p>Esta es la lista de partes del manual. Toca una para verla:</p><p class='nota anim-lista-sigue'>Son 27 piezas, de la <span class="pz">1</span> a la O: desliza para verlas todas ↓</p><ul class='anim-lista anim-lista-partes'><li><button type="button" class="anim-lista-btn" data-letra="1" aria-label="Ver Pata del motor, 1 und, número 1"><b class="cod"><span class="pz">1</span></b> <span>Pata del motor</span> <b class="num">×1</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="2" aria-label="Ver Pata, 1 und, número 2"><b class="cod"><span class="pz">2</span></b> <span>Pata</span> <b class="num">×1</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="3" aria-label="Ver Pie, 1 und, número 3"><b class="cod"><span class="pz">3</span></b> <span>Pie</span> <b class="num">×1</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="4" aria-label="Ver Pie, 1 und, número 4"><b class="cod"><span class="pz">4</span></b> <span>Pie</span> <b class="num">×1</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="5" aria-label="Ver Barra transversal, 1 und, número 5"><b class="cod"><span class="pz">5</span></b> <span>Barra transversal</span> <b class="num">×1</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="6" aria-label="Ver Varilla, 1 und, número 6"><b class="cod"><span class="pz">6</span></b> <span>Varilla</span> <b class="num">×1</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="7" aria-label="Ver Tubo con perilla, 1 und, número 7"><b class="cod"><span class="pz">7</span></b> <span>Tubo con perilla</span> <b class="num">×1</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="8" aria-label="Ver Soporte corto, 1 und, número 8"><b class="cod"><span class="pz">8</span></b> <span>Soporte corto</span> <b class="num">×1</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="9" aria-label="Ver Soporte largo, 1 und, número 9"><b class="cod"><span class="pz">9</span></b> <span>Soporte largo</span> <b class="num">×1</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="10" aria-label="Ver Control, 1 und, número 10"><b class="cod"><span class="pz pz2">10</span></b> <span>Control</span> <b class="num">×1</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="11" aria-label="Ver Cable de alimentación, 1 und, número 11"><b class="cod"><span class="pz pz2">11</span></b> <span>Cable de alimentación</span> <b class="num">×1</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="12" aria-label="Ver Motor, 1 und, número 12"><b class="cod"><span class="pz pz2">12</span></b> <span>Motor</span> <b class="num">×1</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="A" aria-label="Ver Tornillo M6×40, 8 und, letra A"><b class="cod">A</b> <span>Tornillo M6×40</span> <b class="num">×8</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="B" aria-label="Ver Tornillo M6×16, 20 und, letra B"><b class="cod">B</b> <span>Tornillo M6×16</span> <b class="num">×20</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="C" aria-label="Ver Tornillo M6×12, 4 und, letra C"><b class="cod">C</b> <span>Tornillo M6×12</span> <b class="num">×4</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="D" aria-label="Ver Tornillo M6×20, 2 und, letra D"><b class="cod">D</b> <span>Tornillo M6×20</span> <b class="num">×2</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="E" aria-label="Ver Tornillo M6×50, 4 und, letra E"><b class="cod">E</b> <span>Tornillo M6×50</span> <b class="num">×4</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="F" aria-label="Ver Tornillo M4×12, 2 und, letra F"><b class="cod">F</b> <span>Tornillo M4×12</span> <b class="num">×2</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="G" aria-label="Ver Base de amarre de cable, 4 und, letra G"><b class="cod">G</b> <span>Base de amarre de cable</span> <b class="num">×4</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="H" aria-label="Ver Llave Allen S6, 1 und, letra H"><b class="cod">H</b> <span>Llave Allen S6</span> <b class="num">×1</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="I" aria-label="Ver Llave Allen S4, 1 und, letra I"><b class="cod">I</b> <span>Llave Allen S4</span> <b class="num">×1</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="J" aria-label="Ver Llave Allen S2.5, 1 und, letra J"><b class="cod">J</b> <span>Llave Allen S2.5</span> <b class="num">×1</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="K" aria-label="Ver Amarre de cable, 1 und, letra K"><b class="cod">K</b> <span>Amarre de cable</span> <b class="num">×1</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="L" aria-label="Ver Tornillo M5×40, 2 und, letra L"><b class="cod">L</b> <span>Tornillo M5×40</span> <b class="num">×2</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="M" aria-label="Ver Separador 5×9×18, 2 und, letra M"><b class="cod">M</b> <span>Separador 5×9×18</span> <b class="num">×2</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="N" aria-label="Ver Placa, 2 und, letra N"><b class="cod">N</b> <span>Placa</span> <b class="num">×2</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="O" aria-label="Ver Pasador, 3 und, letra O"><b class="cod">O</b> <span>Pasador</span> <b class="num">×3</b></button></li></ul><p hidden></p></article>
+<article class="anim-texto" data-paso="1" data-titulo="Las patas y sus pies" data-tit-html="Las patas y sus pies"><h3><span class="anim-paso-n">Paso 1</span>Las patas y sus pies</h3><p class="anim-linea">El pie <span class="pz">4</span> en la pata <span class="pz">2</span>, el pie <span class="pz">3</span> en la pata <span class="pz">1</span> y el motor <span class="pz pz2">12</span>, con los tornillos <span class="cod">(A)</span> y <span class="cod">(L)</span> y la llave <span class="cod">(I)</span>.</p><p>Antes del ensamblaje, compara la diferencia de altura entre las dos patas. Si la diferencia de altura entre las patas supera los 3 mm, usa el botón para ajustar la altura hasta que sean consistentes. Pon el pie <span class="pz">4</span> en la pata <span class="pz">2</span> y el pie <span class="pz">3</span> en la pata <span class="pz">1</span>, cada uno con 4 tornillos <span class="cod">(A)</span> (M6×40), apretados con la llave <span class="cod">(I)</span> (S4). Pon el motor <span class="pz pz2">12</span> en la pata <span class="pz">1</span> con los 2 separadores <span class="cod">(M)</span> y los 2 tornillos <span class="cod">(L)</span> (M5×40).</p></article>
+<article class="anim-texto" data-paso="2" data-titulo="La barra 5" data-tit-html="La barra &lt;span class=&quot;pz&quot;&gt;5&lt;/span&gt;"><h3><span class="anim-paso-n">Paso 2</span>La barra <span class="pz">5</span></h3><p class="anim-linea">La barra <span class="pz">5</span> sobre las dos patas, con 4 tornillos <span class="cod">(E)</span> y 2 <span class="cod">(D)</span> y la llave <span class="cod">(I)</span>.</p><p>Pon la barra <span class="pz">5</span> sobre las dos patas y fíjala con 4 tornillos <span class="cod">(E)</span> (M6×50) y 2 tornillos <span class="cod">(D)</span> (M6×20), apretados con la llave <span class="cod">(I)</span> (S4). Afloja los siguientes cuatro tornillos con el símbolo <span class="cod">(I)</span>, pero no los desenrosques completamente, de lo contrario será difícil instalarlos.</p></article>
+<article class="anim-texto" data-paso="3" data-titulo="Las varillas 7 y 6" data-tit-html="Las varillas &lt;span class=&quot;pz&quot;&gt;7&lt;/span&gt; y &lt;span class=&quot;pz&quot;&gt;6&lt;/span&gt;"><h3><span class="anim-paso-n">Paso 3</span>Las varillas <span class="pz">7</span> y <span class="pz">6</span></h3><p class="anim-linea">Mete <span class="pz">7</span> y <span class="pz">6</span> hasta el fondo girando suavemente <span class="cod">(H)</span>: desenrosca la perilla antes y enrosca después.</p><p>1. Al insertar las piezas <span class="pz">6</span> y <span class="pz">7</span>, gira suavemente <span class="cod">(H)</span> hasta el fondo. Asegúrate de insertar completamente la pieza. 2. Durante la instalación, puedes apoyar las patas de la mesa sobre objetos fijos o pedir ayuda a otra persona para sostenerlas y evitar que se caigan.</p></article>
+<article class="anim-texto" data-paso="4" data-titulo="Los soportes 8 y 9" data-tit-html="Los soportes &lt;span class=&quot;pz&quot;&gt;8&lt;/span&gt; y &lt;span class=&quot;pz&quot;&gt;9&lt;/span&gt;"><h3><span class="anim-paso-n">Paso 4</span>Los soportes <span class="pz">8</span> y <span class="pz">9</span></h3><p class="anim-linea">El soporte <span class="pz">8</span> en la pata <span class="pz">1</span> y el <span class="pz">9</span> en la pata <span class="pz">2</span>, con 4 tornillos <span class="cod">(C)</span> y la llave <span class="cod">(I)</span>.</p><p>Pon el soporte <span class="pz">8</span> en la cabeza de la pata <span class="pz">1</span> y el soporte <span class="pz">9</span> en la de la pata <span class="pz">2</span>. Fija cada uno con 2 tornillos <span class="cod">(C)</span> (M6×12), apretados con la llave <span class="cod">(I)</span> (S4).</p></article>
+<article class="anim-texto" data-paso="5" data-titulo="El tablero" data-tit-html="El tablero"><h3><span class="anim-paso-n">Paso 5</span>El tablero</h3><p class="anim-linea">Une los dos tableros con 3 pasadores <span class="cod">(O)</span> y 2 placas <span class="cod">(N)</span> con 8 tornillos <span class="cod">(B)</span> y la llave <span class="cod">(I)</span>.</p><p>Pon los 3 pasadores <span class="cod">(O)</span> en el canto de un tablero y junta los dos tableros. Pon las 2 placas <span class="cod">(N)</span> sobre la unión y fíjalas con 8 tornillos <span class="cod">(B)</span> (M6×16), apretados con la llave <span class="cod">(I)</span> (S4).</p></article>
+<article class="anim-texto" data-paso="6" data-titulo="La estructura en el tablero" data-tit-html="La estructura en el tablero"><h3><span class="anim-paso-n">Paso 6</span>La estructura en el tablero</h3><p class="anim-linea">La estructura sobre el tablero, con 12 tornillos <span class="cod">(B)</span>; el control <span class="pz pz2">10</span> con 2 <span class="cod">(F)</span> y la llave <span class="cod">(J)</span>.</p><p>Pon la estructura sobre el tablero, con las patas hacia arriba. Fija los soportes <span class="pz">8</span> y <span class="pz">9</span> y las dos pestañas de la barra <span class="pz">5</span> con 12 tornillos <span class="cod">(B)</span> (M6×16), apretados con la llave <span class="cod">(I)</span> (S4). Pon el control <span class="pz pz2">10</span> con 2 tornillos <span class="cod">(F)</span> (M4×12) y la llave <span class="cod">(J)</span> (S2.5).</p></article>
+<article class="anim-texto" data-paso="7" data-titulo="Diagrama de conexión" data-tit-html="Diagrama de conexión"><h3><span class="anim-paso-n">Paso 7</span>Diagrama de conexión</h3><p class="anim-linea">Los 4 amarres <span class="cod">(G)</span>, el cable del motor y el cable de alimentación <span class="pz pz2">11</span> al control <span class="pz pz2">10</span>; el amarre <span class="cod">(K)</span>; y el escritorio de pie.</p><p>Diagrama de conexión: pega los 4 amarres <span class="cod">(G)</span>, conecta al control <span class="pz pz2">10</span> el cable del motor y después el cable de alimentación <span class="pz pz2">11</span>. Recoge el cable que sobra con el amarre <span class="cod">(K)</span>. Entre dos personas, voltea el escritorio y ponlo de pie sobre sus patas. Después de la instalación, por favor mantén presionado el botón « ▽ » para reiniciar las patas de la mesa.</p></article>
       </div>
     </div>
     <nav class="anim-barra" aria-label="Pasos del armado">
       <button type="button" class="anim-b-flecha" id="anim-b-ant" aria-label="Paso anterior"><svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"><path d="M15 4 7 12l8 8" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
       <button type="button" class="anim-b-info" id="anim-b-info" aria-expanded="false" aria-controls="anim-panel">
-        <span class="anim-b-txt" id="anim-b-txt">Paso 0</span><span class="anim-b-n" id="anim-b-n"></span><span class="anim-b-i" aria-hidden="true">ⓘ</span>
+        <span class="anim-b-txt" id="anim-b-txt">Paso 0</span><span class="anim-b-n" id="anim-b-n"></span><span class="anim-b-i" aria-hidden="true"><span class="pz">i</span></span>
       </button>
       <button type="button" class="anim-b-flecha fuerte" id="anim-b-sig" aria-label="Paso siguiente"><svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"><path d="m9 4 8 8-8 8" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
     </nav>
@@ -837,7 +864,7 @@ window.zoomSolidWorks = function (o) {
    eje (x) mientras entran. Con prefers-reduced-motion cada paso salta a su estado final. */
 (function () {
   "use strict";
-  const ETQ = {"①": {"n": "Pata del motor", "s": "①", "f": "×1"}, "②": {"n": "Pata", "s": "②", "f": "×1"}, "③": {"n": "Pie", "s": "③", "f": "×1"}, "④": {"n": "Pie", "s": "④", "f": "×1"}, "⑤": {"n": "Barra transversal", "s": "⑤", "f": "×1"}, "⑥": {"n": "Varilla", "s": "⑥", "f": "×1"}, "⑦": {"n": "Tubo con perilla", "s": "⑦", "f": "×1"}, "⑧": {"n": "Soporte corto", "s": "⑧", "f": "×1"}, "⑨": {"n": "Soporte largo", "s": "⑨", "f": "×1"}, "⑩": {"n": "Control", "s": "⑩", "f": "×1"}, "⑪": {"n": "Cable de alimentación", "s": "⑪", "f": "×1"}, "⑫": {"n": "Motor", "s": "⑫", "f": "×1"}, "A": {"n": "Tornillo M6×40", "s": "A", "f": "×8"}, "B": {"n": "Tornillo M6×16", "s": "B", "f": "×20"}, "C": {"n": "Tornillo M6×12", "s": "C", "f": "×4"}, "D": {"n": "Tornillo M6×20", "s": "D", "f": "×2"}, "E": {"n": "Tornillo M6×50", "s": "E", "f": "×4"}, "F": {"n": "Tornillo M4×12", "s": "F", "f": "×2"}, "G": {"n": "Base de amarre de cable", "s": "G", "f": "×4"}, "H": {"n": "Llave Allen S6", "s": "H", "f": "×1"}, "I": {"n": "Llave Allen S4", "s": "I", "f": "×1"}, "J": {"n": "Llave Allen S2.5", "s": "J", "f": "×1"}, "K": {"n": "Amarre de cable", "s": "K", "f": "×1"}, "L": {"n": "Tornillo M5×40", "s": "L", "f": "×2"}, "M": {"n": "Separador 5×9×18", "s": "M", "f": "×2"}, "N": {"n": "Placa", "s": "N", "f": "×2"}, "O": {"n": "Pasador", "s": "O", "f": "×3"}};
+  const ETQ = {"1": {"n": "Pata del motor", "s": "1", "f": "×1"}, "2": {"n": "Pata", "s": "2", "f": "×1"}, "3": {"n": "Pie", "s": "3", "f": "×1"}, "4": {"n": "Pie", "s": "4", "f": "×1"}, "5": {"n": "Barra transversal", "s": "5", "f": "×1"}, "6": {"n": "Varilla", "s": "6", "f": "×1"}, "7": {"n": "Tubo con perilla", "s": "7", "f": "×1"}, "8": {"n": "Soporte corto", "s": "8", "f": "×1"}, "9": {"n": "Soporte largo", "s": "9", "f": "×1"}, "10": {"n": "Control", "s": "10", "f": "×1"}, "11": {"n": "Cable de alimentación", "s": "11", "f": "×1"}, "12": {"n": "Motor", "s": "12", "f": "×1"}, "A": {"n": "Tornillo M6×40", "s": "A", "f": "×8"}, "B": {"n": "Tornillo M6×16", "s": "B", "f": "×20"}, "C": {"n": "Tornillo M6×12", "s": "C", "f": "×4"}, "D": {"n": "Tornillo M6×20", "s": "D", "f": "×2"}, "E": {"n": "Tornillo M6×50", "s": "E", "f": "×4"}, "F": {"n": "Tornillo M4×12", "s": "F", "f": "×2"}, "G": {"n": "Base de amarre de cable", "s": "G", "f": "×4"}, "H": {"n": "Llave Allen S6", "s": "H", "f": "×1"}, "I": {"n": "Llave Allen S4", "s": "I", "f": "×1"}, "J": {"n": "Llave Allen S2.5", "s": "J", "f": "×1"}, "K": {"n": "Amarre de cable", "s": "K", "f": "×1"}, "L": {"n": "Tornillo M5×40", "s": "L", "f": "×2"}, "M": {"n": "Separador 5×9×18", "s": "M", "f": "×2"}, "N": {"n": "Placa", "s": "N", "f": "×2"}, "O": {"n": "Pasador", "s": "O", "f": "×3"}};
   const EJ = {};   // la silla no tiene hojas giradas: cajas alineadas a los ejes
   const sec = document.getElementById("animacion");
   if (!sec) return;
@@ -858,7 +885,7 @@ window.zoomSolidWorks = function (o) {
     bAnt.disabled = paso === 0; bSig.disabled = paso === N_PASOS - 1;
     // la barra resumida del sitio de armado: «Paso 1 · Une los dos marcos» y 1/4
     if (bTxt) {
-      bTxt.textContent = "Paso " + paso + " · " + (textos[paso] ? textos[paso].dataset.titulo : "");
+      bTxt.innerHTML = "Paso " + paso + " · " + (textos[paso] ? textos[paso].dataset.titHtml || textos[paso].dataset.titulo : "");
       bNum.textContent = paso + "/" + (N_PASOS - 1);
       bBAnt.disabled = paso === 0; bBSig.disabled = paso === N_PASOS - 1;
     }
@@ -949,31 +976,34 @@ window.zoomSolidWorks = function (o) {
      manual («Assembly manual L shape desk (controller -right side).pdf»). Copia adaptada de
      diseno/versus-escritorio-vidrio/scripts/pasos.js (que viene de diseno/versus-v40/scripts/pasos_v40.js): este bloque y el
      de los pasos son lo único propio del escritorio; artefacto.py los pone en el motor del espejo 5437. ---------- */
-  const NUM = { 1: "①", 2: "②", 3: "③", 4: "④", 5: "⑤", 6: "⑥", 7: "⑦", 8: "⑧", 9: "⑨", 10: "⑩", 11: "⑪", 12: "⑫" };
+  const NUM = { 1: "1", 2: "2", 3: "3", 4: "4", 5: "5", 6: "6", 7: "7", 8: "8", 9: "9", 10: "10", 11: "11", 12: "12" };
   function tipoDe(n) {
     let m = /^p(\d+)[a-z]?$/.exec(n);
     if (m) return NUM[m[1]] || null;
     if (/^tab[AB]$/.test(n)) return "T";            // el tablero: dos tableros que el manual no numera ni nombra
     m = /^([A-O])\d*$/.exec(n);
-    return m ? m[1] : null;
+    if (m) return m[1];
+    // S1 a S4: los cuatro tornillos que el paso 2 manda aflojar (23-nov, #1065). Vienen puestos en las camisas de 5 y no están en
+    // la lista de partes: no tienen letra, ni etiqueta, ni parada en el paso 0
+    return /^S\d$/.test(n) ? "S" : null;
   }
-  // el paso del manual en que cada pieza queda puesta (99: las llaves Ⓗ, Ⓘ y Ⓙ se quedan en el piso)
-  const PASO_TIPO = { "①": 1, "②": 1, "③": 1, "④": 1, "⑫": 1, A: 1, L: 1, M: 1, "⑤": 2, E: 2, D: 2, "⑥": 3, "⑦": 3, "⑧": 4, "⑨": 4, C: 4,
-    T: 5, N: 5, O: 5, B: 5, "⑩": 6, F: 6, K: 6, "⑪": 7, G: 7, H: 99, I: 99, J: 99 };
+  // el paso del manual en que cada pieza queda puesta (99: las llaves H, I y J se quedan en el piso)
+  const PASO_TIPO = { "1": 1, "2": 1, "3": 1, "4": 1, "12": 1, A: 1, L: 1, M: 1, "5": 2, E: 2, D: 2, S: 2, "6": 3, "7": 3, "8": 4, "9": 4, C: 4,
+    T: 5, N: 5, O: 5, B: 5, "10": 6, F: 6, K: 7, "11": 7, G: 7, H: 99, I: 99, J: 99 };
   function pasoDe(u) {
     const k = Number((u.nombre.match(/(\d+)$/) || [0, 0])[1]);
-    if (u.tipo === "B") return k <= 8 ? 5 : 6;      // B1 a B8 en las placas Ⓝ (paso 5); B9 a B20 en los soportes y la barra (paso 6)
+    if (u.tipo === "B") return k <= 8 ? 5 : 6;      // B1 a B8 en las placas N (paso 5); B9 a B20 en los soportes y la barra (paso 6)
     return PASO_TIPO[u.tipo];
   }
   // la cantidad que se usa en cada paso (Jon, 19-nov: la etiqueta dice la cantidad de ESE paso). El paso 0 dice el total.
-  // Paso 4: la tabla del paso dice «⑧ ×2» y la lista de partes y el dibujo, uno (ver el LEEME)
-  const CANT = { 1: { "①": 1, "②": 1, "③": 1, "④": 1, "⑫": 1, A: 8, L: 2, M: 2, H: 1, I: 1 },
-    2: { "⑤": 1, E: 4, D: 2, I: 1 },
-    3: { "⑥": 1, "⑦": 1, H: 1 },
-    4: { "⑧": 1, "⑨": 1, C: 4, I: 1 },
+  // Paso 4: la tabla del paso dice «8 ×2» y la lista de partes y el dibujo, uno (ver el LEEME)
+  const CANT = { 1: { "1": 1, "2": 1, "3": 1, "4": 1, "12": 1, A: 8, L: 2, M: 2, H: 1, I: 1 },
+    2: { "5": 1, E: 4, D: 2, I: 1 },
+    3: { "6": 1, "7": 1, H: 1 },
+    4: { "8": 1, "9": 1, C: 4, I: 1 },
     5: { O: 3, N: 2, B: 8, I: 1 },
-    6: { B: 12, F: 2, "⑩": 1, "⑪": 1, K: 1, I: 1, J: 1 },
-    7: { G: 4, "⑩": 1, "⑪": 1 } };
+    6: { B: 12, F: 2, "10": 1, "11": 1, I: 1, J: 1 },
+    7: { G: 4, "10": 1, "11": 1, K: 1 } };
   let TOTAL = null;
   const Q_V = new THREE.Quaternion().setFromAxisAngle(V(1, 0, 0), Math.PI);          // el escritorio patas arriba (media vuelta sobre x)
   const Q_ACOST = new THREE.Quaternion().setFromAxisAngle(V(0, 0, 1), Math.PI / 2);  // patas y tornillos acostados
@@ -982,6 +1012,8 @@ window.zoomSolidWorks = function (o) {
   // dónde queda cada pieza en el piso (x, z en metros). El marco se arma en el centro (z −0,6 a 0,6) y el tablero, detrás
   // (Z_T). Todo lo demás espera adelante, en filas
   const Z_T = -1.75;
+  // la pata 1 y lo suyo se corrieron +38,8 mm para que el soporte 8 quede afuera de su cabeza (23-nov, #940; separar_L.py)
+  const DX_PATA1 = 0.0388;
   const SITIO = { p5: [0, 0.8], p7: [-0.45, 0.96], p7c: [-0.1, 1.04], p6: [0.45, 0.96], p8: [-0.5, 1.12], p9: [0.42, 1.12], p3: [-0.5, 1.28], p4: [0.42, 1.28],
     p1: [-0.45, 1.44], p2: [0.45, 1.44], p10: [1.02, 0.8], p11: [1.22, 0.96], p12: [-1.05, 0.8], H: [-1.2, 1.0], I: [-1.2, 1.12], J: [-1.2, 1.24], K: [1.05, 1.12],
     N1: [1.05, 1.28], N2: [1.2, 1.28], O1: [-1.2, 1.4], O2: [-1.2, 1.5], O3: [-1.2, 1.6] };
@@ -1033,7 +1065,7 @@ window.zoomSolidWorks = function (o) {
     requestAnimationFrame(cadaCuadro);
     if (escena.fog) { const d = camara.position.distanceTo(controles.target); escena.fog.near = d + 0.8; escena.fog.far = d + 7.5; }
     if (!PASOS.length) return;
-    // nada arranca solo (Jon, 12-nov): bienvenida, ayuda de gestos y el primer toque lleva a la parada del ①
+    // nada arranca solo (Jon, 12-nov): bienvenida, ayuda de gestos y el primer toque lleva a la parada del 1
     if (!inicio) {
       inicio = true; esperando = true;
       t = Math.min(PASOS[0].dur, TOUR.length ? TOUR[0].t0 - 0.05 : 2.4); enMarcha = false; manual = false; vuelo = null;
@@ -1088,21 +1120,44 @@ window.zoomSolidWorks = function (o) {
     mallas.forEach(function (o) {
       o.castShadow = true; o.receiveShadow = true;
       if (o.material) { o.material.envMapIntensity = 0.9; o.userData.colorBase = o.material.color.clone(); }
+      // el contorno: la malla inflada 1,6 mm por la normal PROMEDIADA en cada posición (Jon, 23-nov, #940: «mejorar renderizado»
+      // del cable y del control). El GLB duplica los vértices de las aristas vivas, cada uno con la normal de su cara: inflado
+      // así, el contorno se abría en cada arista y en cada quiebre del cable y se veía serruchado
       const gq = o.geometry.clone(), pos = gq.attributes.position, nor = gq.attributes.normal;
-      if (nor) for (let k = 0; k < pos.count; k++) pos.setXYZ(k, pos.getX(k) + nor.getX(k) * 0.0016, pos.getY(k) + nor.getY(k) * 0.0016, pos.getZ(k) + nor.getZ(k) * 0.0016);
-      const c = new THREE.Mesh(gq, new THREE.MeshBasicMaterial({ color: 0xf2f5f8, side: THREE.BackSide, fog: false }));
-      c.visible = false; c.name = "contorno"; c.raycast = function () {}; o.add(c); o.userData.contorno = c;
+      if (nor) {
+        const suma = {}, clave = function (k) { return Math.round(pos.getX(k) * 2e4) + "," + Math.round(pos.getY(k) * 2e4) + "," + Math.round(pos.getZ(k) * 2e4); };
+        for (let k = 0; k < pos.count; k++) { const c = clave(k), s = suma[c] || (suma[c] = [0, 0, 0]); s[0] += nor.getX(k); s[1] += nor.getY(k); s[2] += nor.getZ(k); }
+        for (let k = 0; k < pos.count; k++) {
+          const s = suma[clave(k)], l = Math.hypot(s[0], s[1], s[2]) || 1;
+          pos.setXYZ(k, pos.getX(k) + s[0] / l * 0.0016, pos.getY(k) + s[1] / l * 0.0016, pos.getZ(k) + s[2] / l * 0.0016);
+        }
+      }
+      // y solo se pinta donde no hay ninguna pieza (esténcil): inflada, la malla salía por los huecos de la propia pieza (los botones
+      // del control, el rollo del cable) como rayas blancas. Cada pieza marca el esténcil; el contorno va después y solo cae fuera
+      if (o.material) {
+        o.material.stencilWrite = true; o.material.stencilRef = 1; o.material.stencilFunc = THREE.AlwaysStencilFunc;
+        o.material.stencilZPass = THREE.ReplaceStencilOp;
+      }
+      const mc = new THREE.MeshBasicMaterial({ color: 0xf2f5f8, side: THREE.BackSide, fog: false });
+      mc.stencilWrite = true; mc.stencilRef = 1; mc.stencilFunc = THREE.NotEqualStencilFunc;
+      mc.stencilFail = mc.stencilZFail = mc.stencilZPass = THREE.KeepStencilOp;
+      const c = new THREE.Mesh(gq, mc);
+      c.renderOrder = 10; c.visible = false; c.name = "contorno"; c.raycast = function () {}; o.add(c); o.userData.contorno = c;
     });
   }
   /* ---------- las tres poses del escritorio ----------
      · armado(u): el escritorio en el marco del GLB (patas abajo): el marco de los pasos 2 a 4
-     · enPata(u): paso 1, cada pata con su pie patas arriba (de pie sobre su cabeza), con los tornillos Ⓐ y el motor
+     · enPata(u): paso 1, cada pata con su pie patas arriba (de pie sobre su cabeza), con los tornillos A y el motor
      · volteado(u): pasos 5 a 7, el escritorio patas arriba con el tablero boca abajo en el piso, detrás (Z_T). VOL.c es
        dónde cae el origen */
   let VOL = null, PATA1 = {};
   const R_V = function (p) { return p.clone().applyQuaternion(Q_V); };
   function volteado(u) { return { q: Q_V, c: R_V(u.piv).add(VOL) }; }
   function armado(u) { return { q: QI, c: u.piv.clone() }; }
+  // 5 y sus cuatro tornillos de ajuste (#1065). El GLB trae los S ya aflojados (2 mm afuera, glb_L.S_AFLOJA): «apretado» es como
+  // vienen en la caja y hasta 2.4
+  const BARRA5 = ["p5", "p5a", "p5b", "S1", "S2", "S3", "S4"], S_SALE = 0.002, S_VUELTAS = 2;
+  function apretado(u) { return u.tipo === "S" ? { q: QI, c: u.piv.clone().add(V(0, S_SALE, 0)) } : armado(u); }
   const GRUPO_IZQ = ["p1", "p3", "p12", "L1", "L2", "M1", "M2"], GRUPO_DER = ["p2", "p4"];
   function grupoDe(u) {
     const k = Number((u.nombre.match(/(\d+)$/) || [0, 0])[1]);
@@ -1120,6 +1175,8 @@ window.zoomSolidWorks = function (o) {
     raiz.children.slice().forEach(function (o) {
       if (!o.isMesh) return;
       if (o.name === "k1" || o.name === "k1c") { CABLE_M[o.name] = o; return; }
+      // G y K ya cerrados (23-nov, #940): no son unidades; se muestran en el paso 7 cuando la correa se cierra
+      if (/^(Gc\d|Kc)$/.test(o.name)) { CERRADOS[o.name] = o; o.visible = false; o.raycast = function () {}; return; }
       const base = o.name.replace(/_.*/, ""), t = tipoDe(base);
       if (!t) return;
       if (porNombre[base]) { porNombre[base].objs.push(o); return; }
@@ -1132,10 +1189,13 @@ window.zoomSolidWorks = function (o) {
       // la etiqueta de un tornillo va pegada a su cabeza (4 mm afuera): el centro queda dentro del agujero y se taparía
       if (ex.cabeza) u.ancla = u.cabeza.clone().addScaledVector(u.dirCana, -0.004);
       u.qPiso = QI;
-      if (t === "①" || t === "②") u.qPiso = Q_ACOST;
-      else if (t === "③" || t === "④" || t === "⑧" || t === "⑨") u.qPiso = Q_Y90;
+      if (t === "1" || t === "2") u.qPiso = Q_ACOST;
+      else if (t === "3" || t === "4" || t === "8" || t === "9") u.qPiso = Q_Y90;
       else if (t === "A" || t === "B" || t === "E" || t === "F") u.qPiso = Q_ACOST;
       else if (t === "T") u.qPiso = Q_V;
+      // G espera en el piso con la cara que se pega hacia abajo y la correa hacia arriba, como en el dibujo del manual (Jon,
+      // 23-nov, #940: «voltear componentes»); en el paso 7 llega así mismo al tablero, que está boca abajo
+      else if (t === "G") u.qPiso = Q_V;
       unidades.push(u);
     });
     // la parte más baja del escritorio patas arriba (el tablero) a medio milímetro del piso; el tablero va en Z_T
@@ -1163,12 +1223,28 @@ window.zoomSolidWorks = function (o) {
       const F = volteado(u);
       u.cPiso = F.c.clone().add(V(u.nombre === "tabA" ? -TAB_SEP : 0, 0, 0));
     });
+    // 5 son tres nodos (el tramo del centro p5 y las dos camisas p5a, p5b) y los cuatro S, apretados (#1065): en el piso esperan
+    // juntos, como una sola barra, con lo más bajo (las cabezas de los S) a medio milímetro del piso
+    const u5 = unidades.find(function (u) { return u.nombre === "p5"; });
+    if (u5) {
+      let ymin = 1e9;
+      BARRA5.forEach(function (n) {
+        const u = unidades.find(function (x) { return x.nombre === n; }); if (!u) return;
+        const dy = u.tipo === "S" ? S_SALE : 0;
+        u.objs.forEach(function (o) { const pos = o.geometry.attributes.position; for (let i = 0; i < pos.count; i++) ymin = Math.min(ymin, pos.getY(i) + dy); });
+      });
+      u5.cPiso.y = u5.piv.y - ymin + 0.0005;
+      BARRA5.forEach(function (n) {
+        const u = unidades.find(function (x) { return x.nombre === n; }); if (!u || u === u5) return;
+        u.cPiso = u5.cPiso.clone().add(apretado(u).c.sub(u5.piv));
+      });
+    }
     const u7 = unidades.find(function (u) { return u.nombre === "p7"; }), u7c = unidades.find(function (u) { return u.nombre === "p7c"; });
     if (u7 && u7c) u7c.cPiso = u7.cPiso.clone().add(u7c.piv.clone().sub(u7.piv));      // la perilla espera puesta en su tubo
     unidades.sort(function (a, b) { return a.nombre < b.nombre ? -1 : 1; });
     porTipo = {};
     unidades.forEach(function (u) { (porTipo[u.tipo] = porTipo[u.tipo] || []).push(u); });
-    // paso 1: cada pata con su pie y sus Ⓐ (y el motor) patas arriba, de pie en el piso: lo más bajo de su grupo (la cabeza, o el
+    // paso 1: cada pata con su pie y sus A (y el motor) patas arriba, de pie en el piso: lo más bajo de su grupo (la cabeza, o el
     // motor) a medio milímetro del piso
     ["izq", "der"].forEach(function (g) {
       let ymin = 1e9;
@@ -1186,7 +1262,26 @@ window.zoomSolidWorks = function (o) {
      manual pero en la animación solo 1»). El STL no lo trae: glb_L.py lo dibuja como un tubo por su camino (extras.ruta) y su
      conector aparte. En el paso 7 se tiende desde el motor: el conector recorre el camino y el cable crece detrás de él hasta
      que el conector entra en el control. No es una unidad (no tiene número ni etiqueta en el manual) ---------- */
-  let CABLE_M = {}, RUTA_M = null;
+  let CABLE_M = {}, RUTA_M = null, CERRADOS = {}, T_CIERRA = {};
+  /* ---------- el escritorio armado en el paso 7: patas arriba (Q_V, VOL) y, al final, la vuelta que lo deja de pie (Jon, 23-nov,
+     #940: «los escritorios en las animaciones me los estás dejando boca abajo»). marcoEn() da la rotación y el origen del
+     escritorio en ese momento; lo usan las unidades (vuelta()) y lo que no es unidad (los cables, G y K cerrados) ---------- */
+  let VUELTA = null;
+  function marcoEn(k, tt) {
+    if (k === 7 && VUELTA && tt > VUELTA.t0) return VUELTA.en(suave(Math.min(1, (tt - VUELTA.t0) / (VUELTA.t1 - VUELTA.t0))));
+    return { q: Q_V, c: VOL };
+  }
+  function cerradosEn(k, tt) {
+    const M = marcoEn(k, tt);
+    Object.keys(CERRADOS).forEach(function (n) {
+      const o = CERRADOS[n], t0 = T_CIERRA[n];
+      const si = k === 7 && t0 !== undefined && tt >= t0;
+      o.visible = si; o.quaternion.copy(M.q); o.position.copy(M.c);
+      // la G (o la K) abierta se esconde cuando la cerrada aparece
+      const u = unidades.find(function (x) { return x.nombre === (n === "Kc" ? "K" : "G" + n.slice(2)); });
+      if (u) u.objs.forEach(function (m) { m.visible = !si; });
+    });
+  }
   function prepararCableMotor() {
     const k1 = CABLE_M.k1, kc = CABLE_M.k1c;
     if (!k1 || !kc) return;
@@ -1232,32 +1327,67 @@ window.zoomSolidWorks = function (o) {
     const p = puntoRuta(R, s);
     const tg = puntoRuta(R, s + LARGO_K).sub(p).normalize();
     const rq = new THREE.Quaternion().setFromUnitVectors(V(0, 0, 1), tg);
-    kc.quaternion.copy(Q_V).multiply(rq);
-    kc.position.copy(p.clone().sub(R.base.clone().applyQuaternion(rq)).applyQuaternion(Q_V).add(VOL));
-    k1.quaternion.copy(Q_V); k1.position.copy(VOL);
+    const M = marcoEn(k, tt);
+    kc.quaternion.copy(M.q).multiply(rq);
+    kc.position.copy(p.clone().sub(R.base.clone().applyQuaternion(rq)).applyQuaternion(M.q).add(M.c));
+    k1.quaternion.copy(M.q); k1.position.copy(M.c);
     let cuantos = 0; while (cuantos < R.hasta.length && R.hasta[cuantos] <= s + 1e-6) cuantos++;
     k1.geometry.setDrawRange(0, 3 * cuantos);
     k1.visible = cuantos > 0; kc.visible = true;
   }
   /* ---------- la lupa del paso 3 («Desenrosca» antes del acople, «Enrosca» después, con su flecha de giro): una flecha
-     celeste alrededor de la perilla de ⑦ mientras se desenrosca y mientras se enrosca, girando hacia el mismo lado que la
+     celeste alrededor de la perilla de 7 mientras se desenrosca y mientras se enrosca, girando hacia el mismo lado que la
      perilla (Jon, 22-nov, obs. 6 del vidrio) ---------- */
   let FLECHA_T = [];
-  function flechaGiro(centro, sentido) {
-    const R = 0.021, pts = [], th0 = 0.35 * Math.PI, arco = 1.45 * Math.PI;
+  // sentido: +1 gira alrededor de +x (regla de la mano derecha), −1 alrededor de −x. radio: el de la perilla más el aire.
+  // 23-nov (#1065, Jon: «no se ve la flecha», foto de 3.3): la punta quedaba abajo y detrás de la perilla (el arco terminaba a
+  // −198°, bajo la barra 5). Ahora el arco termina arriba y hacia el frente (54°, donde miran las tomas de la perilla), con una
+  // punta del doble de la de antes, y el arco va por fuera de la perilla
+  function flechaGiro(centro, sentido, radio) {
+    const R = radio || 0.021, pts = [], arco = 1.3 * Math.PI, thf = 0.3 * Math.PI, th0 = thf - sentido * arco;
     for (let i = 0; i <= 40; i++) { const th = th0 + sentido * arco * i / 40; pts.push(V(0, R * Math.cos(th), R * Math.sin(th))); }
     const mat = new THREE.MeshBasicMaterial({ color: NEON_CELESTE, fog: false });
     const g = new THREE.Group();
-    g.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 40, 0.0022, 8, false), mat));
-    const thf = th0 + sentido * arco, tg = V(0, -Math.sin(thf), Math.cos(thf)).multiplyScalar(sentido);
-    const punta = new THREE.Mesh(new THREE.ConeGeometry(0.0058, 0.012, 16), mat);
+    g.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 40, 0.0026, 8, false), mat));
+    const tg = V(0, -Math.sin(thf), Math.cos(thf)).multiplyScalar(sentido);
+    const punta = new THREE.Mesh(new THREE.ConeGeometry(0.0085, 0.019, 20), mat);
     punta.quaternion.setFromUnitVectors(V(0, 1, 0), tg);
-    punta.position.copy(pts[pts.length - 1]).addScaledVector(tg, 0.0045);
+    punta.position.copy(pts[pts.length - 1]).addScaledVector(tg, 0.0085);
     g.add(punta);
+    g.userData = { sentido: sentido, punta: punta };
     g.position.copy(centro); g.visible = false;
     g.traverse(function (o) { o.raycast = function () {}; });
     escena.add(g);
     return g;
+  }
+  /* ---------- 2.4: la flecha de doble sentido sobre 5 mientras el marco se abre y se cierra (23-nov, #1065). Mismo estilo que la
+     de la perilla (tubo y puntas celestes, sin niebla), más gruesa porque el marco mide 1,3 m. Va de pata a pata, a 7,5 cm sobre
+     el eje de 5, y se estira y se encoge con el marco ---------- */
+  const ANCHO_MAX = 1.300, ANCHO_MIN = 0.955, R_MARCO = 0.7, R_MARCO_ANCHO = 0.485;    // m entre los ejes de las patas: «Rango de ajuste del marco: 955 mm ~ 1300 mm»
+  let ANCHO_T = null, FLECHA_A = null;
+  function flechaAncho() {
+    const mat = new THREE.MeshBasicMaterial({ color: NEON_CELESTE, fog: false });
+    const g = new THREE.Group(), RP = 0.016, LP = 0.04;
+    const tallo = new THREE.Mesh(new THREE.CylinderGeometry(0.0055, 0.0055, 1, 12), mat);
+    tallo.quaternion.setFromUnitVectors(V(0, 1, 0), V(1, 0, 0));
+    const pI = new THREE.Mesh(new THREE.ConeGeometry(RP, LP, 20), mat), pD = new THREE.Mesh(new THREE.ConeGeometry(RP, LP, 20), mat);
+    pI.quaternion.setFromUnitVectors(V(0, 1, 0), V(-1, 0, 0)); pD.quaternion.setFromUnitVectors(V(0, 1, 0), V(1, 0, 0));
+    g.add(tallo); g.add(pI); g.add(pD);
+    g.userData = { tallo: tallo, pI: pI, pD: pD, LP: LP };
+    g.visible = false; g.traverse(function (o) { o.raycast = function () {}; });
+    escena.add(g);
+    return g;
+  }
+  function anchoEn(k, tt) {
+    if (!ANCHO_T) return;
+    if (!FLECHA_A) FLECHA_A = flechaAncho();
+    const si = k === 2 && tt >= ANCHO_T.t0 - 0.3 && tt <= ANCHO_T.t1 + 0.3;
+    FLECHA_A.visible = si;
+    if (!si) return;
+    const d = FLECHA_A.userData, xa = uni("p1").c.x + 0.06, xb = uni("p2").c.x - 0.06, lt = Math.max(0.01, xb - xa - 2 * d.LP);
+    FLECHA_A.position.set(0, ANCHO_T.y, ANCHO_T.z);
+    d.tallo.scale.set(1, lt, 1); d.tallo.position.set((xa + xb) / 2, 0, 0);
+    d.pI.position.set(xa + d.LP / 2, 0, 0); d.pD.position.set(xb - d.LP / 2, 0, 0);
   }
   // para las pruebas: qué tan a la vista queda una pieza (rayos desde la cámara a sus vértices: la parte que llega sin tocar
   // otra cosa; las llaves no tapan) y dónde están las cosas
@@ -1282,12 +1412,71 @@ window.zoomSolidWorks = function (o) {
     piso: function () { return unidades.map(function (u) { return { n: u.nombre, c: [u.cPiso.x, u.cPiso.y, u.cPiso.z] }; }); },
     camara: function () { return { d: camara.position.distanceTo(controles.target), c: camara.position.toArray(), m: controles.target.toArray() }; },
     cable: function () { const R = RUTA_M; return R ? { vis: CABLE_M.k1.visible, con: CABLE_M.k1c.visible, dibujados: CABLE_M.k1.geometry.drawRange.count, total: CABLE_M.k1.geometry.index.count, t0: R.t0, t1: R.t1 } : null; },
-    flechas: function () { return FLECHA_T.map(function (f) { return { t0: f.t0, t1: f.t1, vis: f.g.visible }; }); },
+    // punta: la flecha la lleva; sentidoOk: gira hacia donde gira la perilla («giro: g» del motor es alrededor de −x si g > 0)
+    flechas: function () { return FLECHA_T.map(function (f) { const d = f.g.userData || {}; return { t0: f.t0, t1: f.t1, vis: f.g.visible, sentido: d.sentido,
+      punta: !!(d.punta && d.punta.visible !== false), sentidoOk: f.giro != null ? Math.sign(d.sentido) === -Math.sign(f.giro) : null }; }); },
+    // dónde está de verdad una pieza (su primera malla, en el mundo) y qué pieza se ve en un punto del lienzo (x, y en px CSS)
+    pose: function (n) { const u = unidades.find(function (x) { return x.nombre === n; }); if (!u) return null; const o = u.objs[0]; o.updateMatrixWorld(true);
+      const p = V(0, 0, 0), q = new THREE.Quaternion(), s = V(0, 0, 0); o.matrixWorld.decompose(p, q, s); return { c: p.toArray(), q: q.toArray() }; },
+    pick: function (x, y) {
+      const r = lienzo.getBoundingClientRect(), ray = new THREE.Raycaster(), mallas = [];
+      unidades.forEach(function (u) { u.objs.forEach(function (m) { if (m.visible) mallas.push(m); }); });
+      ray.setFromCamera(new THREE.Vector2(((x - r.left) / r.width) * 2 - 1, -((y - r.top) / r.height) * 2 + 1), camara);
+      const viejos = mallas.map(function (m) { const f = m.raycast; m.raycast = THREE.Mesh.prototype.raycast; return f; });
+      const h = ray.intersectObjects(mallas, false).slice(0, 3);
+      mallas.forEach(function (m, i) { m.raycast = viejos[i]; });
+      return h.map(function (i) { const u = unidades.find(function (x) { return x.objs.indexOf(i.object) >= 0; }); return { n: u ? u.nombre : "?", d: +i.distance.toFixed(3), p: i.point.toArray().map(function (v) { return +v.toFixed(4); }) }; });
+    },
+    // las tomas de cámara de un paso (para medir los saltos de cámara)
+    tomas: function (k) { return PASOS[k].tomas.map(function (x) { return { at: x.at, mira: x.mira.toArray(), dir: x.dir.toArray(), r: x.r }; }); },
     fino: function (par) { return chocaFino(par); },
     unidad: function (n) { const u = unidades.find(function (x) { return x.nombre === n; }); return u ? { c: u.c.toArray(), q: u.q.toArray(), piv: u.piv.toArray() } : null; },
     cajaDe: function (n) { const u = unidades.find(function (x) { return x.nombre === n; }); if (!u) return null; const b = new THREE.Box3(); u.objs.forEach(function (o) { o.updateMatrixWorld(true); b.expandByObject(o); }); return { min: b.min.toArray(), max: b.max.toArray() }; },
     // deja quieto el paso donde está (para medir y fotografiar sin que el tiempo corra entre una cosa y otra)
-    pausar: function () { enMarcha = false; }
+    pausar: function () { enMarcha = false; },
+    // la punta de la flecha de giro i (3.3: 0, 3.5: 1): la parte que se ve desde la cámara (rayos a sus vértices; las llaves no tapan)
+    puntaVista: function (i) {
+      const f = FLECHA_T[i]; if (!f || !f.g.visible) return 0;
+      const o = f.g.userData.punta, mallas = []; unidades.forEach(function (x) { if (!esLlave(x)) x.objs.forEach(function (m) { if (m.visible) mallas.push(m); }); });
+      f.g.updateMatrixWorld(true);
+      const viejos = mallas.map(function (m) { const r = m.raycast; m.raycast = THREE.Mesh.prototype.raycast; return r; });
+      // la vista de cada vértice del cono; el ápice (la punta de verdad, y local = +alto/2) aparte. Además, en pantalla, cuánto aire queda
+      // entre el ápice y lo primero que la tapa más allá de él siguiendo la flecha (px CSS; solo lo que está más cerca de la cámara que la
+      // punta): con 0 la punta se lee cortada
+      const pos = o.geometry.attributes.position, p = V(0, 0, 0), ray = new THREE.Raycaster(); let si = 0, n = 0, apice = true;
+      o.geometry.computeBoundingBox(); const yA = o.geometry.boundingBox.max.y;
+      for (let k = 0; k < pos.count; k++) {
+        p.fromBufferAttribute(pos, k); const esA = Math.abs(p.y - yA) < 1e-6; p.applyMatrix4(o.matrixWorld);
+        const d = p.clone().sub(camara.position), L = d.length(); ray.set(camara.position, d.normalize()); ray.far = L - 0.0005;
+        const ve = !ray.intersectObjects(mallas, false).length; n++; if (ve) si++; else if (esA) apice = false;
+      }
+      const a3 = V(0, yA, 0).applyMatrix4(o.matrixWorld), b3 = V(0, -yA, 0).applyMatrix4(o.matrixWorld);
+      const r = lienzo.getBoundingClientRect(), px = function (v) { const q = v.clone().project(camara); return V((q.x + 1) / 2 * r.width, (1 - q.y) / 2 * r.height, 0); };
+      const pa = px(a3), pb = px(b3), dir = pa.clone().sub(pb).normalize(); let aire = null;
+      for (let s = 1; s <= 80 && aire === null; s++) {
+        const q = pa.clone().addScaledVector(dir, s);
+        ray.setFromCamera(new THREE.Vector2(q.x / r.width * 2 - 1, -(q.y / r.height) * 2 + 1), camara); ray.far = camara.position.distanceTo(a3);   // solo lo que queda delante de la punta
+        if (ray.intersectObjects(mallas, false).length) aire = s - 1;
+      }
+      mallas.forEach(function (m, k) { m.raycast = viejos[k]; });
+      return { vista: si / n, apice: apice, airePx: aire === null ? 80 : aire };
+    },
+    // dónde cae en el lienzo la caja de una pieza (las 8 esquinas, px CSS relativos al lienzo) y el tamaño del lienzo (#1065)
+    enLienzo: function (n) {
+      const u = unidades.find(function (x) { return x.nombre === n; }); if (!u) return null;
+      const b = new THREE.Box3(); u.objs.forEach(function (o) { o.updateMatrixWorld(true); b.expandByObject(o); });
+      const r = lienzo.getBoundingClientRect(); let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
+      for (let i = 0; i < 8; i++) { const q = V(i & 1 ? b.max.x : b.min.x, i & 2 ? b.max.y : b.min.y, i & 4 ? b.max.z : b.min.z).project(camara);
+        const x = (q.x + 1) / 2 * r.width, y = (1 - q.y) / 2 * r.height; x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); }
+      return { x0: x0, x1: x1, y0: y0, y1: y1, w: r.width, h: r.height };
+    },
+    // pone la cámara en una toma (para medir; la animación no la usa)
+    sigue: function (k) { return PASOS[k].sigue || null; },
+    verDesde: function (m, d, r) { manual = false; vuelo = null; volarA({ at: 0, mira: V(m[0], m[1], m[2]), dir: V(d[0], d[1], d[2]), r: r }, true); },
+    // 2.4 (#1065): el ancho entre los ejes de las patas ahora (m), la flecha y cuándo se abre y se cierra el marco
+    ancho: function () { const a = uni("p1"), b = uni("p2"); return { entreEjes: b.c.x - a.c.x, flecha: !!(FLECHA_A && FLECHA_A.visible),
+      flechaDe: FLECHA_A ? [FLECHA_A.userData.pI.position.x, FLECHA_A.userData.pD.position.x] : null, t0: ANCHO_T ? ANCHO_T.t0 : null, t1: ANCHO_T ? ANCHO_T.t1 : null,
+      max: ANCHO_MAX, min: ANCHO_MIN }; }
   };
   function flechasEn(k, tt) {
     FLECHA_T.forEach(function (f) { f.g.visible = k === 3 && tt >= f.t0 && tt <= f.t1; });
@@ -1297,14 +1486,10 @@ window.zoomSolidWorks = function (o) {
   function poseInicial(u, k) {
     if (u.paso >= k) return { q: u.qPiso, c: u.cPiso };
     if (enMarco(u)) return k === 2 && u.paso === 1 ? enPata(u) : k <= 6 ? armado(u) : volteado(u);
-    if (u.tipo === "K") return poseK(u);
     return volteado(u);
   }
-  // Ⓚ queda sobre el tablero, frente al control (a su derecha): dónde, relativo a su sitio en el piso
-  // (apoyado sobre el tablero, 5 cm antes de su borde del frente y a 18 cm del control: la cara de arriba del tablero está a 18,5 mm del piso)
-  function poseK(u) { const s = sitioEnPiso(u); return { q: QI, c: V(u.cPiso.x + (-0.3 - s[0]), u.cPiso.y + 0.018, u.cPiso.z + (Z_T + 0.05 - s[1])) }; }
-  // paso 0: el recorrido por las piezas en el orden de la lista del manual (① a ⑫ y Ⓐ a Ⓞ)
-  const LETRAS = ["①", "②", "③", "④", "⑤", "⑥", "⑦", "⑧", "⑨", "⑩", "⑪", "⑫", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O"];
+  // paso 0: el recorrido por las piezas en el orden de la lista del manual (1 a 12 y A a O)
+  const LETRAS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O"];
   let TOUR = [], RUEDAS = [], FINAL = null, SUBPASOS = {};
   function letraEn(tt) { const p = TOUR.find(function (x) { return x.t0 <= tt && tt < x.t1; }); return p ? p.letra : null; }
   let subVisto = null;
@@ -1316,7 +1501,7 @@ window.zoomSolidWorks = function (o) {
     lista.forEach(function (x) { if (x.t0 <= tt) sp = x; });
     const clave = k + "·" + sp.n;
     const bt = document.getElementById("anim-b-txt");
-    if (bt && bt.textContent.indexOf("Paso " + sp.n + " ") !== 0) bt.textContent = "Paso " + sp.n + " · " + sp.corto;
+    if (bt && bt.textContent.indexOf("Paso " + sp.n + " ") !== 0) bt.innerHTML = "Paso " + sp.n + " · " + sp.corto;   // corto trae HTML: artefacto.py pone 1…12 en su círculo (#1064)
     if (subVisto === clave) return;
     subVisto = clave;
     art.innerHTML = "<b>" + sp.n + "</b> · " + sp.txt;
@@ -1335,7 +1520,7 @@ window.zoomSolidWorks = function (o) {
       });
     }
     if (SUBPASOS[k]) pintarSubpaso(k, tt); else subVisto = null;
-    cableMotorEn(k, tt); flechasEn(k, tt);
+    cableMotorEn(k, tt); cerradosEn(k, tt); flechasEn(k, tt); anchoEn(k, tt);
   }
   function paradaActual() {
     if (paso !== 0 || !TOUR.length) return null;
@@ -1357,12 +1542,14 @@ window.zoomSolidWorks = function (o) {
     if (!bt) return;
     const i = k === 0 ? paradaActual() : null;
     if (k === 0 && ba) ba.disabled = !(i > 0);
-    let txt = null;
+    let txt = null, html = null;
     if (k === 0 && i >= 0 && i < TOUR.length) {
-      const l = TOUR[i].letra, e = ETQ[l] || { n: l, f: "" };
-      txt = "Paso 0 · " + l + " " + e.n + " " + (TOTAL ? TOTAL[l] : e.f) + " · " + (i + 1) + "/" + TOUR.length;
+      // artefacto.py cambia las claves 1…12 por 1…12: el número de la pieza va en su círculo de CSS, como en la etiqueta (#1064)
+      const l = TOUR[i].letra, e = ETQ[l] || { n: l, f: "" }, resto = " " + e.n + " " + (TOTAL ? TOTAL[l] : e.f) + " · " + (i + 1) + "/" + TOUR.length;
+      txt = "Paso 0 · " + l + resto;
+      html = "Paso 0 · " + (/^\d+$/.test(l) ? '<span class="pz' + (l.length > 1 ? " pz2" : "") + '">' + l + "</span>" : l) + resto;
     } else if (k === 0) txt = "Paso 0 · " + (document.querySelector('.anim-texto[data-paso="0"]') || { dataset: {} }).dataset.titulo;
-    if (txt && bt.textContent !== txt) bt.textContent = txt;
+    if (txt && bt.textContent !== txt) { if (html) bt.innerHTML = html; else bt.textContent = txt; }
     if (navTexto !== i) {
       navTexto = i;
       document.querySelectorAll(".anim-lista-btn").forEach(function (b) {
@@ -1434,6 +1621,10 @@ window.zoomSolidWorks = function (o) {
         const e = etiquetas[tipo];
         if (e) { const m = e.div.querySelector(".m"); if (m && m.textContent !== f) m.textContent = f; }
       });
+      // 2.4 (#1065): mientras el marco se abre y se cierra no van etiquetas: la de 5 quedaba encima de la flecha de doble sentido
+      if (k === 2 && ANCHO_T && t >= ANCHO_T.t0 - 0.3 && t <= ANCHO_T.t1 + 0.3) return [];
+      // (revisión de 863eeb6) en 2.4, antes del movimiento, solo las etiquetas de 2.4: la llave I y la barra 5 (no E ni D, que son de 2.3)
+      if (k === 2 && ANCHO_T && t >= ANCHO_T.t2_4) return visibles(k, tipos.filter(function (x) { return x === "I" || x === "5"; }));
       return visibles(k, tipos);
     } });
   }
@@ -1453,39 +1644,122 @@ window.zoomSolidWorks = function (o) {
     return { q: new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().makeBasis(x, y, z)), c: boca.clone().addScaledVector(a, BOCA) };
   }
   function nuevaLlave(letra) { const O = uni(letra); return { u: O, t: 0, pose: enPiso(O), pts: [] }; }
+  /* ---------- movimiento sin saltos (23-nov, #1065, Jon: «en este paso el movimiento del tornillo y de la llave no es fluido»,
+     6.2). Medido cada 1/30 s: en 6.2 cada B cruzaba del piso de adelante (z +1,8) al tablero de atrás (z −1,75) en 0,33 s, con
+     cuadros de hasta 897 mm (el medio, 85 mm), y la llave subía y bajaba 1 m en 0,2 s. Ahora el viaje del tornillo, y el de la
+     llave de un tornillo al siguiente, es UNA ruta continua por los mismos puntos de antes (la misma geometría, que ya pasó la
+     revisión de choques), con aceleración y frenada suaves (trapecio: 25 % acelera, 50 % crucero, 25 % frena) y a lo más VMAX.
+     Los movimientos cortos de la llave (entrar, salir) duran lo necesario para no pasar de VMAX en su pico ---------- */
+  const VMAX = 2.5;     // m/s, velocidad de crucero máxima
+  const WMAX = 4.0;     // rad/s (~230°/s), giro máximo de una pieza en el aire
+  function angulo(q1, q2) { return 2 * Math.acos(Math.min(1, Math.abs(q1.dot(q2)))); }
+  function perfilTrapecio(tau) {
+    const a = 0.25, v = 1 / (1 - a);
+    if (tau <= a) return v * tau * tau / (2 * a);
+    if (tau >= 1 - a) { const r = 1 - tau; return 1 - v * r * r / (2 * a); }
+    return v * (tau - a / 2);
+  }
+  // de (c0, q0) por los nodos [{c, q}] en una sola ruta continua; dMin: lo que duraba antes (no se acelera lo que ya iba lento)
+  function rutaFluida(c0, q0, nodos, dMin) {
+    const N = [{ c: c0, q: q0 }].concat(nodos.map(function (x) { return { c: x.c, q: x.q }; })), acum = [0];
+    for (let i = 1; i < N.length; i++) acum.push(acum[i - 1] + N[i].c.distanceTo(N[i - 1].c));
+    // un nodo sin q gira de a poco entre el anterior y el siguiente que sí lo traen, según el camino recorrido
+    for (let i = 1; i < N.length; i++) if (!N[i].q) {
+      let p = i - 1, n = i + 1; while (n < N.length && !N[n].q) n++;
+      const qn = n < N.length ? N[n].q : N[p].q, an = n < N.length ? acum[n] : acum[i], f = an > acum[p] ? (acum[i] - acum[p]) / (an - acum[p]) : 1;
+      N[i].q = N[p].q.clone().slerp(qn, f);
+    }
+    const total = acum[acum.length - 1];
+    // el giro también tiene tope: en el tramo que gira, a la velocidad de crucero, no más de WMAX
+    let durGiro = 0;
+    for (let i = 1; i < N.length; i++) {
+      const l = acum[i] - acum[i - 1], g = angulo(N[i - 1].q, N[i].q);
+      if (g > 1e-4) durGiro = Math.max(durGiro, l > 1e-6 ? (g / l) * total / (0.75 * WMAX) : g / WMAX * 3);
+    }
+    const dur = Math.max(dMin || 0, total / (0.75 * VMAX), durGiro, 0.2);
+    const n = Math.max(2, Math.ceil(dur * 60)), out = [];
+    let j = 1;
+    for (let k = 1; k <= n; k++) {
+      const s = perfilTrapecio(k / n) * total;
+      while (j < N.length - 1 && acum[j] < s) j++;
+      const l = acum[j] - acum[j - 1], f = l > 1e-9 ? Math.min(1, Math.max(0, (s - acum[j - 1]) / l)) : 1;
+      const c = N[j - 1].c.clone().lerp(N[j].c, f), q = N[j - 1].q.clone().slerp(N[j].q, f);
+      out.push({ c: k === n ? N[N.length - 1].c.clone() : c, q: k === n ? N[N.length - 1].q : q, d: dur / n, ease: lineal });
+    }
+    return out;
+  }
   function llaveA(L, t, pose, d, giro) {
+    // con el ritmo de atornillar (L.fluida), un movimiento corto no pasa de VMAX en su pico (la curva suave llega a 3 veces la media)
+    if (L.fluida && !giro) d = Math.max(d, 3 * L.pose.c.distanceTo(pose.c) / VMAX, 3 * angulo(L.pose.q, pose.q) / WMAX);
     if (t > L.t + 1e-6) L.pts.push({ c: L.pose.c.clone(), q: L.pose.q, d: t - L.t });
     L.pts.push({ c: pose.c.clone(), q: pose.q, d: d, giro: giro || 0 });
     L.t = Math.max(t, L.t) + d; L.pose = pose;
   }
+  // la llave por varios puntos en una sola ruta continua (ver rutaFluida)
+  function llaveRuta(L, t, poses, dMin) {
+    if (t > L.t + 1e-6) L.pts.push({ c: L.pose.c.clone(), q: L.pose.q, d: t - L.t });
+    const pts = rutaFluida(L.pose.c, L.pose.q, poses, dMin);
+    pts.forEach(function (p) { L.pts.push(p); });
+    L.t = Math.max(t, L.t) + pts.reduce(function (s, p) { return s + p.d; }, 0); L.pose = poses[poses.length - 1];
+  }
   function llaveAlPiso(L, t, alto) {
     const O = L.u;
+    if (L.fluida) { llaveRuta(L, t, [{ q: null, c: V(L.pose.c.x, alto, L.pose.c.z) }, { q: O.qPiso, c: V(O.cPiso.x, alto, O.cPiso.z) }, enPiso(O)], 2.0); return; }
     llaveA(L, t, { q: L.pose.q, c: V(L.pose.c.x, alto, L.pose.c.z) }, 0.5);
     llaveA(L, L.t, { q: O.qPiso, c: V(O.cPiso.x, alto, O.cPiso.z) }, 0.9);
     llaveA(L, L.t, enPiso(O), 0.6);
   }
   function recLlave(L) { return recorrido(L.u, 0, enPiso(L.u), L.pts); }
+  const T_TRAS = 0.35;     // s entre que la llave sale de un tornillo y el siguiente llega frente a su agujero (#1065)
   function atornillar(recs, L, k, lista, t0, op) {
-    let t = t0;
+    let t = t0, tLibre = t0, tPrevio = t0;
     lista.forEach(function (u, i) {
       const R = Object.assign({}, RITMO[i === 0 && op.lento !== false ? "lento" : "rapido"], op.vueltas ? { vueltas: op.vueltas } : {});
       const en = op.entra || ENTRA, fu = op.fuera || FUERA;
-      const F = op.fin(u), a = entraEn(u, F.q), pre = { q: F.q, c: F.c.clone().addScaledVector(a, -en) };
       const vueltas = R.vueltas, sg = Math.sign(u.eje.dot(u.dirCana)) || 1;
-      const tLlega = i === 0 ? t : Math.max(t0, t - R.llega);
-      const pts = op.llega(u, tLlega, pre, R);
-      const fl = pts.reduce(function (s, p) { return s + p.d; }, tLlega);
-      const largo = op.largo(u, F), E0 = poseLlave(bocaEn(u, pre), a, largo), E1 = poseLlave(bocaEn(u, F), a, largo);
+      // sin el salto de giro (#1065): el motor gira «giro: g» del ángulo 2π·g al 0, así que con vueltas que no son enteras (0,15 en
+      // 6.2: 54°) la pieza saltaba ese ángulo al empezar a girar. Las vueltas se parten en enteras (el «giro» del motor: un
+      // múltiplo de 360°, sin salto) y la fracción: el tornillo llega, y la llave entra, ya girados la fracción, y el tramo de
+      // giro la devuelve de a poco (de un cuaternión al otro). Terminan donde terminaban antes y giran lo mismo, sin el salto
+      const ENT = Math.round(vueltas), FRAC = vueltas - ENT;
+      const F = op.fin(u), a = entraEn(u, F.q);
+      const pre = { q: F.q.clone().multiply(new THREE.Quaternion().setFromAxisAngle(u.eje || EJE_X, -sg * FRAC * 2 * Math.PI)), c: F.c.clone().addScaledVector(a, -en) };
+      // el tornillo siguiente no sale del piso con la llave todavía en el anterior (regla de la skill, V30): sale cuando la llave
+      // ya salió por el eje (tLibre). Antes salía R.llega antes de que la llave terminara de alejarse, con la llave todavía
+      // girando en el anterior (23-nov, #1065, Jon: «el movimiento del tornillo y de la llave no es fluido», 6.2)
+      L.fluida = true;
+      // el viaje del tornillo, del piso a su agujero: los mismos puntos de antes, en una sola ruta continua (#1065)
+      // el tornillo se endereza (del piso, acostado, a su pose de entrar) de a poco en todo el viaje, no en el primer tramo; los
+      // dos últimos puntos (el que queda frente al agujero y el agujero) ya van con su pose
+      const ruta = op.llega(u, t, pre, R).map(function (p, j, l) { return { c: p.c, q: j >= l.length - 2 ? p.q : null, d: p.d }; }), P0 = enPiso(u);
+      const pts = rutaFluida(P0.c, P0.q, ruta, ruta.reduce(function (s, p) { return s + p.d; }, 0));
+      const viaje = pts.reduce(function (s, p) { return s + p.d; }, 0);
+      // cuándo sale del piso (revisión de 863eeb6: en 6.2 cada B salía del piso cuando la llave dejaba el anterior y cruzaba 3,5 m
+      // fuera de cuadro: ~3 s con la llave quieta y nada en pantalla). Ahora sale antes, para LLEGAR frente a su agujero
+      // T_TRAS s después de que la llave salió del anterior (tLibre): ya viene en camino, y la regla de la V30 se cumple igual (no
+      // llega mientras la llave está en el de al lado). Nunca antes de que el anterior haya llegado al suyo (tPrevio)
+      // op.seguido: el primero de este grupo sigue al último del grupo anterior con la misma llave, sin otra pieza en medio (D tras
+      // los E; en 6.2, los B de 9 tras los de 8 y los de las pestañas tras los de 9): sale igual de temprano
+      // op.temprano: el primero de un grupo que va sobre una pieza que acaba de llegar (pie 3, motor, 9, control 10) sale del piso a
+      // tiempo para llegar T_TRAS después de t (cuando esa pieza ya está puesta), pero no antes de op.temprano (cuando la pieza sale)
+      const tLlega = i === 0 ? (op.seguido && L.tLibre != null ? Math.max(L.tPrevio, Math.min(t, L.tLibre + T_TRAS - viaje))
+        : op.temprano != null ? Math.max(op.temprano, Math.min(t, t + T_TRAS - viaje)) : t)
+        : Math.max(t0, tPrevio, Math.min(Math.max(tLibre, t - R.llega), tLibre + T_TRAS - viaje));
+      const fl = tLlega + viaje;
+      tPrevio = fl; L.tPrevio = fl;
+      const largo = op.largo(u, F), E1 = poseLlave(bocaEn(u, F), a, largo), E0 = poseLlave(bocaEn(u, { q: F.q, c: pre.c }), a, largo);
+      E0.q = E0.q.clone().multiply(new THREE.Quaternion().setFromAxisAngle(EJE_X, -FRAC * 2 * Math.PI));
       op.via(L, Math.max(L.t, fl - R.viaje * 0.5), { q: E0.q, c: E0.c.clone().addScaledVector(a, -fu) }, R);
       const tA = L.enEje, tGira = Math.max(L.t + R.encaja, fl + 0.1);
       if (tGira > fl) pts.push({ c: pre.c, q: pre.q, d: tGira - fl });
       // rosca derecha: mirando la cabeza, horario mientras avanza (ver pasos_v40.js)
-      pts.push({ c: F.c, q: F.q, d: R.gira, giro: -sg * vueltas, ease: lineal });
+      pts.push({ c: F.c, q: F.q, d: R.gira, giro: -sg * ENT, ease: lineal });
       recs.push(recorrido(u, tLlega, enPiso(u), pts));
       llaveA(L, tGira - R.encaja, E0, R.encaja);
-      llaveA(L, tGira, E1, R.gira, -vueltas);
+      llaveA(L, tGira, E1, R.gira, -ENT);
       L.pts[L.pts.length - 1].ease = lineal;
       llaveA(L, L.t, { q: E1.q, c: E1.c.clone().addScaledVector(a, -fu) }, R.sale);
+      tLibre = L.t; L.tLibre = tLibre;
       if (op.salir) op.salir(L, a, R);
       ENCAJES.push({ paso: k, tornillo: u.nombre, t0: tA, t1: L.t, giro0: tGira, giro1: tGira + R.gira });
       t = L.t;
@@ -1499,12 +1773,31 @@ window.zoomSolidWorks = function (o) {
     unidades.forEach(function (u) {
       const k = Number((u.nombre.match(/(\d+)$/) || [0, 0])[1]);
       if (u.tipo === "A") { FINOS.push([u.nombre, k <= 4 ? "p3" : "p4"].sort().join("|")); FINOS.push([u.nombre, k <= 4 ? "p1" : "p2"].sort().join("|")); }
-      if (u.tipo === "E" || u.tipo === "D") { FINOS.push([u.nombre, "p5"].sort().join("|")); FINOS.push([u.nombre, (u.tipo === "E" ? k <= 2 : k <= 1) ? "p1" : "p2"].sort().join("|")); }
+      // I contra las cabezas de E, malla contra malla (23-nov, #940): con E asentada y el brazo corto de 25 mm, la caja de la llave
+      // girando en D barre las cabezas de E sin tocarlas
+      if (u.tipo === "E") FINOS.push(["I", u.nombre].sort().join("|"));
+      // D contra su pata no va malla contra malla (23-nov, #940): desde que D entra hasta el fondo su caña rosca en la tuerca de la
+      // cabeza de la pata, y esa tuerca en el STL es una malla burda que cruza el agujero (en la pata 2 deja 1,8 mm libres). Es la
+      // rosca, como C en su pata; la caña contra la barra 5 sí se revisa
+      // (#1065) 5 va en tres nodos: cada E y D contra su camisa y contra el tramo del centro, que se mete en la camisa hasta 7 mm de
+      // ellos con el marco cerrado
+      if (u.tipo === "E" || u.tipo === "D") {
+        const izq = u.tipo === "E" ? k <= 2 : k === 1;
+        FINOS.push([u.nombre, izq ? "p5a" : "p5b"].sort().join("|")); FINOS.push([u.nombre, "p5"].sort().join("|"));
+        if (u.tipo === "E") FINOS.push([u.nombre, k <= 2 ? "p1" : "p2"].sort().join("|"));
+      }
+      // los S contra su camisa (pasan por su agujero), contra el tramo del centro y contra la llave I (su manija, de 70 mm, gira a
+      // 40 mm del S de al lado: la caja de la llave lo alcanza, la malla no); las dos camisas entre ellas (con el marco a 955 mm se tocan
+      // de punta). El tramo contra cada camisa NO va malla contra malla: el STL trae la cara de arriba del tramo contra la de adentro de
+      // la camisa (las dos en z 66,40 cm, 0 mm) y eso ya cuenta como cruce armado; como la camisa solo corre a lo largo del tramo, lo que
+      // puede chocar son las puntas, y eso se midió con rayos (scripts/medir_ancho_L.py, LEEME)
+      if (u.tipo === "S") { FINOS.push([u.nombre, k <= 2 ? "p5a" : "p5b"].sort().join("|")); FINOS.push([u.nombre, "p5"].sort().join("|")); FINOS.push(["I", u.nombre].sort().join("|")); }
+      if (u.nombre === "p5") FINOS.push("p5a|p5b");
       if (u.tipo === "C") { if (k > 2) FINOS.push([u.nombre, "p9"].sort().join("|")); if (k <= 2) { FINOS.push([u.nombre, "p12"].sort().join("|")); FINOS.push([u.nombre, "p7"].sort().join("|")); } }
       if (u.tipo === "B" && k >= 9 && k <= 12) FINOS.push([u.nombre, "p8"].sort().join("|"));
       if (u.tipo === "B" && k >= 13 && k <= 18) FINOS.push([u.nombre, "p9"].sort().join("|"));
       if (u.tipo === "B" && k <= 8) FINOS.push([u.nombre, k <= 4 ? "N1" : "N2"].sort().join("|"));
-      // Ⓛ|p12 no va malla contra malla: el STL trae a Ⓛ metido en los agujeros del motor (Ø5,0 para el vástago Ø5 y Ø6,2 a 1,1 mm del eje del otro) y el ajuste mismo cuenta como choque (LEEME)
+      // L|p12 no va malla contra malla: el STL trae a L metido en los agujeros del motor (Ø5,0 para el vástago Ø5 y Ø6,2 a 1,1 mm del eje del otro) y el ajuste mismo cuenta como choque (LEEME)
       if (u.tipo === "I") { FINOS.push(["I", "p12"].sort().join("|")); }
     });
   }
@@ -1559,7 +1852,7 @@ window.zoomSolidWorks = function (o) {
     if (!ka.length || !kb.length) return false;
     return aristasCruzan(ma, ka, mb, kb) || aristasCruzan(mb, kb, ma, ka);
   }
-  // la llave dentro de la cabeza de un tornillo (o de la boca de una pata, Ⓗ en el paso 3) toca lo que eso toca armado; nada
+  // la llave dentro de la cabeza de un tornillo (o de la boca de una pata, H en el paso 3) toca lo que eso toca armado; nada
   // más se descuenta
   function llaveExenta(par, k, tt, libres) {
     const n = par.split("|"), l = ["H", "I", "J"];
@@ -1630,7 +1923,7 @@ window.zoomSolidWorks = function (o) {
   }
   // u viaja pegado al recorrido de su padre (desde t0 hasta t1 del padre), como un solo cuerpo: un punto cada 1/90 s (con uno
   // cada 1/30 s, entre punto y punto el hijo se corría del padre lo bastante para que la revisión malla contra malla viera a los
-  // Ⓐ meterse en su pata mientras la pata viaja; vidrio, 22-nov)
+  // A meterse en su pata mientras la pata viaja; vidrio, 22-nov)
   function seguir(u, padre, ini, t0, t1) {
     t0 = t0 === undefined ? padre.t0 : t0; t1 = t1 === undefined ? padre.t1 : t1;
     const P0 = poseEn(padre, t0), qi = P0.q.clone().invert();
@@ -1641,6 +1934,13 @@ window.zoomSolidWorks = function (o) {
       pts.push({ c: cRel.clone().applyQuaternion(P.q).add(P.c), q: P.q.clone().multiply(qRel), d: (t1 - t0) / n, ease: lineal });
     }
     return recorrido(u, t0, ini, pts);
+  }
+  // sigue un recorrido ya hecho con más puntos (la misma forma que recorrido(): {c, q?, d, giro?, ease?}). Una unidad lleva un
+  // solo recorrido por paso (evaluar() pone la pose del primer punto antes de que arranque), así que lo que hace después se agrega
+  function extender(r, pts) {
+    let t = r.t1;
+    pts.forEach(function (p) { t += p.d; r.way.push({ q: p.q || QI, c: p.c.clone(), t: t, giro: p.giro || 0, ease: p.ease || suave }); });
+    r.t1 = t;
   }
   // de una pose a otra como lo haría una persona: sube derecho, viaja girando a la altura `alto` y baja derecho
   function llevar(u, t0, desde, hasta, alto, d) {
@@ -1660,7 +1960,10 @@ window.zoomSolidWorks = function (o) {
   function viaLlave(alto) {
     return function (L, t, afuera, R) {
       const lejos = L.pose.c.distanceTo(afuera.c) > 0.12;
-      if (lejos) {
+      if (lejos && L.fluida) {     // una sola ruta continua hasta el eje del tornillo (#1065)
+        llaveRuta(L, t, [{ q: null, c: V(L.pose.c.x, alto, L.pose.c.z) }, { q: afuera.q, c: V(afuera.c.x, alto, afuera.c.z) }], R.viaje * 0.7);
+        L.enEje = L.t; llaveA(L, L.t, afuera, R.viaje * 0.3);
+      } else if (lejos) {
         llaveA(L, t, { q: L.pose.q, c: V(L.pose.c.x, alto, L.pose.c.z) }, R.viaje * 0.3);
         llaveA(L, L.t, { q: afuera.q, c: V(afuera.c.x, alto, afuera.c.z) }, R.viaje * 0.4);
         L.enEje = L.t; llaveA(L, L.t, afuera, R.viaje * 0.3);
@@ -1670,7 +1973,7 @@ window.zoomSolidWorks = function (o) {
       }
     };
   }
-  // el tornillo llega por encima (los verticales) o por el costado (los horizontales: Ⓒ, Ⓓ, Ⓛ)
+  // el tornillo llega por encima (los verticales) o por el costado (los horizontales: C, D, L)
   function llegaPor(alto, lado) {
     return function (u, t, pre, R) {
       const a = entraEn(u, pre.q);
@@ -1702,14 +2005,17 @@ window.zoomSolidWorks = function (o) {
           llaveA(L, t, { q: L.pose.q, c: V(lado.x, L.pose.c.y, L.pose.c.z) }, R.viaje * 0.25);
           sube = V(lado.x, alto, L.pose.c.z);
         }
-        llaveA(L, L.t > t ? L.t : t, { q: L.pose.q, c: sube }, R.viaje * 0.25);
-        llaveA(L, L.t, { q: afuera.q, c: V(lado.x, alto, lado.z) }, R.viaje * 0.3);
-        llaveA(L, L.t, { q: afuera.q, c: lado }, R.viaje * 0.2);
+        if (L.fluida) llaveRuta(L, L.t > t ? L.t : t, [{ q: null, c: sube }, { q: afuera.q, c: V(lado.x, alto, lado.z) }, { q: afuera.q, c: lado }], R.viaje * 0.75);   // #1065
+        else {
+          llaveA(L, L.t > t ? L.t : t, { q: L.pose.q, c: sube }, R.viaje * 0.25);
+          llaveA(L, L.t, { q: afuera.q, c: V(lado.x, alto, lado.z) }, R.viaje * 0.3);
+          llaveA(L, L.t, { q: afuera.q, c: lado }, R.viaje * 0.2);
+        }
         L.enEje = L.t; llaveA(L, L.t, afuera, R.viaje * 0.25);
       } else { L.enEje = Math.max(L.t, t); llaveA(L, t, afuera, R.viaje * 0.5); }
     };
   }
-  // un tornillo puesto a mano, sin llave: llega, entra dando vueltas. Para los Ⓒ de la pata ①, donde la llave no cabe (LEEME)
+  // un tornillo puesto a mano, sin llave: llega, entra dando vueltas. Para los C de la pata 1, donde la llave no cabe (LEEME)
   function aMano(recs, lista, t0, op) {
     let t = t0;
     lista.forEach(function (u) {
@@ -1725,11 +2031,71 @@ window.zoomSolidWorks = function (o) {
     });
     return t + 0.5;
   }
+  /* ---------- la cámara sigue lo que se mueve fuera de cuadro (revisión de e79e49a: la llave o el tornillo viajaban fuera de la toma y
+     la pantalla quedaba quieta hasta 1,8 s). Recorre el paso cada 0,1 s; algo se mueve «a la vista» si su centro cae dentro del
+     cuadro de la toma de ese momento (seVe). Si durante más de 0,35 s hay algo moviéndose y nada a la vista, agrega una toma que
+     encuadra lo que se mueve (desde un poco antes hasta que llega) y lo que se estaba mirando, con la misma dirección; al terminar,
+     vuelve a la toma que había, si la siguiente del paso no llega pronto. No toca las tomas a mano ---------- */
+  const CERCA_SIGUE = 0.6, R_SIGUE_MAX = 0.55, CAMARA_SIGUE = false;
+  function camaraSigue(p) {
+    const DT = 0.1, dur = Math.max.apply(null, p.recs.map(function (r) { return r.t1; }));
+    const tomas = p.tomas.slice().sort(function (a, b) { return a.at - b.at; });
+    const tomaEn = function (t) { let m = tomas[0]; tomas.forEach(function (x) { if (x.at <= t) m = x; }); return m; };
+    const moviendo = function (t) {
+      const out = [];
+      p.recs.forEach(function (r) {
+        if (r.quieto || t < r.t0 || t > r.t1) return;
+        const a = poseEn(r, t), b = poseEn(r, Math.max(r.t0, t - DT));
+        if (a.c.distanceTo(b.c) > 0.002 || angulo(a.q, b.q) > 0.03) out.push(a.c);
+      });
+      return out;
+    };
+    // ¿se ve el punto c desde la toma tm? La cámara queda donde la pone distPara (la esfera de radio r en el campo más angosto); se
+    // ve si el ángulo con el eje de la toma es menos que el 90 % de la mitad de ese campo
+    const tv = Math.tan(THREE.MathUtils.degToRad(camara.fov) / 2), media = Math.min(Math.atan(tv), Math.atan(tv * camara.aspect));
+    const seVe = function (tm, c) {
+      const dir = tm.dir.clone().normalize(), cam = tm.mira.clone().addScaledVector(dir, 1.12 * tm.r / Math.sin(media));
+      const a = c.clone().sub(cam), b = tm.mira.clone().sub(cam);
+      return a.angleTo(b) < 0.9 * media && a.length() > 0.05;
+    };
+    const tramos = []; let malo = null;
+    for (let t = 0; t <= dur + 1e-6; t += DT) {
+      const tm = tomaEn(t), mov = moviendo(t);
+      const visto = mov.some(function (c) { return seVe(tm, c); });
+      if (mov.length && !visto) { if (!malo) malo = { t0: t }; malo.t1 = t; }
+      else if (malo) { tramos.push(malo); malo = null; }
+    }
+    if (malo) tramos.push(malo);
+    // los tramos que quedan a menos de 1,2 s uno del otro van en una sola toma (menos cortes de cámara)
+    const juntos = [];
+    tramos.filter(function (x) { return x.t1 - x.t0 >= 0.25; }).forEach(function (x) {
+      const u = juntos[juntos.length - 1];
+      if (u && x.t0 - u.t1 < 1.2 && tomaEn(x.t0) === tomaEn(u.t0)) u.t1 = x.t1; else juntos.push({ t0: x.t0, t1: x.t1 });
+    });
+    const nuevas = [];
+    juntos.filter(function (x) { return x.t1 - x.t0 >= 0.35; }).forEach(function (x) {
+      // solo lo que pasa a menos de CERCA_SIGUE del blanco: la toma se abre lo justo para que la llave y el tornillo entren antes al
+      // cuadro (su último tramo de viaje), sin irse a mostrar el piso de adelante
+      const tm = tomaEn(x.t0), pts = [tm.mira.clone()];
+      for (let t = x.t0; t <= x.t1 + 0.8; t += DT) moviendo(t).forEach(function (c) { if (c.distanceTo(tm.mira) <= CERCA_SIGUE) pts.push(c); });
+      if (pts.length < 2) return;
+      const b = new THREE.Box3(); pts.forEach(function (q) { b.expandByPoint(q); });
+      const r = Math.min(R_SIGUE_MAX, Math.max(tm.r, b.getSize(V(0, 0, 0)).length() * 0.5 * 1.1));
+      if (r <= tm.r * 1.05) return;
+      nuevas.push({ at: Math.max(0, x.t0 - 0.3), mira: b.getCenter(V(0, 0, 0)), dir: tm.dir.clone(), r: r, sigue: true });
+      const sig = tomas.find(function (y) { return y.at > x.t0; });
+      if (!sig || sig.at > x.t1 + 1.0) nuevas.push(Object.assign(Object.create(tm), { at: x.t1 + 0.2, sigue: true }));    // hereda sus getters (2.4)
+    });
+    if (nuevas.length) p.tomas = tomas.concat(nuevas).sort(function (a, b) { return a.at - b.at; });
+    p.sigue = juntos.filter(function (x) { return x.t1 - x.t0 >= 0.35; }).map(function (x) { return [+x.t0.toFixed(1), +x.t1.toFixed(1)]; });
+  }
   function construirPasos() {
     const P = [];
     ENCAJES = []; SUBPASOS = {}; FINOS.length = 0;
-    // 0 · identificar las piezas: todas caen al piso y la cámara recorre la lista del manual (① a ⑫ y Ⓐ a Ⓞ)
+    // 0 · identificar las piezas: todas caen al piso y la cámara recorre la lista del manual (1 a 12 y A a O)
+    const i5 = unidades.findIndex(function (u) { return u.nombre === "p5"; });
     const caidas = unidades.map(function (u, i) {
+      if (BARRA5.indexOf(u.nombre) >= 0) i = i5;        // 5 cae entera, con sus camisas y sus tornillos (#1065)
       return recorrido(u, 0.02 * i, { q: u.qPiso, c: u.cPiso.clone().add(V(0, 0.18, 0)) }, [{ c: u.cPiso, q: u.qPiso, d: 0.55, ease: cae }]);
     });
     const general = { at: 0, mira: V(0.0, 0.15, 0.1), dir: V(0.2, 0.9, 1.0), r: 2.7 };
@@ -1755,8 +2121,8 @@ window.zoomSolidWorks = function (o) {
       return l ? [l] : LETRAS;
     } });
     P.push(p0);
-    // 1 · (dibujo del paso 1) la pata ② con el pie ④ y la ① con el pie ③, patas arriba (el pie encima), cada pie con 4 tornillos
-    //     Ⓐ apretados con la llave Ⓘ; y el motor ⑫ en la pata ① con los separadores Ⓜ y los 2 tornillos Ⓛ
+    // 1 · (dibujo del paso 1) la pata 2 con el pie 4 y la 1 con el pie 3, patas arriba (el pie encima), cada pie con 4 tornillos
+    //     A apretados con la llave I; y el motor 12 en la pata 1 con los separadores M y los 2 tornillos L
     const r1 = [], ALTO1 = 1.15;
     const p2 = uni("p2"), p1 = uni("p1"), p4 = uni("p4"), p3 = uni("p3"), p12 = uni("p12"), M1 = uni("M1"), M2 = uni("M2");
     r1.push(llevar(p2, 0.2, enPiso(p2), enPata(p2), 0.95, [0.8, 1.5, 0.9]));
@@ -1774,21 +2140,25 @@ window.zoomSolidWorks = function (o) {
     const tPie4 = 3.6;
     r1.push(llevar(p4, tPie4, enPiso(p4), enPata(p4), 0.95, [0.6, 1.4, 0.9]));
     let tt1 = atornillar(r1, L1, 1, A_der, tPie4 + 3.2, opAr);
-    llaveAlPiso(L1, tt1, ALTO1); tt1 = L1.t;
+    // (revisión de 863eeb6: huecos de 1,3 a 3,2 s con nada moviéndose en pantalla entre un grupo de tornillos y el siguiente) la pieza
+    // que sigue sale apenas termina el último tornillo, mientras la llave vuelve al piso, y su primer tornillo ya viene en camino
     const tPie3 = tt1 + 0.2;
+    llaveAlPiso(L1, tt1, ALTO1);
     r1.push(llevar(p3, tPie3, enPiso(p3), enPata(p3), 0.95, [0.6, 1.4, 0.9]));
-    tt1 = atornillar(r1, L1, 1, A_izq, tPie3 + 3.2, Object.assign({}, opAr, { lento: false }));
+    tt1 = atornillar(r1, L1, 1, A_izq, tPie3 + 2.9 + 0.1, Object.assign({}, opAr, { lento: false, temprano: tPie3 }));
+    const tFinA = tt1;
     llaveAlPiso(L1, tt1, ALTO1); tt1 = L1.t;
     const gA = ENCAJES.filter(function (e) { return e.paso === 1; });
-    // el motor: primero los dos separadores Ⓜ contra la cabeza de la pata, después ⑫ desliza sobre ellos desde +x y
-    // los dos tornillos Ⓛ, también desde +x, con la manija hacia arriba
-    const tMotor = tt1 + 0.3, DESLIZA = 0.11;
+    // el motor: primero los dos separadores M contra la cabeza de la pata, después 12 desliza sobre ellos desde +x y
+    // los dos tornillos L, también desde +x, con la manija hacia arriba
+    const tMotor = tFinA + 0.2, DESLIZA = 0.11;
     [M1, M2].forEach(function (u, i) {
       const F = enPata(u), pre = { q: F.q, c: F.c.clone().add(V(0.07, 0, 0)) };
       r1.push(recorrido(u, tMotor + 0.8 * i, enPiso(u), [{ c: V(u.cPiso.x, ALTO1, u.cPiso.z), q: F.q, d: 0.8 }, { c: V(pre.c.x + 0.06, ALTO1, pre.c.z), q: F.q, d: 1.2 },
         { c: V(pre.c.x + 0.06, pre.c.y, pre.c.z), q: F.q, d: 0.7 }, { c: F.c, q: F.q, d: 0.6 }]));
     });
-    const tM12 = tMotor + 0.8 + 0.8 + 1.2 + 0.7 + 0.6 + 0.4;
+    // 12 sale mientras llega el segundo M: llega frente a ellos (a 11 cm) cuando los dos ya están puestos
+    const tM12 = tMotor + 1.3;
     const Fm = enPata(p12), preM = { q: Fm.q, c: Fm.c.clone().add(V(DESLIZA, 0, 0)) };
     r1.push(recorrido(p12, tM12, enPiso(p12), [{ c: V(p12.cPiso.x, ALTO1, p12.cPiso.z), q: Fm.q, d: 0.9 }, { c: V(preM.c.x, ALTO1, preM.c.z), q: Fm.q, d: 1.3 },
       { c: preM.c, q: Fm.q, d: 0.9 }, { c: Fm.c, q: Fm.q, d: 1.0 }]));
@@ -1799,16 +2169,16 @@ window.zoomSolidWorks = function (o) {
       salir: function (L, a, R) { llaveA(L, L.t, { q: L.pose.q, c: V(L.pose.c.x, ALTO1, L.pose.c.z) }, R.sale * 1.2); },
       largo: function () { return V(0, 1, 0); },
       via: viaLlave(ALTO1),
-      vueltas: 0.24    // el eje del segundo Ⓛ queda a 5 mm del piso y el brazo de Ⓘ mide 7 cm: pasado el cuarto de vuelta se hunde; gira 86°
+      vueltas: 0.24    // el eje del segundo L queda a 5 mm del piso y el brazo de I mide 7 cm: pasado el cuarto de vuelta se hunde; gira 86°
     };
-    const tLtor = atornillar(r1, L1, 1, [uni("L1"), uni("L2")], tL, Object.assign({}, opL, { lento: false }));
+    const tLtor = atornillar(r1, L1, 1, [uni("L1"), uni("L2")], tL, Object.assign({}, opL, { lento: false, temprano: tM12 }));
     llaveAlPiso(L1, tLtor, ALTO1);
     r1.unshift(recLlave(L1));
     const cB = enPata(p4).c, cA = enPata(p3).c, cM = enPata(p12).c;
     const bA1 = bocaEn(A_der[0], enPata(A_der[0])), bL1 = bocaEn(uni("L1"), enPata(uni("L1")));
-    SUBPASOS[1] = [{ t0: 0, n: "1.1", corto: "Pie ④ en la pata ②", txt: "Pon el pie ④ en la pata ② y fíjalo con 4 tornillos Ⓐ, apretados con la llave Ⓘ." },
-      { t0: tPie3 - 0.3, n: "1.2", corto: "Pie ③ en la pata ①", txt: "Pon el pie ③ en la pata ① y fíjalo con otros 4 tornillos Ⓐ." },
-      { t0: tMotor - 0.3, n: "1.3", corto: "Motor ⑫", txt: "Pon el motor ⑫ en la pata ① con los 2 separadores Ⓜ y los 2 tornillos Ⓛ (M5×40), apretados con la llave Ⓘ." }];
+    SUBPASOS[1] = [{ t0: 0, n: "1.1", corto: "Pie <span class='pz'>4</span> en la pata <span class='pz'>2</span>", txt: "Pon el pie <span class='pz'>4</span> en la pata <span class='pz'>2</span> y fíjalo con 4 tornillos <span class='pz'>A</span>, apretados con la llave <span class='pz'>I</span>." },
+      { t0: tPie3 - 0.3, n: "1.2", corto: "Pie <span class='pz'>3</span> en la pata <span class='pz'>1</span>", txt: "Pon el pie <span class='pz'>3</span> en la pata <span class='pz'>1</span> y fíjalo con otros 4 tornillos <span class='pz'>A</span>." },
+      { t0: tMotor - 0.3, n: "1.3", corto: "Motor <span class='pz pz2'>12</span>", txt: "Pon el motor <span class='pz pz2'>12</span> en la pata <span class='pz'>1</span> con los 2 separadores <span class='pz'>M</span> y los 2 tornillos <span class='pz'>L</span> (M5×40), apretados con la llave <span class='pz'>I</span>." }];
     const p1d = {
       recs: r1,
       tomas: [{ at: 0, mira: V(-0.07, 0.35, -0.15), dir: V(0.3, 0.6, 1), r: 1.05 },
@@ -1822,14 +2192,14 @@ window.zoomSolidWorks = function (o) {
     };
     etiquetasDelPaso(p1d, 1); P.push(p1d);
 
-    // 2 · (dibujo del paso 2) las dos patas con sus pies y el motor se ponen de pie (patas abajo) y encima la barra ⑤, con 4
-    //     tornillos Ⓔ (de arriba) y 2 Ⓓ (de lado), apretados con la llave Ⓘ. El manual no dibuja el giro de las patas
+    // 2 · (dibujo del paso 2) las dos patas con sus pies y el motor se ponen de pie (patas abajo) y encima la barra 5, con 4
+    //     tornillos E (de arriba) y 2 D (de lado), apretados con la llave I. El manual no dibuja el giro de las patas
     //     (paso 1 con el pie arriba, paso 2 de pie sobre sus pies): lo hace la animación
     const r2 = [], ALTO2 = 1.2;
     let tG = 0.3;
     ["izq", "der"].forEach(function (g) {
       const us = unidades.filter(function (u) { return u.grupo === g; });
-      const madre = us.find(function (u) { return u.tipo === "①" || u.tipo === "②"; });
+      const madre = us.find(function (u) { return u.tipo === "1" || u.tipo === "2"; });
       const ini = enPata(madre), fin = armado(madre);
       const rM = recorrido(madre, tG, ini, [{ c: ini.c.clone().add(V(0, 0.5, 0)), q: Q_V, d: 0.9 },
         { c: fin.c.clone().add(V(0, 0.5, 0)), q: QI, d: 1.9 }, { c: fin.c, q: QI, d: 0.9 }]);
@@ -1838,7 +2208,11 @@ window.zoomSolidWorks = function (o) {
       tG = rM.t1 + 0.3;
     });
     const p5 = uni("p5"), tBarra = tG + 0.2;
-    r2.push(llevar(p5, tBarra, enPiso(p5), armado(p5), ALTO2, [0.9, 1.8, 1.0]));
+    const rBarra = llevar(p5, tBarra, enPiso(p5), armado(p5), ALTO2, [0.9, 1.8, 1.0]);
+    r2.push(rBarra);
+    // las dos camisas y los cuatro S viajan pegados al tramo del centro (5 entera, #1065)
+    const recDe = {};
+    BARRA5.forEach(function (n) { if (n !== "p5") { const u = uni(n); recDe[n] = seguir(u, rBarra, enPiso(u)); r2.push(recDe[n]); } });
     const L2 = nuevaLlave("I");
     const opE = {
       fin: function (u) { return armado(u); },
@@ -1849,7 +2223,7 @@ window.zoomSolidWorks = function (o) {
     };
     const tE0 = tBarra + 0.9 + 1.8 + 1.0 + 0.4;
     let tt2 = atornillar(r2, L2, 2, porTipo.E, tE0, opE);
-    // Ⓓ: de lado, por el frente (desde +z), con la manija hacia arriba
+    // D: de lado, por el frente (desde +z), con la manija hacia arriba
     const opD = {
       fin: function (u) { return armado(u); },
       llega: llegaPor(ALTO2, 0.14),
@@ -1857,40 +2231,112 @@ window.zoomSolidWorks = function (o) {
       largo: function () { return V(0, 1, 0); },
       via: viaLlave(ALTO2)
     };
-    tt2 = atornillar(r2, L2, 2, porTipo.D, tt2 + 0.3, Object.assign({}, opD, { lento: false }));
-    llaveAlPiso(L2, tt2, ALTO2);
+    tt2 = atornillar(r2, L2, 2, porTipo.D, tt2 + 0.3, Object.assign({}, opD, { lento: false, seguido: true }));
+    // 2.4 (23-nov, #1065; Jon: «en el paso 2.3 … hay que mostrar cómo volverlo más ancho o más angosto», y a las 6:08 p. m.: «En el
+    //     paso que te dije, donde dice que aflojen unos tornillos»). El manual (paso 2, dibujo de la derecha): «Afloja los siguientes
+    //     cuatro tornillos con el símbolo I, pero no los desenrosques completamente»; hoja 2: «Rango de ajuste del marco: 955 mm ~
+    //     1300 mm». (1) La llave I afloja los cuatro S por debajo de las camisas, 2 vueltas cada uno, sin sacarlos. (2) Las dos
+    //     patas, cada una con su camisa de 5 y todo lo que lleva encima, se deslizan juntas sobre el tramo del centro: se abren
+    //     hasta 1300 mm entre ejes, se cierran hasta 955 y vuelven a 1248 (el armado). El manual no dibuja qué tramo corre: es la
+    //     opción A de la orquestadora mientras Jon contesta (LEEME). El manual no pide volver a apretarlos: no se aprietan
+    const tAfloja = tt2;
+    const S_ORDEN = ["S4", "S3", "S2", "S1"].map(uni);      // del lado de D2 (la pata 2) al otro
+    const zFrente = uni("p5").piv.z + 0.15;                  // por delante de la barra, a 15 cm
+    S_ORDEN.forEach(function (u, i) {
+      const R = Object.assign({}, RITMO[i === 0 ? "lento" : "rapido"], { vueltas: S_VUELTAS });
+      const sg = Math.sign(u.eje.dot(u.dirCana)) || 1, a = entraEn(u, QI), largo = V(0, 0, 1);
+      const Fa = apretado(u), Ff = armado(u);
+      const E0 = poseLlave(bocaEn(u, Fa), a, largo), E1 = poseLlave(bocaEn(u, Ff), a, largo);
+      const afuera = { q: E0.q, c: E0.c.clone().addScaledVector(a, -FUERA) };
+      L2.fluida = true;
+      // la llave llega por debajo: de arriba (donde quedó después de D2) baja por delante de la barra y entra por debajo; de un S al
+      // siguiente va derecho, por debajo de la barra
+      if (i === 0) llaveRuta(L2, L2.t, [{ q: null, c: V(afuera.c.x, L2.pose.c.y, zFrente) }, { q: afuera.q, c: V(afuera.c.x, afuera.c.y, zFrente) }, afuera], R.viaje * 1.4);
+      else llaveRuta(L2, L2.t, [afuera], R.viaje * 0.7);
+      const tA = L2.t;
+      llaveA(L2, L2.t, E0, R.encaja);
+      const tGira = L2.t;
+      // aflojar: al revés de atornillar (giro positivo del motor: antihorario mirando la cabeza) y el tornillo sale 2 mm
+      llaveA(L2, tGira, E1, R.gira, S_VUELTAS);
+      L2.pts[L2.pts.length - 1].ease = lineal;
+      const r = recDe[u.nombre];
+      extender(r, [{ c: Fa.c, q: QI, d: tGira - r.t1 }, { c: Ff.c, q: QI, d: R.gira, giro: sg * S_VUELTAS, ease: lineal }]);
+      llaveA(L2, L2.t, { q: E1.q, c: E1.c.clone().addScaledVector(a, -FUERA) }, R.sale);
+      ENCAJES.push({ paso: 2, tornillo: u.nombre, t0: tA, t1: L2.t, giro0: tGira, giro1: tGira + R.gira });
+    });
+    // la llave sale por delante de la barra y vuelve al piso
+    llaveRuta(L2, L2.t, [{ q: L2.pose.q, c: V(L2.pose.c.x, L2.pose.c.y, zFrente) }], 0.8);
+    llaveAlPiso(L2, L2.t, ALTO2);
+    // (2) el marco se abre y se cierra. Cada pata se corre la mitad de la diferencia; lo que lleva encima va con ella
+    const x1 = uni("p1").piv.x, x2 = uni("p2").piv.x, ANCHO = x2 - x1;
+    const dMax = (ANCHO_MAX - ANCHO) / 2, dMin = (ANCHO_MIN - ANCHO) / 2;
+    const ladoDe = function (u) {
+      if (u.grupo) return u.grupo === "izq" ? -1 : 1;
+      if (["p5a", "S1", "S2", "E1", "E2", "D1"].indexOf(u.nombre) >= 0) return -1;
+      if (["p5b", "S3", "S4", "E3", "E4", "D2"].indexOf(u.nombre) >= 0) return 1;
+      return 0;
+    };
+    const tAbre = L2.t + 0.4, TRAMOS = [[dMax, 1.8], [dMax, 0.6], [dMin, 3.4], [dMin, 0.7], [0, 2.2]];
+    const tCierra = tAbre + TRAMOS.reduce(function (a, x) { return a + x[1]; }, 0);
+    r2.forEach(function (r) {
+      const sl = ladoDe(r.u);
+      if (!sl || esLlave(r.u)) return;
+      const f = r.way[r.way.length - 1], base = f.c.clone();
+      const pts = [{ c: base, q: f.q, d: tAbre - r.t1 }];
+      TRAMOS.forEach(function (x) { pts.push({ c: base.clone().add(V(sl * x[0], 0, 0)), q: f.q, d: x[1] }); });
+      extender(r, pts);
+    });
+    ANCHO_T = { t0: tAbre, t1: tCierra, t2_4: tAfloja, y: uni("p5").piv.y + 0.075, z: uni("p5").piv.z };
+    llaveA(L2, tCierra + 1.6, L2.pose, 0.05);      // el paso sigue 1,6 s con el marco quieto antes de la toma general
     r2.unshift(recLlave(L2));
     const g2 = ENCAJES.filter(function (e) { return e.paso === 2; });
     const e1 = bocaEn(porTipo.E[0], armado(porTipo.E[0])), e4 = bocaEn(porTipo.E[3], armado(porTipo.E[3])), d1 = bocaEn(porTipo.D[0], armado(porTipo.D[0])), d2 = bocaEn(porTipo.D[1], armado(porTipo.D[1]));
     SUBPASOS[2] = [{ t0: 0, n: "2.1", corto: "Patas de pie", txt: "Pon las dos patas, con sus pies, de pie." },
-      { t0: tBarra - 0.2, n: "2.2", corto: "Barra ⑤", txt: "Pon la barra ⑤ sobre las dos patas." },
-      { t0: g2[0].t0 - 0.6, n: "2.3", corto: "Tornillos Ⓔ y Ⓓ", txt: "Fija la barra con 4 tornillos Ⓔ (M6×50) y 2 tornillos Ⓓ (M6×20), apretados con la llave Ⓘ." }];
+      { t0: tBarra - 0.2, n: "2.2", corto: "Barra <span class='pz'>5</span>", txt: "Pon la barra <span class='pz'>5</span> sobre las dos patas." },
+      { t0: g2[0].t0 - 0.6, n: "2.3", corto: "Tornillos <span class='pz'>E</span> y <span class='pz'>D</span>", txt: "Fija la barra con 4 tornillos <span class='pz'>E</span> (M6×50) y 2 tornillos <span class='pz'>D</span> (M6×20), apretados con la llave <span class='pz'>I</span>." },
+      { t0: tAfloja, n: "2.4", corto: "Afloja cuatro tornillos", pausa: tCierra + 0.05,
+        txt: "Afloja los cuatro tornillos de la barra <span class='pz'>5</span> con la llave <span class='pz'>I</span>, pero no los desenrosques completamente, de lo contrario será difícil instalarlos. Según el manual, el rango de ajuste del marco es de 955 mm a 1300 mm." }];
     const p2d = {
       recs: r2,
       tomas: [{ at: 0, mira: V(-0.07, 0.35, -0.2), dir: V(0.3, 0.6, 1), r: 1.05 },
         { at: tG - 0.6, mira: V(-0.07, 0.4, -0.25), dir: V(0.25, 0.7, 1), r: 1.0 },
         { at: g2[0].t0 - 0.5, mira: V(e1.x + 0.0, e1.y, e1.z), dir: V(-0.5, 0.9, 0.8), r: 0.15 },
-        { at: g2[1].t1 + 0.1, mira: V(-0.64, 0.63, -0.26), dir: V(-0.4, 0.8, 1), r: 0.3 },
+        { at: g2[1].t1 + 0.1, mira: V(-0.64 + DX_PATA1, 0.63, -0.26), dir: V(-0.4, 0.8, 1), r: 0.3 },
         { at: g2[2].t0 - 0.5, mira: V(e4.x, e4.y, e4.z), dir: V(0.5, 0.9, 0.8), r: 0.15 },
         { at: g2[4].t0 - 0.6, mira: V(d1.x, d1.y, d1.z), dir: V(-0.7, 0.4, 1), r: 0.16 },
         { at: g2[5].t0 - 0.6, mira: V(d2.x, d2.y, d2.z), dir: V(0.7, 0.4, 1), r: 0.16 },
-        { at: L2.t - 1.2, mira: V(-0.07, 0.4, -0.25), dir: V(0.25, 0.6, 1), r: 1.05 }]
+        // 2.4: los S, por debajo y de frente (dos tomas, una por camisa); el marco entero mientras se abre y se cierra, y la toma
+        // general cuando ya quedó quieto (la cámara no se aleja antes)
+        // (revisión de 863eeb6) 2.4 arranca con su toma: antes la del primer S esperaba a que llegara la llave (~2 s con la toma
+        // de D2 y su etiqueta)
+        { at: tAfloja, mira: bocaEn(uni("S4"), armado(uni("S4"))).add(bocaEn(uni("S3"), armado(uni("S3")))).multiplyScalar(0.5), dir: V(0.35, -0.3, 1), r: 0.13 },
+        { at: g2[8].t0 - 0.6, mira: bocaEn(uni("S2"), armado(uni("S2"))).add(bocaEn(uni("S1"), armado(uni("S1")))).multiplyScalar(0.5), dir: V(-0.35, -0.3, 1), r: 0.13 },
+        // el marco mientras se abre y se cierra, de cerca (revisión de 863eeb6: con r 0,95 la cámara quedaba a 3,3 m y el marco en un
+        // tercio del cuadro). r 0,7: el marco abierto (1300 mm entre ejes, 1345 de punta a punta) llena casi todo el ancho
+        // r se lee cuando la cámara vuela (getter): la toma encuadra una esfera de radio r en el lado más corto de la pantalla, y el
+        // marco es ancho y bajo. A lo ancho (1280) basta con encuadrar el alto (r 0,485); a lo alto (390), el ancho manda (r 0,7)
+        // el blanco va más bajo y hacia adelante (y 0,32, z −0,14) para que entre entero el pie largo 4, que viene hacia la cámara (a
+        // 1280 su punta se cortaba abajo, contra la barra)
+        // a lo alto (celular) el blanco va mucho más bajo (y −0,05): el marco queda en la mitad de arriba y la caja de la pausa del final,
+        // que ocupa la de abajo, no tapa el pie 4 ni la pata (revisión de e79e49a)
+        { at: tAbre - 1.0, get mira() { return V((x1 + x2) / 2, camara.aspect > 1 ? 0.32 : -0.05, -0.14); }, dir: V(0.1, 0.4, 1), get r() { return camara.aspect > 1 ? R_MARCO_ANCHO : R_MARCO; } },
+        { at: tCierra + 0.4, mira: V(-0.07, 0.4, -0.25), dir: V(0.25, 0.6, 1), r: 1.05 }]
     };
     etiquetasDelPaso(p2d, 2); P.push(p2d);
 
-    // 3 · (dibujo y nota del paso 3) ⑦ y ⑥ hasta el fondo, girando suavemente la llave Ⓗ en la boca de cada pata mientras
-    //     entran. Primero ⑥ se mete en el tubo de ⑦ (así se arman: caben juntas entre las patas, que dejan 12 cm menos que las
-    //     dos piezas estiradas), ⑦ llega con ⑥ por encima y su punta entra en la pata ① (flecha a la izquierda); se desenrosca la
-    //     perilla («Desenrosca»), ⑥ se estira hasta el fondo de la pata ② y se enrosca la perilla («Enrosca»)
+    // 3 · (dibujo y nota del paso 3) 7 y 6 hasta el fondo, girando suavemente la llave H en la boca de cada pata mientras
+    //     entran. Primero 6 se mete en el tubo de 7 (así se arman: caben juntas entre las patas, que dejan 12 cm menos que las
+    //     dos piezas estiradas), 7 llega con 6 por encima y su punta entra en la pata 1 (flecha a la izquierda); se desenrosca la
+    //     perilla («Desenrosca»), 6 se estira hasta el fondo de la pata 2 y se enrosca la perilla («Enrosca»)
     const r3 = [], p7 = uni("p7"), p7c = uni("p7c"), p6 = uni("p6"), H = uni("H");
     const F7 = armado(p7), F7c = armado(p7c), F6 = armado(p6);
     const b12 = caja([uni("p12")], armado), b7 = caja([p7], armado);
     const DX7 = b12.max.x - b7.min.x + 0.012, RET = 0.14, ALTO3 = 1.3, ALTO_K = 1.0, GIRO_K = 2.0, EXT_D = 2.4, DESL = 2.0;
     const rel6 = F6.c.clone().sub(F7.c), rel7c = F7c.c.clone().sub(F7.c), ins6 = rel6.clone().add(V(-RET, 0, 0));
-    // ⑥ se mete en el tubo sobre el piso (la perilla ya está en su sitio del tubo)
+    // 6 se mete en el tubo sobre el piso (la perilla ya está en su sitio del tubo)
     const T_SL = 0.3, SL_D = 2.0, T_UP = T_SL + SL_D + 0.4;
     const drop = { q: QI, c: F7.c.clone().add(V(DX7, 0, 0)) };
-    const A3 = V(-0.7323, F7.c.y, F7.c.z), B3 = V(0.5959, F7.c.y, F7.c.z);        // las bocas de las patas (la cara de afuera de la cabeza)
+    const A3 = V(-0.7323 + DX_PATA1, F7.c.y, F7.c.z), B3 = V(0.5959, F7.c.y, F7.c.z);        // las bocas de las patas (la cara de afuera de la cabeza)
     const tArr = T_UP + 1.0 + 1.8 + 1.4;
     const rec7 = recorrido(p7, T_UP, enPiso(p7), [{ c: V(p7.cPiso.x, ALTO3, p7.cPiso.z), q: QI, d: 1.0 }, { c: V(drop.c.x, ALTO3, drop.c.z), q: QI, d: 1.8 },
       { c: drop.c, q: QI, d: 1.4 }, { c: drop.c, q: QI, d: 0.5 }, { c: F7.c, q: QI, d: DESL, ease: lineal }]);
@@ -1904,24 +2350,30 @@ window.zoomSolidWorks = function (o) {
       }
       return pts;
     }
-    // ⑥: se mete en el tubo, espera, viaja con ⑦, y después se estira hasta el fondo de la pata ② (con la perilla suelta)
+    // 6: se mete en el tubo, espera, viaja con 7, y después se estira hasta el fondo de la pata 2 (con la perilla suelta)
     const c6piso = p7.cPiso.clone().add(ins6), c6fin = F7.c.clone().add(ins6);
     const tAflojar = tFinSl + 0.4, tExt = tAflojar + GIRO_K + 0.5, tAprieta = tExt + EXT_D + 0.5;
     const pts6 = [{ c: c6piso, q: QI, d: SL_D }, { c: c6piso, q: QI, d: T_UP - T_SL - SL_D }].concat(sigue(ins6));
     pts6.push({ c: c6fin, q: QI, d: tExt - tFinSl });
     pts6.push({ c: F6.c, q: QI, d: EXT_D, ease: lineal });
     r3.push(recorrido(p6, T_SL, enPiso(p6), pts6));
-    // la perilla: viaja con el tubo; «Desenrosca» (una vuelta) antes del acople y «Enrosca» (una vuelta al otro lado) después
+    // la perilla: viaja con el tubo; «Desenrosca» (una vuelta) antes del acople y «Enrosca» (una vuelta al otro lado) después.
+    // El sentido es el del dibujo del paso 3 (lupa «Desenrosca»): mirando la perilla desde su cara, la de la varilla 6, desenrosca
+    // antihorario (rosca derecha) y enrosca horario. Antihorario visto desde 6 = giro alrededor del eje que va de la perilla
+    // hacia 6 (S6 · x). En el motor, «giro: g» gira alrededor de x con el ángulo de 2π·g a 0, o sea alrededor de −x si g > 0:
+    // desenroscar es giro −S6. Antes iba al revés (23-nov, #1065)
+    const S6 = Math.sign(F6.c.x - F7c.c.x) || 1;
     const ptsK = [{ c: p7c.cPiso, q: QI, d: T_UP - T_SL }].concat(sigue(rel7c));
     ptsK.push({ c: F7c.c, q: QI, d: tAflojar - tFinSl });
-    ptsK.push({ c: F7c.c, q: QI, d: GIRO_K, giro: 1, ease: lineal });
+    ptsK.push({ c: F7c.c, q: QI, d: GIRO_K, giro: -S6, ease: lineal });
     ptsK.push({ c: F7c.c, q: QI, d: tAprieta - tAflojar - GIRO_K });
-    ptsK.push({ c: F7c.c, q: QI, d: GIRO_K, giro: -1, ease: lineal });
+    ptsK.push({ c: F7c.c, q: QI, d: GIRO_K, giro: S6, ease: lineal });
     r3.push(recorrido(p7c, T_SL, enPiso(p7c), ptsK));
     FLECHA_T.forEach(function (f) { escena.remove(f.g); });
-    FLECHA_T = [{ g: flechaGiro(F7c.c, -1), t0: tAflojar - 0.4, t1: tAflojar + GIRO_K + 0.3 },
-      { g: flechaGiro(F7c.c, 1), t0: tAprieta - 0.4, t1: tAprieta + GIRO_K + 0.6 }];
-    // la llave Ⓗ: en la boca de la pata (la cara de afuera de la cabeza), la manija hacia arriba; gira un octavo de vuelta
+    const bK = caja([p7c], armado), RK = Math.max(bK.max.y - bK.min.y, bK.max.z - bK.min.z) / 2 + 0.007;   // por fuera de la perilla
+    FLECHA_T = [{ g: flechaGiro(F7c.c, S6, RK), t0: tAflojar - 0.4, t1: tAflojar + GIRO_K + 0.3, giro: -S6 },
+      { g: flechaGiro(F7c.c, -S6, RK), t0: tAprieta - 0.4, t1: tAprieta + GIRO_K + 0.6, giro: S6 }];
+    // la llave H: en la boca de la pata (la cara de afuera de la cabeza), la manija hacia arriba; gira un octavo de vuelta
     // mientras entra la pieza de ese lado
     const LH = nuevaLlave("H");
     function ponerH(boca, a, tIni, dur, vueltas, pata) {
@@ -1940,58 +2392,35 @@ window.zoomSolidWorks = function (o) {
     ponerH(B3, V(-1, 0, 0), tExt, EXT_D, 0.125, "p2");
     llaveAlPiso(LH, Math.max(LH.t, tAprieta + GIRO_K + 0.6), ALTO_K);
     r3.unshift(recLlave(LH));
-    SUBPASOS[3] = [{ t0: 0, n: "3.1", corto: "⑥ en ⑦", txt: "Mete la varilla ⑥ en el tubo de ⑦." },
-      { t0: T_UP - 0.2, n: "3.2", corto: "⑦ en la pata ①", txt: "Pon ⑦ con su varilla entre las patas y mete su punta hasta el fondo en la pata ①, girando suavemente la llave Ⓗ." },
-      { t0: tAflojar - 0.1, n: "3.3", corto: "Desenrosca", txt: "<b>Desenrosca</b> la perilla de ⑦: gírala como indica la flecha, para que la varilla ⑥ se pueda estirar." },
-      { t0: tExt - 0.2, n: "3.4", corto: "⑥ en la pata ②", txt: "Estira ⑥ hasta el fondo de la pata ②, girando suavemente la llave Ⓗ. Asegúrate de insertar completamente la pieza." },
-      { t0: tAprieta - 0.6, n: "3.5", corto: "Enrosca", txt: "<b>Enrosca</b> la perilla de ⑦: gírala al otro lado, como indica la flecha, hasta que quede firme." }];
+    SUBPASOS[3] = [{ t0: 0, n: "3.1", corto: "<span class='pz'>6</span> en <span class='pz'>7</span>", txt: "Mete la varilla <span class='pz'>6</span> en el tubo de <span class='pz'>7</span>." },
+      { t0: T_UP - 0.2, n: "3.2", corto: "<span class='pz'>7</span> en la pata <span class='pz'>1</span>", txt: "Pon <span class='pz'>7</span> con su varilla entre las patas y mete su punta hasta el fondo en la pata <span class='pz'>1</span>, girando suavemente la llave <span class='pz'>H</span>." },
+      { t0: tAflojar - 0.1, n: "3.3", corto: "Desenrosca", pausa: tAflojar + GIRO_K + 0.1, txt: "<b>Desenrosca</b> la perilla de <span class='pz'>7</span>: gírala como indica la flecha, para que la varilla <span class='pz'>6</span> se pueda estirar." },
+      { t0: tExt - 0.2, n: "3.4", corto: "<span class='pz'>6</span> en la pata <span class='pz'>2</span>", txt: "Estira <span class='pz'>6</span> hasta el fondo de la pata <span class='pz'>2</span>, girando suavemente la llave <span class='pz'>H</span>. Asegúrate de insertar completamente la pieza." },
+      { t0: tAprieta - 0.6, n: "3.5", corto: "Enrosca", pausa: tAprieta + GIRO_K + 0.2, txt: "<b>Enrosca</b> la perilla de <span class='pz'>7</span>: gírala al otro lado, como indica la flecha, hasta que quede firme." }];
     const kA = V(F7c.c.x, F7.c.y, F7.c.z);
     const p3d = {
       recs: r3,
       tomas: [{ at: 0, mira: V(0.1, 0.05, 0.96), dir: V(0.3, 0.8, 0.7), r: 0.55 },
         { at: T_UP - 0.2, mira: V(-0.07, 0.45, -0.1), dir: V(0.3, 0.6, 1), r: 1.1 },
-        { at: tArr - 0.8, mira: V(-0.66, F7.c.y, F7.c.z), dir: V(-0.5, 0.4, 0.9), r: 0.16 },
-        { at: tAflojar - 0.5, mira: V(kA.x, kA.y, kA.z), dir: V(0.3, 0.75, 0.9), r: 0.1 },
-        { at: tExt - 0.6, mira: V(0.57, F7.c.y, F7.c.z), dir: V(0.6, 0.4, 0.9), r: 0.16 },
+        { at: tArr - 0.8, mira: V(-0.66 + DX_PATA1, F7.c.y, F7.c.z), dir: V(-0.5, 0.4, 0.9), r: 0.16 },
+        // 3.3 desde más arriba (#1065, revisión de 4ecc689): con dir (0,3; 0,75; 0,9) la punta de la flecha, que en 3.3 baja hacia el
+        // frente, quedaba contra el borde de la barra 5 y se leía cortada, a 1280 y a 390. En 3.5 la punta sube y se ve entera
+        { at: tAflojar - 0.5, mira: V(kA.x, kA.y, kA.z), dir: V(0.3, 1.3, 0.75), r: 0.1 },
+        // después de la pausa de «Desenrosca» (la cámara se queda en la perilla mientras espera la flecha)
+        { at: tExt - 0.15, mira: V(0.57, F7.c.y, F7.c.z), dir: V(0.6, 0.4, 0.9), r: 0.16 },
         { at: tAprieta - 0.5, mira: V(kA.x, kA.y, kA.z), dir: V(0.3, 0.75, 0.9), r: 0.1 },
         { at: LH.t - 1.2, mira: V(-0.07, 0.4, -0.25), dir: V(0.25, 0.6, 1), r: 1.05 }]
     };
     etiquetasDelPaso(p3d, 3); P.push(p3d);
 
-    // 4 · (dibujo del paso 4) ⑧ en la cabeza de la pata ① y ⑨ en la de la pata ②: bajan desde arriba; cada soporte con 2
-    //     tornillos Ⓒ y la llave Ⓘ. En la pata ① el motor ⑫ deja 24 mm entre el ala del soporte y su caja y Ⓛ, la barra ⑤ y el ala
-    //     tapan a la llave por todos lados (LEEME, duda): los Ⓒ de ① llegan por detrás, por ese hueco, y se ponen a mano
+    // 4 · (dibujo del paso 4) 8 en la cabeza de la pata 1 y 9 en la de la pata 2: bajan desde arriba; cada soporte con 2
+    //     tornillos C y la llave I, por la cara de afuera de la cabeza
     const r4 = [], p8 = uni("p8"), p9 = uni("p9"), ALTO4 = 1.25, ZB = 0.22;
     r4.push(llevar(p8, 0.3, enPiso(p8), armado(p8), ALTO4, [0.9, 1.7, 1.2]));
     const L4 = nuevaLlave("I");
     const tC1 = 0.3 + 0.9 + 1.7 + 1.2 + 0.4;
-    const opCa = {
-      fin: function (u) { return armado(u); },
-      entra: 0.002, fuera: 0.004,
-      llega: function (u, t, pre, R) {
-        const x1 = pre.c.x + 0.014, zb = pre.c.z - ZB;
-        return [{ c: V(u.cPiso.x, ALTO4, u.cPiso.z), q: pre.q, d: R.llega * 0.25 }, { c: V(x1, ALTO4, zb), q: pre.q, d: R.llega * 0.25 },
-          { c: V(x1, pre.c.y, zb), q: pre.q, d: R.llega * 0.2 }, { c: V(x1, pre.c.y, pre.c.z), q: pre.q, d: R.llega * 0.2 }, { c: pre.c, q: pre.q, d: R.llega * 0.1 }];
-      },
-      largo: function () { return V(0, -1, 0); },
-      via: function (L, t, afuera, R) {
-        const atras = V(afuera.c.x, afuera.c.y, afuera.c.z - ZB);
-        if (L.pose.c.distanceTo(afuera.c) > 0.12) {
-          llaveA(L, t, { q: L.pose.q, c: V(L.pose.c.x, ALTO4, L.pose.c.z) }, R.viaje * 0.3);
-          llaveA(L, L.t, { q: afuera.q, c: V(atras.x, ALTO4, atras.z) }, R.viaje * 0.3);
-          llaveA(L, L.t, { q: afuera.q, c: atras }, R.viaje * 0.2);
-          L.enEje = L.t; llaveA(L, L.t, afuera, R.viaje * 0.3);
-        } else { L.enEje = Math.max(L.t, t); llaveA(L, t, afuera, R.viaje * 0.5); }
-      },
-      salir: function (L, a, R) { llaveA(L, L.t, { q: L.pose.q, c: V(L.pose.c.x, L.pose.c.y, L.pose.c.z - ZB) }, R.sale * 1.5); llaveA(L, L.t, { q: L.pose.q, c: V(L.pose.c.x, ALTO4, L.pose.c.z) }, R.sale * 1.5); }
-    };
-    // el Ⓒ de adelante (z −0,2775) primero, para que el de atrás no le tape el paso
-    const C_A = porTipo.C.filter(function (u) { return u.piv.x < 0; }).sort(function (a, b) { return b.piv.z - a.piv.z; });
-    const C_B = porTipo.C.filter(function (u) { return u.piv.x > 0; });
-    let tt4 = aMano(r4, C_A, tC1, opCa);
-    // ⑨ en la pata ②
-    const tP9 = tt4 + 0.3;
-    r4.push(llevar(p9, tP9, enPiso(p9), armado(p9), ALTO4, [0.9, 1.7, 1.2]));
+    // los C de 8 entran desde afuera (−x), con la llave I, como los de 9 (23-nov, #940: el soporte 8 ya no está dentro de la
+    // cabeza de la pata 1 y el motor ya no estorba)
     const opCb = {
       fin: function (u) { return armado(u); },
       llega: llegaPor(ALTO4, 0.14),
@@ -1999,27 +2428,37 @@ window.zoomSolidWorks = function (o) {
       via: viaLlave(ALTO4),
       salir: function (L, a, R) { llaveA(L, L.t, { q: L.pose.q, c: V(L.pose.c.x, ALTO4, L.pose.c.z) }, R.sale * 1.2); }
     };
-    tt4 = atornillar(r4, L4, 4, C_B, tP9 + 0.9 + 1.7 + 1.2 + 0.4, Object.assign({}, opCb, { lento: false }));
+    // el C de adelante (z −0,2775) primero, para que el de atrás no le tape el paso
+    const C_A = porTipo.C.filter(function (u) { return u.piv.x < 0; }).sort(function (a, b) { return b.piv.z - a.piv.z; });
+    const C_B = porTipo.C.filter(function (u) { return u.piv.x > 0; });
+    let tt4 = atornillar(r4, L4, 4, C_A, tC1, opCb);
+    // 9 en la pata 2: sale apenas la llave deja el último C de 8 (revisión de 863eeb6)
+    const tP9 = L4.tLibre + 0.1;
+    r4.push(llevar(p9, tP9, enPiso(p9), armado(p9), ALTO4, [0.9, 1.7, 1.2]));
+    tt4 = atornillar(r4, L4, 4, C_B, tP9 + 0.9 + 1.7 + 1.2 + 0.1, Object.assign({}, opCb, { lento: false, temprano: tP9 }));
     llaveAlPiso(L4, tt4, ALTO4);
     r4.unshift(recLlave(L4));
     const g4 = ENCAJES.filter(function (e) { return e.paso === 4; });
     const cC1 = bocaEn(C_A[0], armado(C_A[0])), cC3 = bocaEn(C_B[0], armado(C_B[0]));
-    SUBPASOS[4] = [{ t0: 0, n: "4.1", corto: "Soporte ⑧", txt: "Pon el soporte ⑧ en la cabeza de la pata ① y fíjalo con 2 tornillos Ⓒ (M6×12)." },
-      { t0: tP9 - 0.3, n: "4.2", corto: "Soporte ⑨", txt: "Pon el soporte ⑨ en la cabeza de la pata ② y fíjalo con otros 2 tornillos Ⓒ, apretados con la llave Ⓘ." }];
+    SUBPASOS[4] = [{ t0: 0, n: "4.1", corto: "Soporte <span class='pz'>8</span>", txt: "Pon el soporte <span class='pz'>8</span> en la cabeza de la pata <span class='pz'>1</span> y fíjalo con 2 tornillos <span class='pz'>C</span> (M6×12), apretados con la llave <span class='pz'>I</span>." },
+      { t0: tP9 - 0.3, n: "4.2", corto: "Soporte <span class='pz'>9</span>", txt: "Pon el soporte <span class='pz'>9</span> en la cabeza de la pata <span class='pz'>2</span> y fíjalo con otros 2 tornillos <span class='pz'>C</span>, apretados con la llave <span class='pz'>I</span>." }];
     const p4d = {
       recs: r4,
       tomas: [{ at: 0, mira: V(-0.07, 0.4, -0.25), dir: V(0.3, 0.7, 1), r: 1.05 },
-        { at: tC1 - 1.0, mira: V(cC1.x, cC1.y, cC1.z + 0.01), dir: V(0.75, 0.55, 0.6), r: 0.2 },
-        { at: g4[0].t0 - 0.4, mira: V(cC1.x, cC1.y, cC1.z + 0.01), dir: V(0.8, 0.45, 0.55), r: 0.1 },
+        { at: tC1 - 1.0, mira: V(cC1.x, cC1.y, cC1.z + 0.01), dir: V(-0.75, 0.55, 0.6), r: 0.2 },
+        { at: g4[0].t0 - 0.4, mira: V(cC1.x, cC1.y, cC1.z + 0.01), dir: V(-0.8, 0.45, 0.55), r: 0.12 },
         { at: g4[1].t1 - 0.2, mira: V(-0.07, 0.4, -0.25), dir: V(0.3, 0.7, 1), r: 1.05 },
-        { at: tP9 + 0.1, mira: V(0.45, 0.45, -0.2), dir: V(0.5, 0.7, 1), r: 0.55 },
+        // (revisión de 863eeb6) mientras 9 viaja del piso a la pata, una toma que lo sigue (antes la de cerca de la pata 2 lo dejaba
+        // fuera de cuadro 1,3 s, con nada moviéndose en pantalla); la de cerca, cuando ya baja
+        { at: tP9 - 0.2, mira: p9.cPiso.clone().add(armado(p9).c).multiplyScalar(0.5).setY(0.75), dir: V(0.5, 0.7, 1), r: 0.95 },
+        { at: tP9 + 0.9 + 1.7 + 0.5, mira: V(0.45, 0.45, -0.2), dir: V(0.5, 0.7, 1), r: 0.55 },
         { at: g4[2].t0 - 0.6, mira: V(cC3.x, cC3.y, cC3.z), dir: V(0.8, 0.45, 0.6), r: 0.12 },
         { at: g4[3].t1 + 0.1, mira: V(-0.07, 0.4, -0.25), dir: V(0.3, 0.7, 1), r: 1.05 }]
     };
     etiquetasDelPaso(p4d, 4); P.push(p4d);
 
-    // 5 · (dibujo del paso 5) los dos tableros, boca abajo; los 3 pasadores Ⓞ en el canto del tablero del ala corta, el otro
-    //     se desliza hasta tocarlo; 2 placas Ⓝ sobre la unión con 8 tornillos Ⓑ (4 por placa), apretados con la llave Ⓘ
+    // 5 · (dibujo del paso 5) los dos tableros, boca abajo; los 3 pasadores O en el canto del tablero del ala corta, el otro
+    //     se desliza hasta tocarlo; 2 placas N sobre la unión con 8 tornillos B (4 por placa), apretados con la llave I
     const r5 = [], tabA = uni("tabA"), tabB = uni("tabB"), ALTO5 = 0.75;
     const pins = porTipo.O, plac = porTipo.N, B_5 = porTipo.B.filter(function (u) { return u.paso === 5; });
     const Fa = volteado(tabA);
@@ -2054,9 +2493,9 @@ window.zoomSolidWorks = function (o) {
     r5.unshift(recLlave(L5));
     const g5 = ENCAJES.filter(function (e) { return e.paso === 5; });
     const sB = volteado(uni("O2")).c;
-    SUBPASOS[5] = [{ t0: 0, n: "5.1", corto: "Pasadores Ⓞ", txt: "Pon los 3 pasadores Ⓞ en el canto de un tablero." },
+    SUBPASOS[5] = [{ t0: 0, n: "5.1", corto: "Pasadores <span class='pz'>O</span>", txt: "Pon los 3 pasadores <span class='pz'>O</span> en el canto de un tablero." },
       { t0: tJunta - 0.3, n: "5.2", corto: "Juntar los tableros", txt: "Junta los dos tableros por los pasadores." },
-      { t0: tPl - 0.3, n: "5.3", corto: "Placas Ⓝ y tornillos Ⓑ", txt: "Pon las 2 placas Ⓝ sobre la unión y fíjalas con 8 tornillos Ⓑ (M6×16), apretados con la llave Ⓘ." }];
+      { t0: tPl - 0.3, n: "5.3", corto: "Placas <span class='pz'>N</span> y tornillos <span class='pz'>B</span>", txt: "Pon las 2 placas <span class='pz'>N</span> sobre la unión y fíjalas con 8 tornillos <span class='pz'>B</span> (M6×16), apretados con la llave <span class='pz'>I</span>." }];
     const p5d = {
       recs: r5,
       tomas: [{ at: 0, mira: V(0.1, 0.0, sB.z), dir: V(0.2, 0.8, 1), r: 0.95 },
@@ -2070,8 +2509,8 @@ window.zoomSolidWorks = function (o) {
     etiquetasDelPaso(p5d, 5); P.push(p5d);
 
     // 6 · (dibujo del paso 6) la estructura se gira (el manual no dibuja el giro) y se baja sobre el tablero, patas arriba;
-    //     12 tornillos Ⓑ (⑧, ⑨ y las dos pestañas de ⑤) con la llave Ⓘ; el control ⑩ con 2 tornillos Ⓕ y la llave Ⓙ; el
-    //     amarre Ⓚ hacia el control, como indica la flecha
+    //     12 tornillos B (8, 9 y las dos pestañas de 5) con la llave I; el control 10 con 2 tornillos F y la llave J; el
+    //     amarre K hacia el control, como indica la flecha
     const r6 = [], frame = unidades.filter(enMarco), madre = uni("p5"), ALTO6 = 1.5, ALTO6b = 1.0;
     const Fm6 = volteado(madre), Im6 = armado(madre);
     const rM = recorrido(madre, 0.3, Im6, [{ c: Im6.c.clone().add(V(0, 0.85, 0)), q: QI, d: 1.2 }, { c: V(Fm6.c.x, ALTO6, Fm6.c.z), q: Q_V, d: 3.0 },
@@ -2085,7 +2524,7 @@ window.zoomSolidWorks = function (o) {
     const B_9 = B_6.filter(function (u) { const k = Number(u.nombre.slice(1)); return k >= 13 && k <= 18; });
     const B_5t = B_6.filter(function (u) { const k = Number(u.nombre.slice(1)); return k >= 19; });
     // patas arriba el pie queda justo encima de los soportes: la llave sale por el costado y no sube. La manija va hacia afuera de la
-    // columna de la pata (hacia −z si el tornillo queda antes de ella, hacia +z si después) y gira poco: ⑧ y ⑨ tienen su ala a un lado
+    // columna de la pata (hacia −z si el tornillo queda antes de ella, hacia +z si después) y gira poco: 8 y 9 tienen su ala a un lado
     const cPie3 = caja([uni("p3")], function (u) { return volteado(u); }), cPie4 = caja([uni("p4")], function (u) { return volteado(u); });
     BAJO_PIE = function (x) { return (x > cPie3.min.x - 0.08 && x < cPie3.max.x + 0.08) || (x > cPie4.min.x - 0.08 && x < cPie4.max.x + 0.08); };
     const ZCOL = volteado(uni("p1")).c.z;
@@ -2096,15 +2535,17 @@ window.zoomSolidWorks = function (o) {
     // no tiene su ala vertical, a ras, y bajan los últimos 2,5 cm
     const opB8 = Object.assign({}, opBase, { entra: 0.025, llega: llegaLado(ALTO6b, V(1, 0, 0), 0.22), via: viaLado(ALTO6b, V(1, 0, 0), 0.25), largo: afuera, vueltas: 0.15, salir: lateral(V(1, 0, 0)) });
     const opB9 = Object.assign({}, opBase, { entra: 0.025, llega: llegaLado(ALTO6b, V(-1, 0, 0), 0.22), via: viaLado(ALTO6b, V(-1, 0, 0), 0.25), largo: afuera, vueltas: 0.15, salir: lateral(V(-1, 0, 0)) });
-    // las pestañas de ⑤: la manija a lo largo de la barra, entre su cuerpo y las varillas (23 mm de aire), y un giro de 18° hacia las varillas
+    // las pestañas de 5: la manija a lo largo de la barra, entre su cuerpo y las varillas (23 mm de aire), y un giro de 18° hacia las varillas
     const opBt = Object.assign({}, opBase, { llega: llegaPor(ALTO6b, 0), via: viaLlave(ALTO6b), largo: function () { return V(-1, 0, 0); }, vueltas: 0.05 });
     let tt6 = atornillar(r6, L6, 6, B_8, tFr, opB8);
-    tt6 = atornillar(r6, L6, 6, B_9, tt6 + 0.2, Object.assign({}, opB9, { lento: false }));
-    tt6 = atornillar(r6, L6, 6, B_5t, tt6 + 0.2, Object.assign({}, opBt, { lento: false }));
+    tt6 = atornillar(r6, L6, 6, B_9, tt6 + 0.2, Object.assign({}, opB9, { lento: false, seguido: true }));
+    tt6 = atornillar(r6, L6, 6, B_5t, tt6 + 0.2, Object.assign({}, opBt, { lento: false, seguido: true }));
+    const tFinB = tt6;
     llaveAlPiso(L6, tt6, ALTO6b); tt6 = L6.t;
     r6.unshift(recLlave(L6));
-    // el control ⑩: llega por el frente (desde afuera del tablero), a ras, y se desliza hasta su sitio; 2 tornillos Ⓕ con la llave Ⓙ
-    const p10 = uni("p10"), F10 = volteado(p10), tCt = tt6 + 0.3, FRENTE = V(0, 0, -0.3);
+    // el control 10: llega por el frente (desde afuera del tablero), a ras, y se desliza hasta su sitio; 2 tornillos F con la llave J
+    // 10 sale apenas termina el último B, mientras la llave I vuelve al piso (revisión de 863eeb6)
+    const p10 = uni("p10"), F10 = volteado(p10), tCt = tFinB + 0.2, FRENTE = V(0, 0, -0.3);
     r6.push(recorrido(p10, tCt, enPiso(p10), [{ c: V(p10.cPiso.x, ALTO6b, p10.cPiso.z), q: F10.q, d: 0.9 }, { c: V(F10.c.x, ALTO6b, F10.c.z + FRENTE.z), q: F10.q, d: 1.5 },
       { c: F10.c.clone().add(FRENTE), q: F10.q, d: 0.9 }, { c: F10.c, q: F10.q, d: 1.0 }]));
     const LJ = nuevaLlave("J");
@@ -2112,23 +2553,23 @@ window.zoomSolidWorks = function (o) {
     const opF = { vueltas: 0.15, fin: function (u) { return volteado(u); }, largo: function (u, F) { return V(F.c.x > -0.65 ? 1 : -1, 0, 0); }, entra: 0.02,
       llega: function (u, t, pre, R) { return (u.piv.x > -0.65 ? llegaLado(ALTO6b, V(1, 0, 0), 0.2) : llegaLado(ALTO6b, V(-1, 0, 0), 0.2))(u, t, pre, R); },
       via: function (L, t, afuera, R) { return (afuera.c.x > -0.65 ? viaLado(ALTO6b, V(1, 0, 0), 0.22) : viaLado(ALTO6b, V(-1, 0, 0), 0.22))(L, t, afuera, R); },
-      salir: function (L, a, R) { llaveA(L, L.t, { q: L.pose.q, c: V(L.pose.c.x, ALTO6b, L.pose.c.z) }, R.sale * 1.2); } };
-    const tF0 = tCt + 0.9 + 1.5 + 0.9 + 1.0 + 0.4;
-    const ttF = atornillar(r6, LJ, 6, F_, tF0, opF);
+      // sale primero de lado (hacia donde llegó) y después sube: el F de −x queda bajo el pie 3 (patas arriba) y la llave, subiendo
+      // derecho, lo atravesaba (revisión de choques del 24-nov, J|p3)
+      salir: function (L, a, R) { const sx = L.pose.c.x > -0.65 ? 1 : -1;
+        llaveA(L, L.t, { q: L.pose.q, c: V(L.pose.c.x + sx * 0.22, L.pose.c.y, L.pose.c.z) }, R.sale * 1.2);
+        llaveA(L, L.t, { q: L.pose.q, c: V(L.pose.c.x, ALTO6b, L.pose.c.z) }, R.sale * 1.2); } };
+    const tF0 = tCt + 0.9 + 1.5 + 0.9 + 1.0 + 0.1;
+    const ttF = atornillar(r6, LJ, 6, F_, tF0, Object.assign({}, opF, { temprano: tCt }));
     llaveAlPiso(LJ, ttF, ALTO6b);
     r6.unshift(recLlave(LJ));
-    // el amarre Ⓚ: del piso hacia el control, como indica la flecha del manual; queda sobre el tablero, a la derecha del control
-    const K6 = uni("K"), FK = poseK(K6);
-    const tK = ttF + 0.6;
-    r6.push(recorrido(K6, tK, enPiso(K6), [{ c: V(K6.cPiso.x, ALTO6b, K6.cPiso.z), q: QI, d: 0.8 }, { c: V(FK.c.x, ALTO6b, FK.c.z), q: QI, d: 1.5 },
-      { c: FK.c.clone().add(V(0, 0.05, 0)), q: QI, d: 0.8 }, { c: FK.c, q: QI, d: 0.5 }]));
-    const tFin6 = tK + 0.8 + 1.5 + 0.8 + 0.5;
+    // el amarre K (dibujado junto a 11) se pone en el paso 7, con el cable de 11 (23-nov, #940: Jon, «no se ve para qué es la correa
+    // plástica»; antes quedaba suelto sobre el tablero)
+    const tFin6 = ttF + 0.6;
     const g6 = ENCAJES.filter(function (e) { return e.paso === 6; });
     const c10 = F10.c, bB1 = bocaEn(B_8[0], volteado(B_8[0])), bB5 = bocaEn(B_9[0], volteado(B_9[0])), bB19 = bocaEn(B_5t[0], volteado(B_5t[0]));
     SUBPASOS[6] = [{ t0: 0, n: "6.1", corto: "Estructura sobre el tablero", txt: "Pon la estructura sobre el tablero, con las patas hacia arriba." },
-      { t0: tFr - 0.2, n: "6.2", corto: "Tornillos Ⓑ", txt: "Fija los soportes ⑧ y ⑨ y las dos pestañas de la barra ⑤ con 12 tornillos Ⓑ (M6×16), apretados con la llave Ⓘ." },
-      { t0: tCt - 0.2, n: "6.3", corto: "Control ⑩", txt: "Pon el control ⑩ y fíjalo con 2 tornillos Ⓕ (M4×12), apretados con la llave Ⓙ." },
-      { t0: tK - 0.2, n: "6.4", corto: "Amarre Ⓚ", txt: "Lleva el amarre Ⓚ hacia el control, como indica la flecha." }];
+      { t0: tFr - 0.2, n: "6.2", corto: "Tornillos <span class='pz'>B</span>", txt: "Fija los soportes <span class='pz'>8</span> y <span class='pz'>9</span> y las dos pestañas de la barra <span class='pz'>5</span> con 12 tornillos <span class='pz'>B</span> (M6×16), apretados con la llave <span class='pz'>I</span>." },
+      { t0: tCt - 0.2, n: "6.3", corto: "Control <span class='pz pz2'>10</span>", txt: "Pon el control <span class='pz pz2'>10</span> y fíjalo con 2 tornillos <span class='pz'>F</span> (M4×12), apretados con la llave <span class='pz'>J</span>." }];
     const Bs6 = B_8.concat(B_9, B_5t);
     const p6d = {
       recs: r6,
@@ -2136,19 +2577,25 @@ window.zoomSolidWorks = function (o) {
         { at: 0.3 + 1.2, mira: V(-0.07, 0.6, -0.9), dir: V(0.3, 0.7, 1), r: 1.75 },
         { at: tFr - 0.3, mira: V(-0.07, 0.15, Z_T), dir: V(0.3, 0.8, 1), r: 1.1 },
         ].concat(Bs6.map(function (u, i) {
-          // una toma por Ⓑ, desde arriba (Jon, 22-nov, obs. 5: «el primer tornillo no se ve cuando se atornilla»): desde el costado el ala
+          // una toma por B, desde arriba (Jon, 22-nov, obs. 5: «el primer tornillo no se ve cuando se atornilla»): desde el costado el ala
           // del soporte y la columna de la pata tapaban casi todos
           const c = bocaEn(u, volteado(u));
-          return { at: g6[i].t0 - 0.5, mira: V(c.x, 0.035, c.z), dir: V(0.15, 1, 0.45), r: 0.16 };
+          // del lado contrario a la columna de la pata más cercana (23-nov, #940: con la pata 1 corrida, B10 quedaba detrás de ella)
+          const pata = volteado(uni(Math.abs(c.x - volteado(uni("p1")).c.x) < Math.abs(c.x - volteado(uni("p2")).c.x) ? "p1" : "p2")).c;
+          const lado = B_5t.indexOf(u) >= 0 || c.z >= pata.z ? 1 : -1;     // las pestañas de 5, como antes
+          return { at: g6[i].t0 - 0.5, mira: V(c.x, 0.035, c.z), dir: V(0.15, 1, 0.45 * lado), r: 0.16 };
         })).concat([
-        { at: tCt - 0.5, mira: V(c10.x, 0.04, c10.z), dir: V(0.2, 0.7, -0.9), r: 0.25 },
-        { at: tK - 0.5, mira: V(-0.3, 0.02, Z_T + 0.05), dir: V(0.3, 0.8, 0.9), r: 0.5 },
+        // (revisión de 863eeb6) 10 viaja del piso de adelante hasta el borde del tablero dentro de cuadro (antes la toma de cerca lo
+        // esperaba y pasaba 1 s sin nada en pantalla); la de cerca, cuando ya llega a ras
+        // más abierta y más cerca del final (revisión de e79e49a: 10 quedaba un momento en el borde de arriba, con la etiqueta cortada)
+        { at: tCt - 0.3, mira: p10.cPiso.clone().lerp(F10.c, 0.6).setY(0.3), dir: V(0.2, 0.8, 0.9), r: 1.45 },
+        { at: tCt + 0.9 + 1.5 + 0.9 - 0.1, mira: V(c10.x, 0.04, c10.z), dir: V(0.2, 0.7, -0.9), r: 0.25 },
         { at: tFin6 + 0.2, mira: V(-0.07, 0.15, Z_T), dir: V(0.3, 0.8, 1), r: 1.1 }])
     };
     etiquetasDelPaso(p6d, 6); P.push(p6d);
 
-    // 7 · (diagrama de conexión del paso 7: el escritorio sigue patas arriba) los 4 amarres Ⓖ pegados bajo el tablero a lo largo
-    //     del camino del cable del motor; el cable del motor, del motor al control; y el cable de alimentación ⑪, que entra
+    // 7 · (diagrama de conexión del paso 7: el escritorio sigue patas arriba) los 4 amarres G pegados bajo el tablero a lo largo
+    //     del camino del cable del motor; el cable del motor, del motor al control; y el cable de alimentación 11, que entra
     //     en el control por la cara de atrás. El escritorio no se voltea: el manual no lo hace
     const r7 = [], ALTO7 = 1.0;
     let t7 = 0.3;
@@ -2162,35 +2609,101 @@ window.zoomSolidWorks = function (o) {
     if (RUTA_M) { RUTA_M.t0 = tK0; RUTA_M.t1 = tK0 + DUR_K; }
     const p11 = uni("p11"), F11 = volteado(p11), PRE11 = V(0, 0, 0.012);
     const t11 = tK0 + DUR_K + ESPERA_K + 0.3, ESPERA_11 = 1.2;
-    // ⑪: llega por encima, baja con el adaptador sobre el tablero, 7 cm antes de su sitio, y se desliza hasta que el conector
+    // 11: llega por encima, baja con el adaptador sobre el tablero, 7 cm antes de su sitio, y se desliza hasta que el conector
     // entra 6 mm en el control (el adaptador, arrastrado sobre el tablero)
     r7.push(recorrido(p11, t11, enPiso(p11), [{ c: V(p11.cPiso.x, ALTO7, p11.cPiso.z), q: p11.qPiso, d: 0.9 }, { c: V(F11.c.x - 0.3, ALTO7, F11.c.z + PRE11.z), q: F11.q, d: 1.8 },
       { c: V(F11.c.x - 0.3, F11.c.y, F11.c.z + PRE11.z), q: F11.q, d: 1.1 }, { c: V(F11.c.x, F11.c.y, F11.c.z + PRE11.z), q: F11.q, d: 1.3 },
       { c: F11.c, q: F11.q, d: 0.6 }, { c: F11.c, q: F11.q, d: ESPERA_11 }]));
     const fin11 = t11 + 0.9 + 1.8 + 1.1 + 1.3 + 0.6;
-    SUBPASOS[7] = [{ t0: 0, n: "7.1", corto: "Amarres Ⓖ", txt: "Pega los 4 amarres Ⓖ bajo el tablero, a lo largo del camino del cable del motor." },
-      { t0: tK0 - 0.2, n: "7.2", corto: "Cable del motor", txt: "Lleva el cable del motor desde el motor hasta el control y conéctalo." },
-      { t0: t11 - 0.2, n: "7.3", corto: "Cable ⑪", txt: "Conecta el cable de alimentación ⑪ al control. Después de la instalación, por favor mantén presionado el botón « ▽ » para reiniciar las patas de la mesa." }];
-    // el final: el escritorio armado, patas arriba como en el manual, en su sitio
-    const esc = caja(unidades.filter(function (u) { return !esLlave(u) && u.tipo !== "K"; }), function (u) { return volteado(u); });
+    // G: la correa de cada uno se cierra alrededor del cable cuando el conector ya pasó por él (23-nov, #940: antes el cable pasaba
+    // por la base de los G). El momento sale del avance del conector por el camino (cableMotorEn)
+    T_CIERRA = {};
+    if (RUTA_M) porTipo.G.forEach(function (u) {
+      const k = u.nombre.slice(1), g = CERRADOS["Gc" + k];
+      if (!g) return;
+      g.geometry.computeBoundingBox(); const cg = g.geometry.boundingBox.getCenter(V(0, 0, 0));
+      let sG = 0, dm = 1e9;
+      for (let i = 0; i < RUTA_M.ruta.length; i++) { const d = RUTA_M.ruta[i].distanceTo(cg); if (d < dm) { dm = d; sG = RUTA_M.largo[i]; } }
+      for (let tt = RUTA_M.t0; tt <= RUTA_M.t1 + 1e-6; tt += 0.02) {
+        const s = SALE_K + suave(Math.min(1, (tt - RUTA_M.t0) / (RUTA_M.t1 - RUTA_M.t0))) * (RUTA_M.total - SALE_K);
+        if (s >= sG + LARGO_K + 0.012 || tt >= RUTA_M.t1) { T_CIERRA["Gc" + k] = tt; break; }
+      }
+    });
+    // K: recoge el cable que sobra de 11, enrollado bajo el tablero (glb_L.py: ROLLO): baja del piso hasta el rollo y se cierra
+    const Ku = uni("K"), Kc = CERRADOS.Kc;
+    const tK7 = fin11 + ESPERA_11 + 0.2;
+    let finK = tK7;
+    if (Kc) {
+      Kc.geometry.computeBoundingBox();
+      const cK = Kc.geometry.boundingBox.getCenter(V(0, 0, 0)).applyQuaternion(Q_V).add(VOL);
+      // el amarre llega a lo largo de z, por fuera (x < −0,705) del ala de 8 y del pie 3, que patas arriba quedan encima
+      const sobre = V(cK.x, cK.y + 0.06, cK.z), q = new THREE.Quaternion().setFromAxisAngle(V(0, 1, 0), Math.PI / 2);
+      const cKu = sobre.clone().sub(Ku.piv.clone().sub(Ku.piv).applyQuaternion(q));
+      r7.push(recorrido(Ku, tK7, enPiso(Ku), [{ c: V(Ku.cPiso.x, ALTO7, Ku.cPiso.z), q: q, d: 0.8 }, { c: V(cKu.x, ALTO7, cKu.z), q: q, d: 1.6 },
+        { c: cKu, q: q, d: 1.0 }, { c: cKu.clone().add(V(0, -0.03, 0)), q: q, d: 0.6 }]));
+      finK = tK7 + 0.8 + 1.6 + 1.0 + 0.6;
+      T_CIERRA.Kc = finK;
+    }
+    // la vuelta: entre dos personas el escritorio se voltea y queda de pie, en el centro (marcoEn). Gira media vuelta sobre x y
+    // sube lo justo para que ninguna esquina toque el piso; termina en el marco del GLB (patas abajo)
+    const tV0 = finK + 1.4, DUR_V = 4.0;
+    const caja0 = caja(unidades.filter(function (u) { return !esLlave(u); }), armado);
+    const esquinas = [];
+    [caja0.min.x, caja0.max.x].forEach(function (x) { [caja0.min.y, caja0.max.y].forEach(function (y) { [caja0.min.z, caja0.max.z].forEach(function (z) { esquinas.push(V(x, y, z)); }); }); });
+    VUELTA = { t0: tV0, t1: tV0 + DUR_V, en: function (s) {
+      const q = new THREE.Quaternion().setFromAxisAngle(V(1, 0, 0), Math.PI * (1 - s));
+      let ymin = 1e9; esquinas.forEach(function (e) { ymin = Math.min(ymin, e.clone().applyQuaternion(q).y); });
+      const c = V(VOL.x * (1 - s), Math.max(VOL.y * (1 - s), 0.004 * (1 - s) - ymin), VOL.z * (1 - s));
+      return { q: q, c: c };
+    } };
+    // cada unidad del escritorio sigue al marco; lo que se movió en este paso alarga su recorrido, lo demás arranca patas arriba
+    const M0 = { q: Q_V, c: VOL }, qi0 = Q_V.clone().invert(), NV = Math.ceil(DUR_V * 30);
+    unidades.forEach(function (u) {
+      if (esLlave(u)) return;
+      let rec = r7.find(function (r) { return r.u === u; });
+      const P0 = rec ? poseEn(rec, rec.t1) : volteado(u);
+      const qL = qi0.clone().multiply(P0.q), cL = P0.c.clone().sub(M0.c).applyQuaternion(qi0);
+      const pts = [];
+      if (rec) pts.push({ c: P0.c.clone(), q: P0.q, d: tV0 - rec.t1 });
+      for (let i = 1; i <= NV; i++) {
+        const M = VUELTA.en(suave(i / NV));
+        pts.push({ c: cL.clone().applyQuaternion(M.q).add(M.c), q: M.q.clone().multiply(qL), d: DUR_V / NV, ease: lineal });
+      }
+      if (rec) { let t = rec.t1; pts.forEach(function (p) { t += p.d; rec.way.push({ q: p.q, c: p.c.clone(), t: t, giro: 0, ease: p.ease || suave }); }); rec.t1 = t; }
+      else r7.push(recorrido(u, tV0, P0, pts));
+    });
+    const finV = tV0 + DUR_V;
+    SUBPASOS[7] = [{ t0: 0, n: "7.1", corto: "Amarres <span class='pz'>G</span>", txt: "Pega los 4 amarres <span class='pz'>G</span> bajo el tablero, a lo largo del camino del cable del motor." },
+      { t0: tK0 - 0.2, n: "7.2", corto: "Cable del motor", txt: "Lleva el cable del motor desde el motor hasta el control, pásalo por los amarres <span class='pz'>G</span>, cierra sus correas y conéctalo." },
+      { t0: t11 - 0.2, n: "7.3", corto: "Cable <span class='pz pz2'>11</span>", txt: "Conecta el cable de alimentación <span class='pz pz2'>11</span> al control." },
+      { t0: tK7 - 0.2, n: "7.4", corto: "Amarre <span class='pz'>K</span>", txt: "Recoge el cable que sobra de <span class='pz pz2'>11</span> y amárralo con el amarre <span class='pz'>K</span>." },
+      { t0: tV0 - 0.4, n: "7.5", corto: "Voltea el escritorio", txt: "Entre dos personas, voltea el escritorio y ponlo de pie sobre sus patas. Después de la instalación, por favor mantén presionado el botón « ▽ » para reiniciar las patas de la mesa." }];
+    // el final: el escritorio armado y de pie, en el centro, mirado de frente (desde el lado del control)
+    const esc = caja(unidades.filter(function (u) { return !esLlave(u); }), armado);
     const centro = esc.getCenter(V(0, 0, 0)), radio = esc.getSize(V(0, 0, 0)).length() * 0.36;
-    // patas arriba el frente (el control y ⑪) queda hacia −z: se mira desde ahí
-    FINAL = { mira: centro, dir: V(0.42, 0.55, -1), r: radio, caja: esc };
-    const c11 = F11.c;
-    // el puerto de ⑪ en la cara de atrás del control (armado: x −685, y 683,5, z −10 mm, del JSON de agujeros), patas arriba
+    FINAL = { mira: centro, dir: V(0.42, 0.55, 1), r: radio, caja: esc };
+    // el puerto de 11 en la cara de atrás del control (armado: x −685, y 683,5, z −10 mm, del JSON de agujeros), patas arriba
     const PUERTO11 = V(-0.685, 0.6835, -0.0098).applyQuaternion(Q_V).add(VOL);
+    const cKv = Kc ? (function () { Kc.geometry.computeBoundingBox(); return Kc.geometry.boundingBox.getCenter(V(0, 0, 0)).applyQuaternion(Q_V).add(VOL); })() : PUERTO11;
     const p7d = {
       recs: r7,
       tomas: [{ at: 0, mira: V(-0.55, 0.03, Z_T + 0.05), dir: V(0.3, 0.85, 0.5), r: 0.55 },
         { at: tK0 - 0.3, mira: V(-0.55, 0.06, Z_T + 0.05), dir: V(0.5, 0.8, -0.9), r: 0.28 },
         { at: tK0 + DUR_K - 1.8, mira: V(-0.6, 0.05, Z_T + 0.02), dir: V(0.35, 0.8, -0.8), r: 0.22 },
         { at: t11 - 0.2, mira: V(-0.62, 0.04, Z_T - 0.1), dir: V(0.3, 0.8, -0.9), r: 0.4 },
-        // el conector de ⑪ es chico (Ø7 mm): al bajar y deslizarse hacia el control la cámara se acerca al puerto y se queda hasta 0,6 s
+        // el conector de 11 es chico (Ø7 mm): al bajar y deslizarse hacia el control la cámara se acerca al puerto y se queda hasta 0,6 s
         // después de que entra (Jon, 19-nov, #582)
         { at: t11 + 0.9 + 1.8 + 0.4, mira: PUERTO11, dir: V(0.3, 0.8, -0.9), r: 0.18 },
-        { at: fin11 + 0.6, mira: FINAL.mira, dir: FINAL.dir, r: FINAL.r }]
+        // puesto 11, la cámara se aleja (el plano de 11 y su rollo) antes de acercarse a K
+        { at: fin11 + 0.6, mira: V(-0.68, 0.04, Z_T + 0.12), dir: V(0.3, 0.8, -0.9), r: 0.4 },
+        { at: tK7 + 0.6, mira: cKv, dir: V(0.35, 0.85, -0.6), r: 0.16 },
+        { at: tV0 - 0.4, mira: V(0, 0.45, Z_T * 0.5), dir: V(0.9, 0.5, 0.6), r: 1.5 },
+        { at: finV + 0.2, mira: FINAL.mira, dir: FINAL.dir, r: FINAL.r }]
     };
     etiquetasDelPaso(p7d, 7); P.push(p7d);
+    // camaraSigue() queda escrita pero apagada: con ella la medida de pantalla quieta no mejoró (paso 1: un tramo de 14,9 s con la
+    // toma abierta, donde la llave y los A se ven chicos) y la cámara cortaba muy seguido. Ver el LEEME (revisión de e79e49a)
+    if (CAMARA_SIGUE) [1, 2, 4, 5, 6].forEach(function (k) { camaraSigue(P[k]); });
     P.forEach(function (p) { p.dur = Math.max.apply(null, p.recs.map(function (r) { return r.t1; })) + 0.3; });
     return P;
   }
@@ -2208,6 +2721,44 @@ window.zoomSolidWorks = function (o) {
 
   /* ---------- cámara: cada paso trae sus tomas; si la persona toca el modelo, la cámara es suya hasta el próximo paso ---------- */
   let manual = false, toma = 0, vuelo = null;
+  /* ---------- pausas con mensaje: la animación espera la flecha › (Jon, 23-nov) ---------- */
+  const PAUSAS = {"2.4": {"titulo": "Afloja los cuatro tornillos", "texto": "Aflójalos con la llave <span class=\"pz\">I</span>, sin desenroscarlos del todo, y ajusta el ancho del marco como muestra la flecha."}, "3.3": {"titulo": "Desenrosca la perilla", "texto": "Gira la perilla de <span class=\"pz\">7</span> como indica la flecha, hasta que la varilla <span class=\"pz\">6</span> se pueda estirar."}, "3.5": {"titulo": "Enrosca la perilla", "texto": "Gira la perilla de <span class=\"pz\">7</span> al otro lado, como indica la flecha, hasta que quede firme."}};
+  let pausa = null;
+  const cajaPausa = document.getElementById("vs-pausa");
+  function pausaEntre(k, t0, t1) {
+    const lista = (typeof SUBPASOS !== "undefined" && SUBPASOS[k]) || [];
+    for (let i = 0; i < lista.length; i++) {
+      const sp = lista[i];
+      if (sp.pausa != null && PAUSAS[sp.n] && t0 < sp.pausa && sp.pausa <= t1) return { k: k, n: sp.n, t: sp.pausa };
+    }
+    return null;
+  }
+  function mostrarPausa(pa) {
+    pausa = pa; if (!cajaPausa) return;
+    const m = PAUSAS[pa.n];
+    document.getElementById("vs-pausa-t").innerHTML = m.titulo;   // HTML que arma artefacto.py (números en círculo, #1064)
+    document.getElementById("vs-pausa-x").innerHTML = m.texto;
+    cajaPausa.hidden = false;
+    const s = document.getElementById("anim-b-sig"); if (s) s.classList.add("vs-espera");
+  }
+  function ocultarPausa() {
+    pausa = null; if (!cajaPausa) return;
+    cajaPausa.hidden = true;
+    const s = document.getElementById("anim-b-sig"); if (s) s.classList.remove("vs-espera");
+  }
+  function seguirPausa() { if (!pausa) return false; ocultarPausa(); enMarcha = true; return true; }
+  // la flecha › sigue la animación desde la pausa (antes de la navegación de los pasos: se escucha en window, en captura)
+  window.addEventListener("click", function (ev) {
+    if (!pausa || !ev.target.closest) return;
+    if (ev.target.closest("#anim-b-sig, #anim-sig")) { ev.stopPropagation(); ev.preventDefault(); seguirPausa(); }
+    else if (ev.target.closest("#anim-b-ant, #anim-ant, #anim-rep, .anim-punto, .anim-lista-btn")) ocultarPausa();
+  }, true);
+  window.addEventListener("keydown", function (ev) {
+    if (!pausa) return;
+    if (ev.target && ev.target.closest && ev.target.closest("input, textarea")) return;
+    if (ev.key === "ArrowRight") { ev.stopImmediatePropagation(); ev.preventDefault(); seguirPausa(); }
+    else if (ev.key === "ArrowLeft") ocultarPausa();
+  }, true);
   /* ---------- la velocidad: ×1, ×1,5, ×1,75 y ×2 (Jon, 19-nov) ---------- */
   const VELOCIDADES = [1, 1.5, 1.75, 2], CLAVE_VEL = "versus-velocidad";
   let VEL = 1;
@@ -2266,6 +2817,7 @@ window.zoomSolidWorks = function (o) {
     if (reducido) {
       const tm = PASOS[paso].tomas; volarA(tm[tm.length - 1], true); toma = tm.length;
     }
+    ocultarPausa();
     aplicar(paso, t);
     enMarcha = true;
   }
@@ -2431,7 +2983,7 @@ window.zoomSolidWorks = function (o) {
     if (etiquetas[tipo]) return etiquetas[tipo];
     const d = ETQ[tipo] || { n: tipo, s: "", f: "" };
     const div = document.createElement("div"); div.className = "eti-anim";
-    const b = document.createElement("b"); b.textContent = d.s;
+    const b = document.createElement("b"); b.textContent = d.s; if (/^\d+$/.test(d.s)) b.className = "pz";
     const s = document.createElement("span"); s.textContent = d.n;
     div.append(b, s);
     if (d.f) { const m = document.createElement("span"); m.className = "m"; m.textContent = d.f; div.append(m); }
@@ -2486,7 +3038,7 @@ window.zoomSolidWorks = function (o) {
       e.div.style.width = ""; e.div.style.left = "0px"; e.div.style.top = "0px";
       const rc = e.div.getBoundingClientRect(), w = Math.ceil(rc.width), h = Math.ceil(rc.height) || 20, sep = 6;
       const dentro = function (r) { return { x: Math.round(Math.max(2, Math.min(W - w - 2, r.x))), y: Math.round(Math.max(2, Math.min(H - h - 2, r.y))), w: w, h: h }; };
-      const libre = function (r) { return !puestos.some(function (q) { return cruza(r, q); }); };
+      const libre = function (r) { const a = { x: r.x - 5, y: r.y - 5, w: r.w + 10, h: r.h + 10 }; return !puestos.some(function (q) { return cruza(a, q); }); };
       const base = [{ x: p.x + sep, y: p.y - h - sep }, { x: p.x + sep, y: p.y + sep }, { x: p.x - w - sep, y: p.y - h - sep }, { x: p.x - w - sep, y: p.y + sep }];
       let r = null;
       // el lado de la pieza que esté libre; si ninguno, el más cercano corriéndose hacia arriba o hacia abajo
@@ -2512,7 +3064,7 @@ window.zoomSolidWorks = function (o) {
     const dt = Math.min(0.1, (ahora - (antes || ahora)) / 1000); antes = ahora;
     if (!aLaVista || !PASOS.length) return;
     const p = PASOS[paso];
-    if (enMarcha && t < p.dur) { t = Math.min(p.dur, t + dt * VEL); aplicar(paso, t); }
+    if (enMarcha && t < p.dur) { const tn = Math.min(p.dur, t + dt * VEL), pa = pausaEntre(paso, t, tn); if (pa) { t = pa.t; enMarcha = false; mostrarPausa(pa); } else t = tn; aplicar(paso, t); }
     if (!manual && !reducido) {
       while (toma < p.tomas.length && p.tomas[toma].at <= t) { volarA(p.tomas[toma], false); toma++; }
     }
@@ -2636,7 +3188,10 @@ window.zoomSolidWorks = function (o) {
     recDe: function (n) { const r = PASOS[paso].recs.find(function (x) { return x.u.nombre === n && !x.quieto; }); return r ? [r.t0, r.t1] : null; },
     parada: function () { return paradaActual(); },
     subpasos: function (k) { return (SUBPASOS[k] || []).slice(); },
-    alFinal: function () { t = PASOS[paso].dur; aplicar(paso, t); },
+    alFinal: function () { ocultarPausa(); t = PASOS[paso].dur; aplicar(paso, t); },
+    pausa: function () { return pausa ? { n: pausa.n, t: pausa.t } : null; },
+    pausas: function (k) { return ((typeof SUBPASOS !== "undefined" && SUBPASOS[k]) || []).filter(function (sp) { return sp.pausa != null && PAUSAS[sp.n]; }).map(function (sp) { return { n: sp.n, t: sp.pausa }; }); },
+    enMarcha: function () { return enMarcha; },
     choques: function () {
       const objs = []; unidades.forEach(function (u) { u.objs.forEach(function (o) { o.userData.uni = u.nombre; objs.push(o); }); });
       const libres = new Set();
