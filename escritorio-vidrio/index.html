@@ -1179,7 +1179,13 @@ window.zoomSolidWorks = function (o) {
      su conector aparte. En el paso 4 se tiende desde el motor: el conector recorre el camino y el cable crece detrás de
      él hasta que el conector entra en el control. No es una unidad (no tiene número ni etiqueta en el manual): no se
      revisa en la de choques de la página; su holgura la mide glb_vidrio.py contra las piezas armadas ---------- */
-  let CABLE_M = {}, RUTA_M = null;
+  let CABLE_M = {}, RUTA_M = null, VUELTA = null;
+  // El escritorio se arma patas arriba y, al terminar el cableado, gira como un solo cuerpo hasta quedar de pie.
+  // Este marco también lo usan los cables y amarres que no pertenecen a una unidad del GLB.
+  function marcoEn(k, tt) {
+    if (k === 4 && VUELTA && tt > VUELTA.t0) return VUELTA.en(suave(Math.min(1, (tt - VUELTA.t0) / (VUELTA.t1 - VUELTA.t0))));
+    return { q: Q_V, c: VOL };
+  }
   function prepararCableMotor() {
     const k1 = CABLE_M.k1, kc = CABLE_M.k1c;
     if (!k1 || !kc) return;
@@ -1226,9 +1232,10 @@ window.zoomSolidWorks = function (o) {
     const p = puntoRuta(R, s);
     const tg = puntoRuta(R, s + LARGO_K).sub(p).normalize();
     const rq = new THREE.Quaternion().setFromUnitVectors(V(0, 1, 0), tg);
-    kc.quaternion.copy(Q_V).multiply(rq);
-    kc.position.copy(p.clone().sub(R.base.clone().applyQuaternion(rq)).applyQuaternion(Q_V).add(VOL));
-    k1.quaternion.copy(Q_V); k1.position.copy(VOL);
+    const M = marcoEn(k, tt);
+    kc.quaternion.copy(M.q).multiply(rq);
+    kc.position.copy(p.clone().sub(R.base.clone().applyQuaternion(rq)).applyQuaternion(M.q).add(M.c));
+    k1.quaternion.copy(M.q); k1.position.copy(M.c);
     let cuantos = 0; while (cuantos < R.hasta.length && R.hasta[cuantos] <= s + 1e-6) cuantos++;
     k1.geometry.setDrawRange(0, 3 * cuantos);
     k1.visible = cuantos > 0; kc.visible = true;
@@ -1301,10 +1308,11 @@ window.zoomSolidWorks = function (o) {
   // los C cerrados (Cc1–Cc4): cada uno aparece cuando el conector del cable del motor ya pasó por su anillo, y el C abierto se
   // esconde (nunca se ven juntos). Como los G del escritorio en L (#940)
   function cerradosEn(k, tt) {
+    const M = marcoEn(k, tt);
     Object.keys(CERRADOS).forEach(function (n) {
       const o = CERRADOS[n], t0 = T_CIERRA[n];
       const si = k === 4 && t0 !== undefined && tt >= t0;
-      o.visible = si; o.quaternion.copy(Q_V); o.position.copy(VOL);
+      o.visible = si; o.quaternion.copy(M.q); o.position.copy(M.c);
       const u = unidades.find(function (x) { return x.nombre === "C" + n.slice(2); });
       if (u) u.objs.forEach(function (m) { m.visible = !si; });
     });
@@ -2157,14 +2165,41 @@ window.zoomSolidWorks = function (o) {
       { c: F7.c, q: F7.q, d: 0.3 + DUR_7 + ESPERA_7 }]));
     const fin7 = t7c + DUR_7;                         // cuando el conector de 7 termina de entrar; las tomas de abajo salen de ahí
     TOMA7 = { t0: t7c + DUR_7 * 0.55, t1: fin7 + 0.6 };     // la toma de cerca de la boca del control (de ahí a la general)
+    // Terminada la conexión, el escritorio gira media vuelta como un solo cuerpo y queda de pie.
+    const tV0 = fin7 + ESPERA_7 + 0.8, DUR_V = 4.0;
+    const caja0 = caja(unidades.filter(function (u) { return !esLlave(u); }), function (u) { return { q: QI, c: u.piv }; });
+    const esquinas = [];
+    [caja0.min.x, caja0.max.x].forEach(function (x) { [caja0.min.y, caja0.max.y].forEach(function (y) { [caja0.min.z, caja0.max.z].forEach(function (z) { esquinas.push(V(x, y, z)); }); }); });
+    VUELTA = { t0: tV0, t1: tV0 + DUR_V, en: function (s) {
+      const q = new THREE.Quaternion().setFromAxisAngle(V(1, 0, 0), Math.PI * (1 - s));
+      let ymin = 1e9; esquinas.forEach(function (e) { ymin = Math.min(ymin, e.clone().applyQuaternion(q).y); });
+      const c = V(VOL.x * (1 - s), Math.max(VOL.y * (1 - s), 0.004 * (1 - s) - ymin), VOL.z * (1 - s));
+      return { q: q, c: c };
+    } };
+    const M0 = { q: Q_V, c: VOL }, qi0 = Q_V.clone().invert(), NV = Math.ceil(DUR_V * 30);
+    unidades.forEach(function (u) {
+      if (esLlave(u)) return;
+      let rec = r4.find(function (r) { return r.u === u; });
+      const P0 = rec ? poseEn(rec, rec.t1) : volteado(u);
+      const qL = qi0.clone().multiply(P0.q), cL = P0.c.clone().sub(M0.c).applyQuaternion(qi0);
+      const pts = [];
+      if (rec) pts.push({ c: P0.c.clone(), q: P0.q, d: tV0 - rec.t1 });
+      for (let i = 1; i <= NV; i++) {
+        const M = VUELTA.en(suave(i / NV));
+        pts.push({ c: cL.clone().applyQuaternion(M.q).add(M.c), q: M.q.clone().multiply(qL), d: DUR_V / NV, ease: lineal });
+      }
+      if (rec) { let tr = rec.t1; pts.forEach(function (p) { tr += p.d; rec.way.push({ q: p.q, c: p.c.clone(), t: tr, giro: 0, ease: p.ease || suave }); }); rec.t1 = tr; }
+      else r4.push(recorrido(u, tV0, P0, pts));
+    });
+    const finV = tV0 + DUR_V;
     SUBPASOS[4] = [{ t0: 0, n: "4.1", corto: "Amarres <span class='pz'>C</span>", txt: "Con el escritorio patas arriba, pega los 4 amarres <span class='pz'>C</span> en fila en el riel de la bandeja, entre el motor y el control." },
       { t0: tK0 - 0.2, n: "4.2", corto: "Cable del motor", txt: "Lleva el cable del motor de la pata <span class='pz'>1</span> a lo largo del riel, pasándolo por los 4 amarres <span class='pz'>C</span> y cerrándolos, hasta el control, y conéctalo por su cara de abajo." },
-      { t0: t7 - 0.2, n: "4.3", corto: "Cable <span class='pz'>7</span>", txt: "Pon el cable de alimentación <span class='pz'>7</span> en el piso, frente al control, desenrolla lo necesario y conéctalo al control por su cara de abajo, al lado del cable del motor." }];
-    // el final: el escritorio armado, patas arriba como en el manual, al centro
-    const esc = caja(unidades.filter(function (u) { return !esLlave(u); }), function (u) { return volteado(u); });
+      { t0: t7 - 0.2, n: "4.3", corto: "Cable <span class='pz'>7</span>", txt: "Pon el cable de alimentación <span class='pz'>7</span> en el piso, frente al control, desenrolla lo necesario y conéctalo al control por su cara de abajo, al lado del cable del motor." },
+      { t0: tV0 - 0.4, n: "4.4", corto: "Voltea el escritorio", txt: "Entre dos personas, voltea el escritorio y ponlo de pie sobre sus patas." }];
+    // el final: el escritorio armado y de pie, al centro
+    const esc = caja(unidades.filter(function (u) { return !esLlave(u); }), function (u) { return { q: QI, c: u.piv }; });
     const centro = esc.getCenter(V(0, 0, 0)), radio = esc.getSize(V(0, 0, 0)).length() * 0.36;
-    // patas arriba el frente (el control y 7) queda hacia −z: se mira desde ahí
-    FINAL = { mira: centro, dir: V(0.42, 0.55, -1), r: radio, caja: esc };
+    FINAL = { mira: centro, dir: V(0.42, 0.55, 1), r: radio, caja: esc };
     const c7 = F7.c;
     const p4d = {
       recs: r4,
@@ -2179,7 +2214,8 @@ window.zoomSolidWorks = function (o) {
         // la toma mira la boca del control, de cerca, y se queda hasta 0,6 s después de que entró
         { at: t7c - 0.3, mira: V(0.54, VOL.y - 0.66, -0.33), dir: V(0.6, 0.75, -0.8), r: 0.24 },
         { at: TOMA7.t0, mira: V(0.54, VOL.y - 0.648, -0.296), dir: V(0.5, 0.8, -0.85), r: 0.1 },
-        { at: fin7 + 0.6, mira: FINAL.mira, dir: FINAL.dir, r: FINAL.r }]
+        { at: tV0 - 0.4, mira: V(0, 0.45, 0), dir: V(0.9, 0.5, 0.6), r: 1.5 },
+        { at: finV + 0.2, mira: FINAL.mira, dir: FINAL.dir, r: FINAL.r }]
     };
     etiquetasDelPaso(p4d, 4); P.push(p4d);
     P.forEach(function (p) { p.dur = Math.max.apply(null, p.recs.map(function (r) { return r.t1; })) + 0.3; });
