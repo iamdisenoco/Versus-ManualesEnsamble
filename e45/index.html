@@ -595,6 +595,17 @@ dialog.lupa::backdrop { background: rgba(0, 0, 0, 0.6); }
 .vs-vel-menu button:hover { background: rgba(255, 255, 255, 0.08); }
 .vs-vel-btn:focus-visible, .vs-vel-menu button:focus-visible { outline: 3px solid #ffffff; outline-offset: 2px; }
 
+/* números de pieza en círculo (#1064): el número como texto normal, con la misma letra, dentro de un círculo de 1 px del
+   alto del texto. Con dos cifras (10, 11, 12) la cifra se cierra un poco para que siga siendo un círculo */
+.pz { display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box;
+  width: 1.5em; height: 1.5em; margin: 0 0.06em; padding: 0; border: 1px solid currentColor; border-radius: 50%;
+  font: inherit; font-size: 0.76em; font-weight: 600; line-height: 1; letter-spacing: 0; font-variant-numeric: tabular-nums;
+  vertical-align: 0.12em; text-transform: none; white-space: nowrap; }
+.pz.pz2 { font-size: 0.66em; width: 1.73em; height: 1.73em; letter-spacing: -0.03em; }
+.cod .pz, .eti-anim b.pz, .anim-b-i .pz { margin: 0; }
+.eti-anim b.pz { margin-right: 6px; vertical-align: 0.06em; }
+.anim-b-i .pz { font-size: 0.72em; vertical-align: 0.1em; }
+
 /* tipografías de Versus (David Bernal, 17-nov): IBM Plex Sans en todo, también en las letras y cantidades (con cifras
    tabulares, a su tamaño: la reducción del motor es para una monoespaciada), y Michroma en mayúsculas para los títulos,
    como el manual y la caja usan su letra de títulos. Michroma trae un solo peso: sin negrita inventada */
@@ -618,10 +629,27 @@ body { font-synthesis: none; }
 .anim-lista-btn .nota { font-size: 0.8rem; }
 .anim-lista-btn:hover { background: color-mix(in srgb, currentColor 7%, transparent); }
 .anim-lista-btn:focus-visible { outline: 2px solid currentColor; outline-offset: -2px; }
+.anim-centrar-btn {
+  background-color: var(--vidrio);
+  background-image: linear-gradient(160deg, var(--vidrio-luz), transparent 55%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid var(--vidrio-borde);
+  color: var(--tinta);
+  box-shadow: inset 0 1px 0 var(--vidrio-luz), 0 6px 18px var(--vidrio-sombra);
+  min-height: 44px; min-width: 44px; padding: 6px 12px; border-radius: 10px;
+  display: inline-flex; gap: 6px; align-items: center; cursor: pointer;
+  font-family: var(--display); font-weight: 500; font-size: 0.95rem;
+}
+.anim-centrar-btn:focus-visible { outline: 3px solid #ffffff; outline-offset: 2px; }
 /* el logo de Versus: en las tarjetas y, discreto, arriba a la derecha del visor */
 .v40-logo { height: 60px; margin: 0 0 14px; }
 .v40-logo svg, .v40-marca svg { height: 100%; width: auto; display: block; }
 .v40-marca { position: absolute; top: 25px; right: 90px; height: 18px; opacity: 0.6; pointer-events: none; z-index: 2; }
+/* en pantallas angostas el logo queda debajo de la fila de botones */
+@media (max-width: 420px) {
+  .v40-marca { top: 68px; }
+}
 /* las tarjetas de bienvenida y del final: oscuras, letra blanca, acento celeste */
 .v40-tarjeta { position: absolute; inset: 0; z-index: 9; display: grid; place-items: center; padding: 16px 16px calc(var(--alto-barra, 76px) + 24px);
   background: rgba(5, 6, 8, 0.55); }
@@ -667,6 +695,13 @@ body { font-synthesis: none; }
         <div class="anim-esquina">
           <button type="button" class="anim-pantalla-btn" id="anim-pantalla" aria-pressed="false"><span aria-hidden="true">⛶</span> <span class="anim-pantalla-txt">Pantalla completa</span></button>
           <button type="button" class="anim-ayuda-btn" id="anim-ayuda-abrir" aria-label="Ver cómo se mueve el modelo" aria-controls="anim-gestos">?</button>
+          <button type="button" class="anim-centrar-btn" id="anim-centrar" aria-label="Centrar" title="Volver a la vista de este paso">
+            <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <circle cx="12" cy="12" r="7"/>
+              <path d="M12 2v5m0 10v5M2 12h5m10 0h5"/>
+            </svg>
+            <span>Centrar</span>
+          </button>
         </div>
         <div class="anim-gestos" id="anim-gestos" role="dialog" aria-label="Cómo se usa: toca la pantalla, o pulsa Enter, para empezar" tabindex="-1" hidden>
           <svg width="0" height="0" class="anim-gestos-defs" aria-hidden="true"><defs><g id="mano-indice"> <path class="silueta" fill="rgba(255,255,255,0.88)" stroke="rgba(30,40,50,0.30)" stroke-width="1.4" stroke-linejoin="round" d="M-12 14 C-12 -3 12 -3 12 14 L12 64 C14 56 33 54 36 64 C39 57 54 58 56 68 C59 63 71 64 72 76 C78 98 76 130 66 150 C57 166 12 170 -4 155 C-15 145 -24 130 -35 119 C-47 107 -50 95 -42 89 C-34 83 -25 91 -18 98 C-14 92 -12 84 -12 76 Z"/> <path class="pliegue" fill="none" stroke="rgba(30,40,50,0.24)" stroke-width="1.6" stroke-linecap="round" d="M-9 38 C-3 40 3 40 9 38 M36 64 C37 72 35 78 31 82 M56 68 C57 76 55 81 51 85 M14 70 C16 80 15 88 10 92 M-18 98 C-10 104 -4 110 0 118"/> </g> <g id="mano-pinza"> <path class="silueta" fill="rgba(255,255,255,0.88)" stroke="rgba(30,40,50,0.30)" stroke-width="1.4" stroke-linejoin="round" d="M-12 14 C-12 -3 12 -3 12 14 L12 64 C14 56 33 54 36 64 C39 57 54 58 56 68 C59 63 71 64 72 76 C78 98 76 130 66 150 C57 166 12 170 -4 155 C-16 146 -30 124 -46 104 C-56 92 -66 84 -63 75 C-60 67 -49 70 -40 79 C-30 88 -18 93 -12 84 Z"/> <path class="pliegue" fill="none" stroke="rgba(30,40,50,0.24)" stroke-width="1.6" stroke-linecap="round" d="M-9 38 C-3 40 3 40 9 38 M36 64 C37 72 35 78 31 82 M56 68 C57 76 55 81 51 85 M14 70 C16 80 15 88 10 92 M-40 79 C-32 92 -22 100 -12 104"/> </g> <g id="mano-dos"> <path class="silueta" fill="rgba(255,255,255,0.88)" stroke="rgba(30,40,50,0.30)" stroke-width="1.4" stroke-linejoin="round" d="M-12 18 C-12 1 11 1 11 16 C11 0 36 -2 36 14 L36 66 C40 60 54 60 56 70 C59 65 71 66 72 78 C78 100 76 132 66 152 C57 168 12 172 -4 157 C-15 147 -24 132 -35 121 C-47 109 -50 97 -42 91 C-34 85 -25 93 -18 100 C-14 94 -12 86 -12 78 Z"/> <path class="pliegue" fill="none" stroke="rgba(30,40,50,0.24)" stroke-width="1.6" stroke-linecap="round" d="M11 18 L11 70 M-9 42 C-3 44 3 44 8 42 M14 40 C20 42 27 42 33 40 M56 70 C57 78 55 83 51 87 M-18 100 C-10 106 -4 112 0 120"/> </g><g id="raton"><rect x="-17" y="-26" width="34" height="52" rx="17" fill="rgba(255,255,255,0.9)" stroke="rgba(30,40,50,0.35)" stroke-width="1.6"/><path d="M0 -26v18M-17 -8h34" fill="none" stroke="rgba(30,40,50,0.35)" stroke-width="1.6"/></g></defs></svg>
@@ -736,19 +771,19 @@ body { font-synthesis: none; }
       </div>
       <button type="button" class="boton anim-texto-btn" id="anim-texto-btn" aria-expanded="true" aria-controls="anim-textos">Ocultar texto</button>
       <div class="anim-textos" id="anim-textos" aria-live="polite">
-<article class="anim-texto" data-paso="0" data-titulo="Identifica las piezas"><h3><span class="anim-paso-n">Paso 0</span>Identifica las piezas</h3><p class="anim-linea">Mira cada pieza con su letra y su cantidad, de la A a la L.</p><p>Esta es la lista de partes del manual. Toca una para verla:</p><p class='nota anim-lista-sigue'>Son 12 piezas, de la A a la L: desliza para verlas todas ↓</p><ul class='anim-lista anim-lista-partes'><li><button type="button" class="anim-lista-btn" data-letra="A" aria-label="Ver Espaldar, 1 und, letra A"><b class="cod">A</b> <span>Espaldar</span> <b class="num">×1</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="B" aria-label="Ver Asiento, 1 und, letra B"><b class="cod">B</b> <span>Asiento</span> <b class="num">×1</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="C" aria-label="Ver Reposabrazos, 1 par und, letra C"><b class="cod">C</b> <span>Reposabrazos</span> <b class="num">×1 par</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="D" aria-label="Ver Base, 1 und, letra D"><b class="cod">D</b> <span>Base</span> <b class="num">×1</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="E" aria-label="Ver Pistón, 1 und, letra E"><b class="cod">E</b> <span>Pistón</span> <b class="num">×1</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="F" aria-label="Ver Rueda, 5 und, letra F"><b class="cod">F</b> <span>Rueda</span> <b class="num">×5</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="G" aria-label="Ver Mecanismo, 1 und, letra G"><b class="cod">G</b> <span>Mecanismo</span> <b class="num">×1</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="H" aria-label="Ver Tornillo M8×20, 3 und, letra H"><b class="cod">H</b> <span>Tornillo M8×20</span> <b class="num">×3</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="I" aria-label="Ver Tornillo M6×25, 6 und, letra I"><b class="cod">I</b> <span>Tornillo M6×25</span> <b class="num">×6</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="J" aria-label="Ver Tornillo M6×20, 6 und, letra J"><b class="cod">J</b> <span>Tornillo M6×20</span> <b class="num">×6</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="K" aria-label="Ver Llave Allen, 1 und, letra K"><b class="cod">K</b> <span>Llave Allen</span> <b class="num">×1</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="L" aria-label="Ver Cabecero, 1 und, letra L"><b class="cod">L</b> <span>Cabecero</span> <b class="num">×1</b></button></li></ul><p hidden></p></article>
-<article class="anim-texto" data-paso="1" data-titulo="Base, ruedas y pistón"><h3><span class="anim-paso-n">Paso 1</span>Base, ruedas y pistón</h3><p class="anim-linea">Las 5 ruedas <span class="cod">(F)</span> en la base <span class="cod">(D)</span> y el pistón <span class="cod">(E)</span> al centro.</p><p>Mete a presión las 5 ruedas <span class="cod">(F)</span> en la base <span class="cod">(D)</span>, como muestra la flecha, y pon el pistón <span class="cod">(E)</span> en el agujero del centro de la base.</p></article>
-<article class="anim-texto" data-paso="2" data-titulo="Los reposabrazos"><h3><span class="anim-paso-n">Paso 2</span>Los reposabrazos</h3><p class="anim-linea">Asiento <span class="cod">(B)</span> boca abajo; reposabrazos <span class="cod">(C)</span> con 3 tornillos <span class="cod">(I)</span> cada uno.</p><p>Con el asiento <span class="cod">(B)</span> boca abajo, pon los reposabrazos <span class="cod">(C)</span> y fija cada uno con 3 tornillos <span class="cod">(I)</span>. Aprieta con la llave <span class="cod">(K)</span>.</p></article>
-<article class="anim-texto" data-paso="3" data-titulo="El mecanismo"><h3><span class="anim-paso-n">Paso 3</span>El mecanismo</h3><p class="anim-linea">El mecanismo <span class="cod">(G)</span> sobre el asiento, con 4 tornillos <span class="cod">(J)</span>.</p><p>Pon el mecanismo <span class="cod">(G)</span> sobre el asiento y fíjalo con 4 tornillos <span class="cod">(J)</span>. Aprieta con la llave <span class="cod">(K)</span>.</p></article>
-<article class="anim-texto" data-paso="4" data-titulo="El espaldar"><h3><span class="anim-paso-n">Paso 4</span>El espaldar</h3><p class="anim-linea">El espaldar al mecanismo con 3 tornillos <span class="cod">(H)</span>.</p><p>Pon el herraje del espaldar sobre el mecanismo y fíjalo con 3 tornillos <span class="cod">(H)</span>. Aprieta con la llave <span class="cod">(K)</span>.</p></article>
-<article class="anim-texto" data-paso="5" data-titulo="El asiento sobre el pistón"><h3><span class="anim-paso-n">Paso 5</span>El asiento sobre el pistón</h3><p class="anim-linea">Baja el asiento con el espaldar <span class="cod">(A)</span> sobre el pistón.</p><p>Pon la silla armada con el espaldar <span class="cod">(A)</span> sobre el pistón de la base y bájala, como muestra la flecha.</p></article>
-<article class="anim-texto" data-paso="6" data-titulo="El cabecero"><h3><span class="anim-paso-n">Paso 6</span>El cabecero</h3><p class="anim-linea">El cabecero <span class="cod">(L)</span> con 2 tornillos <span class="cod">(J)</span>.</p><p>Pon el cabecero <span class="cod">(L)</span> en la parte de arriba del espaldar y fíjalo con 2 tornillos <span class="cod">(J)</span> por debajo, como muestra el círculo.</p></article>
+<article class="anim-texto" data-paso="0" data-titulo="Identifica las piezas" data-tit-html="Identifica las piezas"><h3><span class="anim-paso-n">Paso 0</span>Identifica las piezas</h3><p class="anim-linea">Mira cada pieza con su letra y su cantidad, de la A a la L.</p><p>Esta es la lista de partes del manual. Toca una para verla:</p><p class='nota anim-lista-sigue'>Son 12 piezas, de la A a la L: desliza para verlas todas ↓</p><ul class='anim-lista anim-lista-partes'><li><button type="button" class="anim-lista-btn" data-letra="A" aria-label="Ver Espaldar, 1 und, letra A"><b class="cod">A</b> <span>Espaldar</span> <b class="num">×1</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="B" aria-label="Ver Asiento, 1 und, letra B"><b class="cod">B</b> <span>Asiento</span> <b class="num">×1</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="C" aria-label="Ver Reposabrazos, 1 par und, letra C"><b class="cod">C</b> <span>Reposabrazos</span> <b class="num">×1 par</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="D" aria-label="Ver Base, 1 und, letra D"><b class="cod">D</b> <span>Base</span> <b class="num">×1</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="E" aria-label="Ver Pistón, 1 und, letra E"><b class="cod">E</b> <span>Pistón</span> <b class="num">×1</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="F" aria-label="Ver Rueda, 5 und, letra F"><b class="cod">F</b> <span>Rueda</span> <b class="num">×5</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="G" aria-label="Ver Mecanismo, 1 und, letra G"><b class="cod">G</b> <span>Mecanismo</span> <b class="num">×1</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="H" aria-label="Ver Tornillo M8×20, 3 und, letra H"><b class="cod">H</b> <span>Tornillo M8×20</span> <b class="num">×3</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="I" aria-label="Ver Tornillo M6×25, 6 und, letra I"><b class="cod">I</b> <span>Tornillo M6×25</span> <b class="num">×6</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="J" aria-label="Ver Tornillo M6×20, 6 und, letra J"><b class="cod">J</b> <span>Tornillo M6×20</span> <b class="num">×6</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="K" aria-label="Ver Llave Allen, 1 und, letra K"><b class="cod">K</b> <span>Llave Allen</span> <b class="num">×1</b></button></li><li><button type="button" class="anim-lista-btn" data-letra="L" aria-label="Ver Cabecero, 1 und, letra L"><b class="cod">L</b> <span>Cabecero</span> <b class="num">×1</b></button></li></ul><p hidden></p></article>
+<article class="anim-texto" data-paso="1" data-titulo="Base, ruedas y pistón" data-tit-html="Base, ruedas y pistón"><h3><span class="anim-paso-n">Paso 1</span>Base, ruedas y pistón</h3><p class="anim-linea">Las 5 ruedas <span class="cod">(F)</span> en la base <span class="cod">(D)</span> y el pistón <span class="cod">(E)</span> al centro.</p><p>Mete a presión las 5 ruedas <span class="cod">(F)</span> en la base <span class="cod">(D)</span>, como muestra la flecha, y pon el pistón <span class="cod">(E)</span> en el agujero del centro de la base.</p></article>
+<article class="anim-texto" data-paso="2" data-titulo="Los reposabrazos" data-tit-html="Los reposabrazos"><h3><span class="anim-paso-n">Paso 2</span>Los reposabrazos</h3><p class="anim-linea">Asiento <span class="cod">(B)</span> boca abajo; reposabrazos <span class="cod">(C)</span> con 3 tornillos <span class="cod">(I)</span> cada uno.</p><p>Con el asiento <span class="cod">(B)</span> boca abajo, pon los reposabrazos <span class="cod">(C)</span> y fija cada uno con 3 tornillos <span class="cod">(I)</span>. Aprieta con la llave <span class="cod">(K)</span>.</p></article>
+<article class="anim-texto" data-paso="3" data-titulo="El mecanismo" data-tit-html="El mecanismo"><h3><span class="anim-paso-n">Paso 3</span>El mecanismo</h3><p class="anim-linea">El mecanismo <span class="cod">(G)</span> sobre el asiento, con 4 tornillos <span class="cod">(J)</span>.</p><p>Pon el mecanismo <span class="cod">(G)</span> sobre el asiento y fíjalo con 4 tornillos <span class="cod">(J)</span>. Aprieta con la llave <span class="cod">(K)</span>.</p></article>
+<article class="anim-texto" data-paso="4" data-titulo="El espaldar" data-tit-html="El espaldar"><h3><span class="anim-paso-n">Paso 4</span>El espaldar</h3><p class="anim-linea">El espaldar al mecanismo con 3 tornillos <span class="cod">(H)</span>.</p><p>Pon el herraje del espaldar sobre el mecanismo y fíjalo con 3 tornillos <span class="cod">(H)</span>. Aprieta con la llave <span class="cod">(K)</span>.</p></article>
+<article class="anim-texto" data-paso="5" data-titulo="El asiento sobre el pistón" data-tit-html="El asiento sobre el pistón"><h3><span class="anim-paso-n">Paso 5</span>El asiento sobre el pistón</h3><p class="anim-linea">Baja el asiento con el espaldar <span class="cod">(A)</span> sobre el pistón.</p><p>Pon la silla armada con el espaldar <span class="cod">(A)</span> sobre el pistón de la base y bájala, como muestra la flecha.</p></article>
+<article class="anim-texto" data-paso="6" data-titulo="El cabecero" data-tit-html="El cabecero"><h3><span class="anim-paso-n">Paso 6</span>El cabecero</h3><p class="anim-linea">El cabecero <span class="cod">(L)</span> con 2 tornillos <span class="cod">(J)</span>.</p><p>Pon el cabecero <span class="cod">(L)</span> en la parte de arriba del espaldar y fíjalo con 2 tornillos <span class="cod">(J)</span> por debajo, como muestra el círculo.</p></article>
       </div>
     </div>
     <nav class="anim-barra" aria-label="Pasos del armado">
       <button type="button" class="anim-b-flecha" id="anim-b-ant" aria-label="Paso anterior"><svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"><path d="M15 4 7 12l8 8" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
       <button type="button" class="anim-b-info" id="anim-b-info" aria-expanded="false" aria-controls="anim-panel">
-        <span class="anim-b-txt" id="anim-b-txt">Paso 0</span><span class="anim-b-n" id="anim-b-n"></span><span class="anim-b-i" aria-hidden="true">ⓘ</span>
+        <span class="anim-b-txt" id="anim-b-txt">Paso 0</span><span class="anim-b-n" id="anim-b-n"></span><span class="anim-b-i" aria-hidden="true"><span class="pz">i</span></span>
       </button>
       <button type="button" class="anim-b-flecha fuerte" id="anim-b-sig" aria-label="Paso siguiente"><svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"><path d="m9 4 8 8-8 8" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
     </nav>
@@ -833,7 +868,7 @@ window.zoomSolidWorks = function (o) {
     bAnt.disabled = paso === 0; bSig.disabled = paso === N_PASOS - 1;
     // la barra resumida del sitio de armado: «Paso 1 · Une los dos marcos» y 1/4
     if (bTxt) {
-      bTxt.textContent = "Paso " + paso + " · " + (textos[paso] ? textos[paso].dataset.titulo : "");
+      bTxt.innerHTML = "Paso " + paso + " · " + (textos[paso] ? textos[paso].dataset.titHtml || textos[paso].dataset.titulo : "");
       bNum.textContent = paso + "/" + (N_PASOS - 1);
       bBAnt.disabled = paso === 0; bBSig.disabled = paso === N_PASOS - 1;
     }
@@ -1146,6 +1181,7 @@ window.zoomSolidWorks = function (o) {
   const LETRAS = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"];
   let TOUR = [];                       // [{letra, t0, t1}] del paso 0
   let RUEDAS = [];                     // cuándo arranca cada rueda en el paso 1 (para las capturas)
+  let HUECOS = [];                     // (#1070) dónde queda la boca de cada rueda con la base boca abajo (para las pruebas)
   let FINAL = null;                    // el encuadre de la silla armada al terminar
   function letraEn(tt) { const p = TOUR.find(function (x) { return x.t0 <= tt && tt < x.t1; }); return p ? p.letra : null; }
   // subpasos de un paso con varias acciones (la E45 no los usa: cada paso del manual es una sola acción)
@@ -1321,7 +1357,8 @@ window.zoomSolidWorks = function (o) {
   // (Jon, 12-nov: «Cubre pistón no tiene perforación para que salga el pistón»)
   // A|B, A|G y L|A no van aquí: el STL ya los trae encimados armados (LEEME, «Lo que no casa»), así que malla contra malla
   // darían choque en el último milímetro de cualquier camino; se revisan por cajas, como los demás
-  const FINOS = ["G|K"];
+  // D|F (#1070): cada rueda entra con su espiga en el hueco de su punta, con 0,2 a 0,3 mm de holgura
+  const FINOS = ["G|K", "D|F"];
   const tipoN = function (x) { return x.replace(/[_\d].*$/, ""); };
   function esFino(par) { const n = par.split("|").map(tipoN).sort().join("|"); return FINOS.indexOf(n) >= 0; }
   function trisMundo(o) {
@@ -1539,8 +1576,21 @@ window.zoomSolidWorks = function (o) {
     const Vb = D.volteada, ALTO_D = 0.62, EMPUJE = 0.015, CADA = 2.2;
     const rD = recorrido(D, 0, enPiso(D), [{ c: V(D.cPiso.x, ALTO_D, D.cPiso.z), q: QI, d: 0.8 },
       { c: V(D.cPiso.x, ALTO_D, D.cPiso.z), q: Q_PATAS, d: 1.0 }, { c: Vb.c, q: Q_PATAS, d: 0.7 }]);
-    const tRuedas = 2.8, tRueda = [];
+    // (#1070; Jon, 23-nov: «no están las perforaciones en la araña para las ruedas») con la base boca abajo, antes de que
+    // entre la primera rueda, la cámara mira las cinco puntas y después, de cerca, el hueco de la primera (la caja y el
+    // agujero de la espiga, extras.hueco del GLB); las ruedas arrancan cuando se vio
+    // (revisión dogfood del 25-nov: en el iPhone, de lejos, las bocas eran puntos) la toma de las cinco puntas va más cerca y
+    // casi desde arriba (las bocas se leen redondas) y se queda 1,2 s quieta antes de bajar a la primera; el paso crece 0,7 s
+    const VER_HUECOS = { todas: 2.4, cerca: 4.2, quieta: 1.4 };
+    const tRuedas = VER_HUECOS.cerca + VER_HUECOS.quieta + 0.4, tRueda = [];
     const dentro = function (u) { return { q: Q_PATAS, c: u.piv.clone().sub(D.piv).applyQuaternion(Q_PATAS).add(Vb.c) }; };
+    const bocaVolteada = function (u) {
+      const h = u.ex.hueco; return V(h[0], h[1], h[2]).sub(D.piv).applyQuaternion(Q_PATAS).add(Vb.c);
+    };
+    const boca1 = bocaVolteada(F[0]);
+    const afuera1 = V(boca1.x - Vb.c.x, 0, boca1.z - Vb.c.z).normalize();
+    HUECOS = F.map(function (u) { const b = bocaVolteada(u); return { rueda: u.nombre, x: b.x, y: b.y, z: b.z }; });
+    window.VERSUS_HUECOS = { huecos: HUECOS, todas: VER_HUECOS.todas, cerca: VER_HUECOS.cerca, ruedas: tRuedas };   // para pruebas/obs1070.mjs
     const recF = [];
     F.forEach(function (u, i) {
       const ti = tRuedas + CADA * i, Fp = dentro(u), sobre = Fp.c.clone().add(V(0, 0.12, 0));
@@ -1559,7 +1609,9 @@ window.zoomSolidWorks = function (o) {
       const pts = g.pts, fl = g.ti + 2.0;
       pts.push({ c: g.F.c, q: Q_PATAS, d: fin1 - fl });
       const rel = { q: Q_PATAS.clone().invert().multiply(g.F.q), c: g.F.c.clone().sub(Vb.c).applyQuaternion(Q_PATAS.clone().invert()) };
-      const n = Math.ceil((rD.t1 - fin1) * 30);
+      // (#1070) cada 1/120 s: con la espiga en su hueco (0,2 a 0,3 mm de holgura) la rueda seguida cada 1/30 s se corría
+      // hasta 0,4 mm de la base mientras esta sube y se voltea (la base va con «suave», la rueda en tramos rectos)
+      const n = Math.ceil((rD.t1 - fin1) * 120);
       for (let k = 1; k <= n; k++) {
         const Pp = poseEn(rD, fin1 + (rD.t1 - fin1) * k / n);
         pts.push({ c: rel.c.clone().applyQuaternion(Pp.q).add(Pp.c), q: Pp.q.clone().multiply(rel.q), d: (rD.t1 - fin1) / n, ease: lineal });
@@ -1573,7 +1625,11 @@ window.zoomSolidWorks = function (o) {
     P.push(conEtiquetas({
       recs: r1,
       tomas: [{ at: 0, mira: V(-0.05, 0.25, 0.2), dir: V(0.55, 0.7, 0.9), r: 0.7 },
-        { at: tRuedas - 0.4, mira: V(Vb.c.x, 0.12, Vb.c.z + 0.1), dir: V(0.45, 0.95, 0.75), r: 0.55 },
+        { at: VER_HUECOS.todas, mira: V(Vb.c.x, Vb.c.y, Vb.c.z), dir: V(0.1, 1.4, 0.2), r: 0.36 },
+        { at: VER_HUECOS.cerca, mira: boca1, dir: V(afuera1.x * 0.4, 1.0, afuera1.z * 0.4), r: 0.055 },
+        // la primera rueda entra de cerca y de lado: la espiga baja al agujero; después, el plano de las cinco
+        { at: tRuedas + 0.4, mira: boca1.clone().add(V(0, 0.02, 0)), dir: V(afuera1.x, 0.55, afuera1.z), r: 0.11 },
+        { at: tRuedas + 2.3, mira: V(Vb.c.x, 0.12, Vb.c.z + 0.1), dir: V(0.45, 0.95, 0.75), r: 0.55 },
         { at: fin1 - 0.2, mira: V(D.cPiso.x, 0.3, D.cPiso.z), dir: V(0.55, 0.5, 0.9), r: 0.65 },
         { at: t1 - 0.2, mira: V(-0.2, 0.3, 0.05), dir: V(0.6, 0.45, 0.85), r: 0.5 }]
     }, 1, ["D", "F", "E"]));
@@ -1878,6 +1934,21 @@ window.zoomSolidWorks = function (o) {
     if (document.activeElement === guia) bAyuda.focus({ preventScroll: true });
   }
   bAyuda.addEventListener("click", function () { abrirGuia(true); });
+  function centrar() {
+    if (!PASOS.length) return;
+    const tm = PASOS[paso].tomas;
+    if (!tm || !tm.length) return;
+    const n = tm.filter(function (x) { return x.at <= t; }).length;
+    manual = false;
+    // Descarta la inercia pendiente para que la cámara termine en la toma.
+    const amortiguado = controles.enableDamping;
+    controles.enableDamping = false;
+    controles.update();
+    controles.enableDamping = amortiguado;
+    volarA(tm[n === 0 ? 0 : n - 1], reducido);
+    toma = Math.max(1, n);
+  }
+  document.getElementById("anim-centrar").addEventListener("click", centrar);
   guia.addEventListener("click", cerrarGuia);
   // abierta sola el foco no está en ella: Escape se escucha en el documento, sin mover el foco
   document.addEventListener("keydown", function (ev) { if (ev.key === "Escape" && !guia.hidden && document.activeElement !== guia) { ev.stopImmediatePropagation(); cerrarGuia(); } }, true);
@@ -1978,7 +2049,7 @@ window.zoomSolidWorks = function (o) {
     if (etiquetas[tipo]) return etiquetas[tipo];
     const d = ETQ[tipo] || { n: tipo, s: "", f: "" };
     const div = document.createElement("div"); div.className = "eti-anim";
-    const b = document.createElement("b"); b.textContent = d.s;
+    const b = document.createElement("b"); b.textContent = d.s; if (/^\d+$/.test(d.s)) b.className = "pz";
     const s = document.createElement("span"); s.textContent = d.n;
     div.append(b, s);
     if (d.f) { const m = document.createElement("span"); m.className = "m"; m.textContent = d.f; div.append(m); }
@@ -2171,6 +2242,8 @@ window.zoomSolidWorks = function (o) {
     etiquetas: function () { return Object.keys(etiquetas).filter(function (k) { return !etiquetas[k].div.hidden; }).map(function (k) { const r = etiquetas[k].div.getBoundingClientRect(); return { tipo: k, x: r.x, y: r.y, w: r.width, h: r.height, txt: etiquetas[k].div.textContent }; }); },
     ir: function (tt) { t = Math.min(PASOS[paso].dur, tt); manual = false; vuelo = null;
       const tm = PASOS[paso].tomas; toma = tm.filter(function (x) { return x.at <= t; }).length; volarA(tm[Math.max(0, toma - 1)], true); aplicar(paso, t); },
+    centrar: function () { centrar(); },
+    camaraEstado: function () { return { p: camara.position.toArray(), m: controles.target.toArray(), manual: manual, toma: toma, paso: paso, t: t }; },
     recorridoPiezas: function () { return TOUR.slice(); },
     encajes: function () { return ENCAJES.slice(); },
     ruedas: function () { return RUEDAS.slice(); },
