@@ -672,6 +672,7 @@ body { font-synthesis: none; }
 @media (max-width: 699.98px) and (orientation: portrait) {
   .anim-marco.en-pantalla .anim-textos { -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 36px), transparent); mask-image: linear-gradient(to bottom, #000 calc(100% - 36px), transparent); padding-bottom: 28px; }
 }
+.vs-mascara .eti-anim, .vs-mascara #anim-guias { visibility: hidden !important; }
 .anim-lista-btn[aria-current="true"] { background: color-mix(in srgb, currentColor 13%, transparent); font-weight: 550; }
 </style>
 <section id="animacion" aria-labelledby="t-anim">
@@ -1852,6 +1853,376 @@ window.zoomSolidWorks = function (o) {
     return 1.12 * r / Math.sin(Math.min(fovV, fovH) / 2);
   }
   function destino(tm) { return { p: tm.mira.clone().addScaledVector(tm.dir.clone().normalize(), distPara(tm.r)), m: tm.mira.clone() }; }
+  /* ---------- calidad de estudio (#1084): entorno, materiales, sombra de contacto, fondo y cámara ---------- */
+  const Q_URL = new URLSearchParams(location.search);
+  const MOVIL = !!(window.matchMedia && window.matchMedia("(pointer: coarse)").matches) || Math.min(screen.width || 9999, screen.height || 9999) < 700;
+  let NIVEL = Q_URL.get("calidad");
+  if (["alta", "media", "base"].indexOf(NIVEL) < 0) NIVEL = MOVIL ? "media" : "alta";
+  // el foco (Jon, 24-nov, #571: «el espacio está mucho más iluminado, tener un foco arriba iluminando en todas partes a
+  // la silla»): «arriba» = el espacio más oscuro y un foco de estudio cenital sobre lo que se mira; «espacio» = la lectura
+  // al revés, todo el espacio más iluminado y sin foco; «no» = como en ec065af. «?foco=» lo cambia para comparar
+  let FOCO = Q_URL.get("foco");
+  if (["arriba", "espacio", "no"].indexOf(FOCO) < 0) FOCO = "espacio";
+  // los colores del espacio por modo: niebla (= horizonte de la cúpula y borde del piso), pared, centro y medio del charco
+  const ESPACIO = { no: [0x090b0f, 0x141922, "#171a22", "#0f1217"], arriba: [0x010102, 0x040507, "#0c0f14", "#030405"],
+    espacio: [0x10131a, 0x252c38, "#2a303c", "#1a1e26"] }[FOCO];
+  let CUADRICULA = Q_URL.get("cuadricula");
+  if (["siempre", "final"].indexOf(CUADRICULA) < 0) CUADRICULA = "siempre";
+  const MATERIALES = {"cuero": {"color": 723725, "roughness": 0.42, "metalness": 0, "clearcoat": 0.25, "clearcoatRoughness": 0.35, "grano": true}, "bordado": {"roughness": 0.85, "metalness": 0}, "plastico_mate": {"color": 987154, "roughness": 0.62, "metalness": 0}, "nylon": {"color": 855568, "roughness": 0.4, "metalness": 0, "clearcoat": 0.2, "clearcoatRoughness": 0.35}, "pintura": {"color": 789775, "roughness": 0.34, "metalness": 0, "clearcoat": 0.8, "clearcoatRoughness": 0.16}, "cromo": {"color": 15659251, "roughness": 0.16, "metalness": 1, "env": 2.6}, "acero": {"color": 14541286, "roughness": 0.3, "metalness": 1, "env": 2.8}}, MAT_PIEZA = {"A": "cuero", "B": "cuero", "P": "cuero", "Q": "cuero", "A_logo": "bordado", "Q_logo": "bordado", "C": "plastico_mate", "I": "plastico_mate", "J": "plastico_mate", "N": "plastico_mate", "R": "plastico_mate", "F": "nylon", "G": "nylon", "D": "pintura", "E": "pintura", "H": "pintura", "E_vastago": "cromo", "K": "cromo", "L": "cromo", "M": "cromo", "O": "acero"};
+  let sombraC = null;
+  // el relieve del cuero (grano): «?relieve=0» lo apaga (para comparar con 2274c25, que no lo tenía)
+  const RELIEVE = Q_URL.get("relieve") !== "0";
+  let granoTex = null;
+  // para las capturas de cerca: la cámara mirando una malla del modelo por su nombre (dirección y distancia en metros)
+  // para medir (revisión de a73d3b7): «__pausa()» detiene el tiempo del paso; «__mascara(true)» pinta las piezas de blanco
+  // y todo lo demás de negro (sin etiquetas), para saber qué píxeles son de la silla; «__mascara(false)» lo devuelve
+  window.__pausa = function () { enMarcha = false; };
+  // etiquetas de piezas tapadas (detalle viejo de la V30, #571): en los pasos de armado, la etiqueta de una pieza que la
+  // cámara no ve (el protector del otro lado, su tapón, los tornillos de atrás) no sale flotando. Un rayo de la cámara al
+  // ancla de la pieza: si lo primero que toca es otra pieza, más cerca, la pieza está tapada. Se mira cada 8 cuadros por
+  // etiqueta (el rayo recorre las mallas del modelo); el paso 0 no se toca (el recorrido muestra cada pieza de cerca)
+  const rayoEti = new THREE.Raycaster(), tapadas = {};
+  let cuadroEti = 0;
+  // para el barrido de la prueba: borra lo guardado de los rayos y dice qué etiquetas del paso se mueven ahora
+  window.__etiquetas = function () {
+    Object.keys(tapadas).forEach(function (q) { delete tapadas[q]; });
+    const m = {}; PASOS[paso].recs.forEach(function (r) { if (!r.quieto && r.t0 <= t && t <= r.t1) m[r.u.tipo] = true; });
+    const enPantalla = function (q) { const a = anclaDe(q, paso, t); if (!a) return false; const v = a.clone().project(camara); return v.z <= 1 && Math.abs(v.x) <= 1.02 && Math.abs(v.y) <= 1.02; };
+    return { etiq: PASOS[paso].etiq.slice(), moviendo: Object.keys(m).filter(function (q) { return PASOS[paso].etiq.indexOf(q) >= 0 && enPantalla(q); }) };
+  };
+  function unidadDe(tipo, k, tt) {
+    const p = PASOS[k]; let u = null, mejor = -1;
+    if (p.todas) return (porTipo[tipo] || [])[0] || null;
+    p.recs.forEach(function (r) { if (r.u.tipo === tipo && r.t0 <= tt && r.t0 > mejor) { mejor = r.t0; u = r.u; } });
+    return u;
+  }
+  function etiquetaTapada(tipo, k, tt, punto) {
+    if (NIVEL === "base" || k === 0 || !modelo) return false;
+    // la pieza que se mueve en este momento (entra o viaja) nunca se esconde (revisión de 704eb25: el cojín lumbar Q del
+    // paso 6 entraba a la vista y su etiqueta no salía); y lo que se mueve no cuenta como tapón de las demás
+    const enMovimiento = new Set();
+    let mueve = false;
+    PASOS[k].recs.forEach(function (r) {
+      if (r.quieto || r.t0 > tt || tt > r.t1) return;
+      r.u.objs.forEach(function (o) { enMovimiento.add(o); });
+      if (r.u.tipo === tipo) mueve = true;
+    });
+    if (mueve) return false;
+    const clave = k + ":" + tipo, c = tapadas[clave];
+    if (c && cuadroEti - c.cuadro < 8) return c.si;
+    const u = unidadDe(tipo, k, tt); let si = false;
+    if (u) {
+      // se ve si se ve CUALQUIERA de estos puntos: el ancla, el centro de la caja de la pieza, el centro de arriba y las
+      // cuatro esquinas de arriba (con solo el ancla, el reposabrazos del paso 4 salía tapado por el asiento)
+      const caja = new THREE.Box3(); u.objs.forEach(function (o) { caja.expandByObject(o); });
+      const c = caja.getCenter(new THREE.Vector3()), mx = caja.max, mn = caja.min, e = 0.15;
+      const lx = (mx.x - mn.x) * e, lz = (mx.z - mn.z) * e, ty = mx.y - (mx.y - mn.y) * e;
+      const pts = [punto, c, new THREE.Vector3(c.x, ty, c.z), new THREE.Vector3(mn.x + lx, ty, mn.z + lz), new THREE.Vector3(mx.x - lx, ty, mn.z + lz),
+        new THREE.Vector3(mn.x + lx, ty, mx.z - lz), new THREE.Vector3(mx.x - lx, ty, mx.z - lz)];
+      si = !pts.some(function (q) {
+        const dir = q.clone().sub(camara.position), d = dir.length();
+        rayoEti.set(camara.position, dir.normalize()); rayoEti.near = 0; rayoEti.far = d + 0.05;
+        const h = rayoEti.intersectObject(modelo, true).find(function (x) {
+          if (!x.object.isMesh || !x.object.visible || x.object.name === "contorno") return false;
+          let o = x.object; while (o.parent && o.parent !== modelo) o = o.parent;   // la propia pieza y lo que se mueve no tapan
+          return u.objs.indexOf(o) < 0 && !enMovimiento.has(o);
+        });
+        if (!h || h.distance >= d - 0.015) return true;
+        let o = h.object; while (o && u.objs.indexOf(o) < 0) o = o.parent === modelo ? null : o.parent;
+        return !!o;
+      });
+    }
+    tapadas[clave] = { cuadro: cuadroEti, si: si };
+    return si;
+  }
+  let mascara = null;
+  window.__mascara = function (si) {
+    if (si && !mascara) {
+      const blanco = new THREE.MeshBasicMaterial({ color: 0xffffff, fog: false, toneMapped: false });
+      mascara = { mats: [], vis: [], fondo: escena.background, niebla: escena.fog };
+      modelo.traverse(function (o) { if (o.isMesh && o.name !== "contorno") { mascara.mats.push([o, o.material]); o.material = blanco; } });
+      escena.children.forEach(function (o) { if (o !== modelo && !o.isLight) { mascara.vis.push([o, o.visible]); o.visible = false; } });
+      escena.background = new THREE.Color(0x000000); escena.fog = null; document.body.classList.add("vs-mascara");
+    } else if (!si && mascara) {
+      mascara.mats.forEach(function (x) { x[0].material = x[1]; }); mascara.vis.forEach(function (x) { x[0].visible = x[1]; });
+      escena.background = mascara.fondo; escena.fog = mascara.niebla; document.body.classList.remove("vs-mascara"); mascara = null;
+    }
+  };
+  window.__mirar = function (nombre, dir, r, alto) {
+    const o = modelo && modelo.getObjectByName(nombre); if (!o) return false;
+    const c = new THREE.Box3().setFromObject(o).getCenter(new THREE.Vector3()); c.y += alto || 0;
+    manual = true; vuelo = null;
+    controles.target.copy(c); camara.position.copy(c).addScaledVector(new THREE.Vector3().fromArray(dir).normalize(), r);
+    controles.update(); return true;
+  };
+  window.__calidad = function () { const r = renderer.info.render; return { foco: FOCO, nivel: NIVEL, cuadricula: CUADRICULA, relieve: granoTex ? granoTex.image.width : 0, sombraContacto: !!sombraC, actualizaciones: sombraC ? sombraC.n : 0, llamadas: r.calls, triangulos: r.triangles }; };
+  // la curva del vuelo: suave al salir y al llegar, sin tirón (aceleración continua, smootherstep)
+  function curvaCam(s) { return NIVEL === "base" ? suave(s) : s * s * s * (s * (s * 6 - 15) + 10); }
+  // el camino: el punto que se mira va derecho y la cámara gira alrededor de él (arco), con la distancia en escala
+  // logarítmica; el principio y el final son los mismos de siempre
+  function volarCurva(v, k) {
+    controles.target.lerpVectors(v.m0, v.m1, k);
+    if (NIVEL === "base") { camara.position.lerpVectors(v.p0, v.p1, k); return; }
+    if (!v.o0) {
+      v.o0 = v.p0.clone().sub(v.m0); v.o1 = v.p1.clone().sub(v.m1);
+      v.r0 = Math.max(1e-4, v.o0.length()); v.r1 = Math.max(1e-4, v.o1.length());
+      v.d0 = v.o0.clone().divideScalar(v.r0);
+      const d1 = v.o1.clone().divideScalar(v.r1);
+      v.q = v.d0.dot(d1) < -0.999 ? null : new THREE.Quaternion().setFromUnitVectors(v.d0, d1);
+    }
+    if (!v.q) { camara.position.lerpVectors(v.p0, v.p1, k); return; }
+    const r = v.r0 * Math.pow(v.r1 / v.r0, k);
+    camara.position.copy(v.d0).applyQuaternion(new THREE.Quaternion().slerp(v.q, k)).multiplyScalar(r).add(controles.target);
+  }
+  // el estudio: un cuarto gris oscuro con un softbox grande arriba, dos tiras de luz atrás a los lados (recortan el
+  // cuero negro) y un relleno suave adelante. Valores por encima de 1: el PMREM guarda luz de verdad
+  function entornoEstudio() {
+    const sala = new THREE.Scene();
+    sala.add(new THREE.Mesh(new THREE.BoxGeometry(14, 8, 14), new THREE.MeshBasicMaterial({ color: 0x0b0c0f, side: THREE.BackSide })));
+    const caja = function (w, h, d, i, x, y, z, col) {
+      const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), new THREE.MeshBasicMaterial({ color: new THREE.Color(col || 0xffffff).multiplyScalar(i) }));
+      m.position.set(x, y, z); m.lookAt(0, 0.6, 0); sala.add(m);
+    };
+    caja(2.4, 1.6, 0.05, 8.0, 0.6, 3.8, 1.2);                // el softbox de arriba, un poco adelante
+    caja(0.35, 3.0, 0.05, 6.0, -3.2, 1.6, -2.4, 0xe8f1ff);   // tira atrás a la izquierda (fría)
+    caja(0.35, 3.0, 0.05, 5.0, 3.2, 1.6, -2.4);              // tira atrás a la derecha
+    caja(2.2, 1.6, 0.05, 1.3, -3.4, 1.4, 3.0);               // relleno adelante a la izquierda
+    // dos paneles grandes a los lados, a la altura de la silla: lo que refleja el cromo de los tornillos, la llave y el
+    // vástago (con solo el cuarto oscuro se veían oscuros; revisión de 2274c25)
+    caja(0.05, 2.0, 3.0, 2.2, -4.0, 0.8, 0.6);
+    caja(0.05, 2.0, 3.0, 1.8, 4.0, 0.8, 0.6);
+    // un softbox ancho adelante y arriba (donde suele estar la cámara): lo que mira de frente al cliente (el cojín
+    // cervical, el frente del espaldar) toma un brillo suave y se lee su forma; con solo los de arriba y atrás era negro
+    // puro (revisión de 286225e)
+    caja(4.0, 2.6, 0.05, 0.6, 0.4, 1.3, 4.4);
+    const t = pmrem.fromScene(sala, 0.035).texture;
+    sala.traverse(function (o) { if (o.isMesh) { o.geometry.dispose(); o.material.dispose(); } });
+    return t;
+  }
+  // el fondo: una cúpula de estudio que sigue a la cámara. En el horizonte tiene el color de la niebla (el piso se pierde
+  // en ella sin línea), un poco arriba se aclara (la pared iluminada del estudio, detrás de la silla) y arriba vuelve al
+  // negro de la marca. Va en el mundo, no pegado a la pantalla: el degradado no se mueve con la cámara
+  const NIEBLA = ESPACIO[0];
+  function degradado(w, h, pintar) {
+    const c = document.createElement("canvas"); c.width = w; c.height = h; pintar(c.getContext("2d"));
+    const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; return t;
+  }
+  let cupula = null, contorno = null, foco = null, rellenos = [];
+  const marca = document.querySelector(".v40-marca");
+  const EJE_Y_C = new THREE.Vector3(0, 1, 0);
+  function fondoEstudio() {
+    const m = new THREE.ShaderMaterial({ side: THREE.BackSide, depthWrite: false, depthTest: false, fog: false, toneMapped: false,
+      uniforms: { h: { value: new THREE.Color(NIEBLA) }, p: { value: new THREE.Color(ESPACIO[1]) }, a: { value: new THREE.Color(0x050608) } },
+      vertexShader: "varying vec3 d; void main() { d = normalize(position); gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }",
+      fragmentShader: "uniform vec3 h; uniform vec3 p; uniform vec3 a; varying vec3 d; void main() { float e = max(d.y, 0.0);" +
+        " vec3 c = mix(h, p, smoothstep(0.0, 0.22, e)); c = mix(c, a, smoothstep(0.25, 0.85, e)); gl_FragColor = vec4(c, 1.0); }" });
+    cupula = new THREE.Mesh(new THREE.SphereGeometry(20, 32, 16), m);
+    cupula.renderOrder = -10; cupula.frustumCulled = false; cupula.raycast = function () {};
+    escena.add(cupula);
+    return null;
+  }
+  // el piso del estudio, debajo de la cuadrícula: un charco de luz bajo la silla que se apaga hacia los lados. Las
+  // sombras se ven sobre él (sobre el negro puro no se veían) y la cuadrícula se suma encima, como luz
+  function pisoEstudio() {
+    const tex = degradado(512, 512, function (g) {
+      const r = g.createRadialGradient(256, 256, 8, 256, 256, 256);
+      r.addColorStop(0, ESPACIO[2]); r.addColorStop(0.35, ESPACIO[3]); r.addColorStop(1, "#" + new THREE.Color(NIEBLA).getHexString());
+      g.fillStyle = r; g.fillRect(0, 0, 512, 512);
+    });
+    // sin tone mapping: el color que se ve es el de la textura, igual al de la niebla en el borde (la niebla de three
+    // r128 se suma después del tone mapping y de pasar a sRGB)
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(9, 9), new THREE.MeshBasicMaterial({ map: tex, toneMapped: false }));
+    m.rotation.x = -Math.PI / 2; m.position.set(0.3, -0.0014, 0.35); m.raycast = function () {};
+    const lejos = new THREE.Mesh(new THREE.PlaneGeometry(80, 80), new THREE.MeshBasicMaterial({ color: new THREE.Color(NIEBLA).convertSRGBToLinear(), toneMapped: false }));
+    lejos.rotation.x = -Math.PI / 2; lejos.position.y = -0.002; lejos.raycast = function () {};
+    escena.add(lejos); escena.add(m);
+    // la cuadrícula: misma textura y mismo color que pone el producto, ahora sumada como luz sobre el piso
+    piso.material.transparent = true; piso.material.blending = THREE.AdditiveBlending; piso.material.depthWrite = false;
+    // con suma, la niebla de three (mezclar hacia su color) sumaría el color de la niebla dos veces a lo lejos: aquí la
+    // cuadrícula se apaga hacia negro con la distancia, que sumado no pinta nada
+    piso.material.onBeforeCompile = function (sh) {
+      sh.fragmentShader = sh.fragmentShader.replace("#include <fog_fragment>",
+        "#ifdef USE_FOG\n  gl_FragColor.rgb *= 1.0 - smoothstep( fogNear, fogFar, fogDepth );\n#endif");
+    };
+    piso.material.needsUpdate = true;
+  }
+  function materialDe(nombre, viejo) {
+    const clave = MAT_PIEZA[nombre] || MAT_PIEZA[nombre.replace(/_.*/, "")] || MAT_PIEZA[nombre.replace(/[0-9_].*$/, "")];
+    const def = clave && MATERIALES[clave]; if (!def) return null;
+    // el color de la tabla es sRGB (como se escribe un color): three r128 lo toma como lineal si no se convierte, y el
+    // negro #0b0b0d quedaba 16 veces más claro que el del GLB (gris medio; revisión de 2274c25, 24-nov)
+    const p = { color: def.color !== undefined ? new THREE.Color(def.color).convertSRGBToLinear() : viejo.color.clone(), roughness: def.roughness, metalness: def.metalness,
+      envMapIntensity: (def.env || 1.0) * (FOCO === "arriba" && !def.env ? 1.1 : 1) };
+    let m;
+    if (NIVEL === "alta" && def.clearcoat) { p.clearcoat = def.clearcoat; p.clearcoatRoughness = def.clearcoatRoughness; m = new THREE.MeshPhysicalMaterial(p); }
+    else m = new THREE.MeshStandardMaterial(p);
+    if (def.grano && RELIEVE) conGrano(m);
+    return m;
+  }
+  // la textura del grano del cuero, hecha aquí (nada se baja): celdas de Voronoi que se repiten sin costura (los
+  // «granitos» del cuero sintético) con un pliegue en cada borde y un ruido fino encima; de esa altura salen las
+  // pendientes (R y G) que el shader suma a la normal. En «alta» 512 px y 48 celdas; en «media» (teléfono) 256 px y 24
+  // celdas: el mismo tamaño de grano en la silla, con un cuarto de la memoria
+  function texturaGrano() {
+    const N = NIVEL === "alta" ? 512 : 256, C = NIVEL === "alta" ? 48 : 24, paso = N / C;
+    let semilla = 1084; const azar = function () { semilla = (semilla * 16807) % 2147483647; return semilla / 2147483647; };
+    const pts = new Float32Array(C * C * 2);
+    for (let i = 0; i < C * C; i++) { pts[2 * i] = azar(); pts[2 * i + 1] = azar(); }
+    const h = new Float32Array(N * N);
+    for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+      const cx = Math.floor(x / paso), cy = Math.floor(y / paso); let f1 = 9, f2 = 9;
+      for (let j = -1; j <= 1; j++) for (let i = -1; i <= 1; i++) {
+        const gx = cx + i, gy = cy + j, k = ((gy + C) % C) * C + ((gx + C) % C);
+        const dx = (gx + pts[2 * k]) * paso - x, dy = (gy + pts[2 * k + 1]) * paso - y, d = Math.sqrt(dx * dx + dy * dy) / paso;
+        if (d < f1) { f2 = f1; f1 = d; } else if (d < f2) f2 = d;
+      }
+      const borde = Math.min(1, (f2 - f1) / 0.45);
+      h[y * N + x] = borde * borde * (3 - 2 * borde) * (1 - 0.35 * f1) + 0.08 * azar();
+    }
+    const px = new Uint8Array(N * N * 4); let max = 1e-6; const g = new Float32Array(N * N * 2);
+    for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+      const gx = h[y * N + (x + 1) % N] - h[y * N + (x + N - 1) % N], gy = h[((y + 1) % N) * N + x] - h[((y + N - 1) % N) * N + x];
+      g[2 * (y * N + x)] = gx; g[2 * (y * N + x) + 1] = gy; max = Math.max(max, Math.abs(gx), Math.abs(gy));
+    }
+    for (let i = 0; i < N * N; i++) { px[4 * i] = 128 + 127 * g[2 * i] / max; px[4 * i + 1] = 128 + 127 * g[2 * i + 1] / max; px[4 * i + 2] = 255; px[4 * i + 3] = 255; }
+    const t = new THREE.DataTexture(px, N, N, THREE.RGBAFormat);
+    t.wrapS = t.wrapT = THREE.RepeatWrapping; t.magFilter = THREE.LinearFilter; t.minFilter = THREE.LinearMipmapLinearFilter;
+    t.generateMipmaps = true; t.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy()); t.needsUpdate = true;
+    return t;
+  }
+  // el tile mide 8 cm en «alta» (48 celdas) y 4 cm en «media» (24 celdas): el mismo grano de ~1,7 mm en los dos (en
+  // 286225e el teléfono tenía el tile de 8 cm con la mitad de celdas, granos de 3,3 mm: «adoquín» de cerca). De muy cerca
+  // (menos de 25 cm de cámara) el relieve baja al 55 %, para que se lea cuero y no piel de reptil
+  // el GLB no trae coordenadas de textura: el grano va en triplanar, en el shader (onBeforeCompile), con la posición y la
+  // normal de la malla misma (el grano se mueve con la pieza). Un tile de 8 cm: granitos de ~1,7 mm, que de lejos los
+  // mipmaps aplanan (no queda ruido); intensidad moderada
+  function conGrano(m) {
+    if (!granoTex) granoTex = texturaGrano();
+    m.onBeforeCompile = function (sh) {
+      sh.uniforms.granoMap = { value: granoTex }; sh.uniforms.granoEsc = { value: 1 / (NIVEL === "alta" ? 0.08 : 0.04) }; sh.uniforms.granoFuerza = { value: 0.3 };
+      sh.vertexShader = "varying vec3 vGrPos; varying vec3 vGrNor; varying vec3 vGrAx; varying vec3 vGrAy; varying vec3 vGrAz;\n" +
+        sh.vertexShader.replace("#include <begin_vertex>", "#include <begin_vertex>\n  vGrPos = position; vGrNor = normal;" +
+          " vGrAx = normalize(normalMatrix * vec3(1.0, 0.0, 0.0)); vGrAy = normalize(normalMatrix * vec3(0.0, 1.0, 0.0)); vGrAz = normalize(normalMatrix * vec3(0.0, 0.0, 1.0));");
+      sh.fragmentShader = "uniform sampler2D granoMap; uniform float granoEsc; uniform float granoFuerza;\n" +
+        "varying vec3 vGrPos; varying vec3 vGrNor; varying vec3 vGrAx; varying vec3 vGrAy; varying vec3 vGrAz;\n" +
+        sh.fragmentShader.replace("#include <normal_fragment_maps>", "#include <normal_fragment_maps>\n" +
+          "  { vec3 w = pow(abs(normalize(vGrNor)), vec3(4.0)); w /= (w.x + w.y + w.z + 1e-5); vec3 q = vGrPos * granoEsc;\n" +
+          "    vec2 tx = texture2D(granoMap, q.yz).xy * 2.0 - 1.0, ty = texture2D(granoMap, q.zx).xy * 2.0 - 1.0, tz = texture2D(granoMap, q.xy).xy * 2.0 - 1.0;\n" +
+          "    vec3 d = w.x * vec3(0.0, tx.x, tx.y) + w.y * vec3(ty.y, 0.0, ty.x) + w.z * vec3(tz.x, tz.y, 0.0);\n" +
+          "    float cerca = mix(0.55, 1.0, smoothstep(0.25, 0.9, length(vViewPosition)));\n" +
+          "    normal = normalize(normal + granoFuerza * cerca * (d.x * vGrAx + d.y * vGrAy + d.z * vGrAz)); }");
+    };
+  }
+  // la sombra de contacto: se mira la silla desde el piso hacia arriba (cámara ortográfica), cada pieza pinta más oscuro
+  // mientras más cerca del piso está, y se desenfoca dos veces; un plano encima del piso la muestra
+  function sombraContacto(renderOrig) {
+    const RES = NIVEL === "alta" ? 512 : 256, ANCHO = 4.6, FONDO_S = 3.4, ALTO_S = 0.6;
+    const rt = new THREE.WebGLRenderTarget(RES, RES), rtB = new THREE.WebGLRenderTarget(RES, RES);
+    rt.texture.generateMipmaps = rtB.texture.generateMipmaps = false;
+    const grupo = new THREE.Group(); grupo.position.set(0.4, 0.0006, 0.5); escena.add(grupo);
+    const plano = new THREE.Mesh(new THREE.PlaneGeometry(ANCHO, FONDO_S).rotateX(Math.PI / 2),
+      new THREE.MeshBasicMaterial({ map: rt.texture, transparent: true, opacity: 0.7, depthWrite: false }));
+    plano.renderOrder = 1; plano.scale.y = -1; plano.raycast = function () {}; grupo.add(plano);
+    const cam = new THREE.OrthographicCamera(-ANCHO / 2, ANCHO / 2, FONDO_S / 2, -FONDO_S / 2, 0, ALTO_S);
+    cam.rotation.x = Math.PI / 2; grupo.add(cam);
+    const prof = new THREE.MeshDepthMaterial(); prof.depthTest = prof.depthWrite = false; prof.toneMapped = false;
+    prof.onBeforeCompile = function (sh) {
+      sh.fragmentShader = sh.fragmentShader.replace("gl_FragColor = vec4( vec3( 1.0 - fragCoordZ ), opacity );",
+        "gl_FragColor = vec4( vec3( 0.0 ), pow( 1.0 - fragCoordZ, 2.2 ) * 0.9 );");
+    };
+    const desenfoque = new THREE.ShaderMaterial({ uniforms: { t: { value: null }, d: { value: new THREE.Vector2() } }, depthTest: false, depthWrite: false, toneMapped: false,
+      vertexShader: "varying vec2 v; void main() { v = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }",
+      fragmentShader: "uniform sampler2D t; uniform vec2 d; varying vec2 v; void main() { vec4 s = texture2D(t, v) * 0.2270270270;" +
+        " s += (texture2D(t, v + d * 1.3846153846) + texture2D(t, v - d * 1.3846153846)) * 0.3162162162;" +
+        " s += (texture2D(t, v + d * 3.2307692308) + texture2D(t, v - d * 3.2307692308)) * 0.0702702703; gl_FragColor = s; }" });
+    const escB = new THREE.Scene(), camB = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+    escB.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), desenfoque));
+    function pasada(de, a, dx, dy) { desenfoque.uniforms.t.value = de.texture; desenfoque.uniforms.d.value.set(dx / RES, dy / RES); renderer.setRenderTarget(a); renderOrig(escB, camB); }
+    const S = { n: 0, cuadro: 0, firma: null };
+    S.actualizar = function () {
+      S.cuadro++;
+      if (NIVEL === "media" && S.cuadro % 2) return;
+      // solo si algo se movió (las piezas son las mallas hijas del modelo)
+      let f = 0; modelo.children.forEach(function (o, i) { if (o.visible) f += (i + 1) * (o.position.x * 3.1 + o.position.y * 5.7 + o.position.z * 7.3 + o.quaternion.x + o.quaternion.y * 1.3 + o.quaternion.z * 1.7 + o.quaternion.w * 1.9); });
+      if (S.firma !== null && Math.abs(f - S.firma) < 1e-9) return;
+      S.firma = f; S.n++;
+      const fondo = escena.background, niebla = escena.fog, alfa = renderer.getClearAlpha();
+      const ocultos = [plano, piso, cupula].concat(escena.children.filter(function (o) { return o.isMesh && o !== piso && o.material && (o.material.isShadowMaterial || o.position.y < 0); }));
+      const antes = ocultos.map(function (o) { return o.visible; });
+      ocultos.forEach(function (o) { o.visible = false; });
+      escena.background = null; escena.fog = null; escena.overrideMaterial = prof; renderer.setClearAlpha(0);
+      renderer.setRenderTarget(rt); renderer.clear(); renderOrig(escena, cam);
+      escena.overrideMaterial = null;
+      pasada(rt, rtB, 4, 0); pasada(rtB, rt, 0, 4); pasada(rt, rtB, 1.6, 0); pasada(rtB, rt, 0, 1.6);
+      renderer.setRenderTarget(null); renderer.setClearAlpha(alfa);
+      escena.background = fondo; escena.fog = niebla;
+      ocultos.forEach(function (o, i) { o.visible = antes[i]; });
+    };
+    return S;
+  }
+  function calidadEstudio(raiz) {
+    if (NIVEL === "base") return;
+    escena.environment = entornoEstudio();
+    escena.background = fondoEstudio();   // null: el fondo es la cúpula
+    if (escena.fog) escena.fog.color.set(NIEBLA);
+    pisoEstudio();
+    renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.outputEncoding = THREE.sRGBEncoding;
+    renderer.toneMappingExposure = 1.0 * (FOCO === "espacio" ? 1.12 : 1);
+    // las luces de la escena siguen (el sol da la sombra con dirección); el entorno ya ilumina parejo: menos cielo
+    escena.children.forEach(function (o) {
+      if (o.isHemisphereLight) o.intensity = 0;
+      if (o.isDirectionalLight) o.intensity *= o === sol ? 0.75 : 0.6;
+      if (o.isMesh && o.material && o.material.isShadowMaterial) o.material.opacity = 0.42;
+    });
+    raiz.traverse(function (o) {
+      if (!o.isMesh || o.name === "contorno" || !o.material || !o.material.isMeshStandardMaterial) return;
+      const m = materialDe(o.name, o.material); if (!m) return;
+      o.material.dispose(); o.material = m;
+      o.userData.colorBase = m.color.clone();   // lo que usa el atenuado de las piezas que no están en juego
+    });
+    contorno = new THREE.DirectionalLight(0xdfe9ff, 0.7); escena.add(contorno); escena.add(contorno.target);
+    // el foco de estudio: un SpotLight cenital, ancho y con la penumbra amplia, siempre encima de lo que se está mirando
+    // (la silla, o las piezas en el piso en el paso 0 y en los pasos de armado), sin sombra propia (la da el sol)
+    if (FOCO === "arriba") {
+      foco = new THREE.SpotLight(0xfff6ea, 2.8, 0, THREE.MathUtils.degToRad(38), 0.85, 0);
+      escena.add(foco); escena.add(foco.target);
+      // el relleno (revisión de a73d3b7: «iluminando en todas partes a la silla»; el costado del respaldo, el hueco entre
+      // reposabrazos y asiento y lo de abajo quedaban negros): dos luces suaves sin sombra que siguen a la cámara, una de
+      // frente a la altura del asiento y otra de lado; y el reflejo del estudio un poco más fuerte en lo que no es metal
+      // (1.1 ×): el negro sigue negro (el color no cambia), solo se le ve el brillo por todos lados
+      rellenos = [[0, 0.15, 0.45], [1.35, 0.35, 0.45 * 0.7], [-1.35, -0.25, 0.45 * 0.45]].map(function (r) {
+        const l = new THREE.DirectionalLight(0xf3f6ff, r[2]); escena.add(l); escena.add(l.target); l.userData.giro = r[0]; l.userData.alto = r[1]; return l;
+      });
+    }
+    const renderOrig = renderer.render.bind(renderer);
+    sombraC = sombraContacto(renderOrig);
+    renderer.render = function (s, c) {
+      if (s === escena && c === camara) {
+        // sin cuadrícula: el piso solo sale al terminar, verde, como la celebración de siempre
+        if (CUADRICULA === "final" && !mascara) piso.visible = celebra !== null;
+        cuadroEti++;
+        // en el celular, con la silla terminada, el logo de la esquina quedaba encima de la cabeza de la silla: se esconde
+        // ahí (la tarjeta del final ya lleva el logo grande)
+        if (marca) marca.style.visibility = (lienzo.clientWidth <= 420 && PASOS.length && paso === PASOS.length - 1 && t >= PASOS[paso].dur - 1e-6) ? "hidden" : "";
+        if (cupula) cupula.position.copy(camara.position);
+        if (mascara) return renderOrig(s, c);
+        rellenos.forEach(function (l) {
+          l.position.copy(camara.position).sub(controles.target).setY(0).normalize().applyAxisAngle(EJE_Y_C, l.userData.giro)
+            .setY(l.userData.alto).normalize().multiplyScalar(3).add(controles.target);
+          l.target.position.copy(controles.target); l.target.updateMatrixWorld();
+        });
+        if (foco) { foco.position.set(controles.target.x, controles.target.y + 3.2, controles.target.z + 0.4); foco.target.position.copy(controles.target); foco.target.updateMatrixWorld(); }
+        // la luz de contorno sigue a la cámara: siempre detrás de lo que se mira y un poco arriba, para que el borde de las
+        // piezas negras se separe del fondo oscuro desde cualquier lado (revisión de 286225e: la base tirada se perdía)
+        // girada 55° hacia un lado y a 25° de alto: si queda justo detrás, lo horizontal (el capitoné del asiento) la
+        // refleja de lleno y se ve blanco
+        contorno.position.copy(controles.target).sub(camara.position).setY(0).normalize().applyAxisAngle(EJE_Y_C, 0.96).multiplyScalar(3).add(controles.target);
+        contorno.position.y += 1.4; contorno.target.position.copy(controles.target); contorno.target.updateMatrixWorld();
+        sombraC.actualizar();
+      }
+      return renderOrig(s, c);
+    };
+  }
   function volarA(tm, ya) {
     const d = destino(tm);
     camara.near = 0.005; camara.far = 30; camara.updateProjectionMatrix();
@@ -2062,6 +2433,7 @@ window.zoomSolidWorks = function (o) {
       if (!a) return;
       tmp.copy(a).project(camara);
       if (tmp.z > 1 || Math.abs(tmp.x) > 1.02 || Math.abs(tmp.y) > 1.02) return;
+      if (etiquetaTapada(tipo, paso, t, a)) return;
       vivos[tipo] = true;
       pies.push({ tipo: tipo, x: (tmp.x + 1) / 2 * W, y: (1 - tmp.y) / 2 * H });
     });
@@ -2121,8 +2493,8 @@ window.zoomSolidWorks = function (o) {
       while (toma < p.tomas.length && p.tomas[toma].at <= t) { volarA(p.tomas[toma], false); toma++; }
     }
     if (vuelo) {
-      vuelo.s = Math.min(1, vuelo.s + dt * VEL / 0.9); const k = suave(vuelo.s);
-      camara.position.lerpVectors(vuelo.p0, vuelo.p1, k); controles.target.lerpVectors(vuelo.m0, vuelo.m1, k);
+      vuelo.s = Math.min(1, vuelo.s + dt * VEL / 0.9); const k = curvaCam(vuelo.s);
+      volarCurva(vuelo, k);
       if (vuelo.s >= 1) vuelo = null;
     }
     avance.style.width = (100 * t / p.dur).toFixed(1) + "%";
@@ -2156,6 +2528,7 @@ window.zoomSolidWorks = function (o) {
       });
       modelo.userData.segmentos = segmentos;
       armarUnidades(modelo);
+      calidadEstudio(modelo);
       PASOS = construirPasos();
       tamano();
       estado.hidden = true;
