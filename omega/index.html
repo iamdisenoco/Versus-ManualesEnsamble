@@ -595,6 +595,17 @@ dialog.lupa::backdrop { background: rgba(0, 0, 0, 0.6); }
 .vs-vel-menu button:hover { background: rgba(255, 255, 255, 0.08); }
 .vs-vel-btn:focus-visible, .vs-vel-menu button:focus-visible { outline: 3px solid #ffffff; outline-offset: 2px; }
 
+/* números de pieza en círculo (#1064): el número como texto normal, con la misma letra, dentro de un círculo de 1 px del
+   alto del texto. Con dos cifras (10, 11, 12) la cifra se cierra un poco para que siga siendo un círculo */
+.pz { display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box;
+  width: 1.5em; height: 1.5em; margin: 0 0.06em; padding: 0; border: 1px solid currentColor; border-radius: 50%;
+  font: inherit; font-size: 0.76em; font-weight: 600; line-height: 1; letter-spacing: 0; font-variant-numeric: tabular-nums;
+  vertical-align: 0.12em; text-transform: none; white-space: nowrap; }
+.pz.pz2 { font-size: 0.66em; width: 1.73em; height: 1.73em; letter-spacing: -0.03em; }
+.cod .pz, .eti-anim b.pz, .anim-b-i .pz { margin: 0; }
+.eti-anim b.pz { margin-right: 6px; vertical-align: 0.06em; }
+.anim-b-i .pz { font-size: 0.72em; vertical-align: 0.1em; }
+
 /* tipografías de Versus (David Bernal, 17-nov): IBM Plex Sans en todo, también en las letras y cantidades (con cifras
    tabulares, a su tamaño: la reducción del motor es para una monoespaciada), y Michroma en mayúsculas para los títulos,
    como el manual y la caja usan su letra de títulos. Michroma trae un solo peso: sin negrita inventada */
@@ -775,7 +786,7 @@ body { font-synthesis: none; }
     <nav class="anim-barra" aria-label="Pasos del armado">
       <button type="button" class="anim-b-flecha" id="anim-b-ant" aria-label="Paso anterior"><svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"><path d="M15 4 7 12l8 8" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
       <button type="button" class="anim-b-info" id="anim-b-info" aria-expanded="false" aria-controls="anim-panel">
-        <span class="anim-b-txt" id="anim-b-txt">Paso 0</span><span class="anim-b-n" id="anim-b-n"></span><span class="anim-b-i" aria-hidden="true">ⓘ</span>
+        <span class="anim-b-txt" id="anim-b-txt">Paso 0</span><span class="anim-b-n" id="anim-b-n"></span><span class="anim-b-i" aria-hidden="true"><span class="pz">i</span></span>
       </button>
       <button type="button" class="anim-b-flecha fuerte" id="anim-b-sig" aria-label="Paso siguiente"><svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"><path d="m9 4 8 8-8 8" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
     </nav>
@@ -966,7 +977,9 @@ window.zoomSolidWorks = function (o) {
   // dónde queda cada pieza en el piso (x, z en metros; la silla armada va en el centro, el frente hacia +z)
   const SITIO = { C: [0, 0], G: [1.2, -0.05], H: [-1.15, -0.05], I1: [0.62, 0.95], I2: [0.8, 0.95], F: [0.42, 0.42],
     B: [0.0, 0.0], D: [-0.55, 0.95] };
-  const SUELO_B = [0.3, 0.42];                       // donde queda B al sacarlo del centro (paso 1)
+  // donde queda B al sacarlo del centro (paso 1). (#1028) Antes en (0,3; 0,42): la punta de la pata E4, con la base boca abajo,
+  // pasaba a 9 cm y el buje nuevo (Ø62) quedaba debajo
+  const SUELO_B = [0.56, 0.24];
   function sitioEnPiso(u) {
     const n = u.nombre, k = Number((n.match(/(\d+)$/) || [0, 1])[1]);
     if (SITIO[n]) return SITIO[n];
@@ -1114,6 +1127,13 @@ window.zoomSolidWorks = function (o) {
       u.eje = ex.eje === "y" ? V(0, 1, 0) : ex.eje === "x" ? V(1, 0, 0) : ex.eje === "z" ? V(0, 0, 1) : null;
       if (ex.punta) { u.piv = V(ex.punta[0], ex.punta[1], ex.punta[2]); u.ancla = cajaDe(u.objs).getCenter(V(0, 0, 0)); }
       if (ex.cabeza) { u.cabeza = V(ex.cabeza[0], ex.cabeza[1], ex.cabeza[2]); u.dirCana = V(ex.dir_cana[0], ex.dir_cana[1], ex.dir_cana[2]); u.conLlave = !!ex.llave; }
+      // (#1028) los J van perpendiculares a la cara de abajo de la pata (7° fuera de la vertical): el tornillo gira alrededor de
+      // SU eje (dir_cana) y por un punto de ese eje, no alrededor de la vertical por el centro de su caja (se bamboleaba y
+      // rozaba el agujero). En los tornillos verticales no cambia nada: el centro de la caja ya está en su eje
+      if (ex.cabeza && ex.dir_cana) {
+        const a = u.dirCana.clone().normalize();
+        u.eje = a.clone(); u.piv = u.cabeza.clone().addScaledVector(a, u.piv.clone().sub(u.cabeza).dot(a)); u.ancla = u.piv.clone();
+      }
       u.qPiso = t === "H" ? Q_ESPALDA : (t === "J" || t === "L" || t === "M") ? Q_ACOSTADO : QI;
       unidades.push(u);
     });
@@ -1209,6 +1229,37 @@ window.zoomSolidWorks = function (o) {
     subVisto = clave;
     art.innerHTML = "<b>" + sp.n + "</b> · " + sp.txt;
   }
+  // (#1028, Jon, 23-nov: «en el paso 3, como pone en el manual, la advertencia de que no entren torcidas las llantas») el
+  // dibujo 03 trae un aviso: el triángulo de advertencia, la rueda torcida tachada y la rueda derecha con la flecha hacia
+  // abajo. Se dibuja igual (sin texto en el manual: la línea describe el dibujo) mientras dura el paso 3
+  let avisoEl = null;
+  function avisoRuedas(k) {
+    const ver = k === 3;
+    if (!avisoEl) {
+      if (!ver) return;
+      const base = document.getElementById("anim-guias");
+      if (!base || !base.parentElement) return;
+      const est = document.createElement("style");
+      est.textContent = ".aviso-ruedas{position:absolute;left:12px;top:64px;z-index:4;display:flex;align-items:center;gap:10px;" +
+        "max-width:min(330px,calc(100% - 24px));padding:9px 12px 9px 10px;background:#0d1015;border:1px solid #ffb547;border-radius:10px;" +
+        "color:#f2f4f7;font:500 .92rem/1.3 'IBM Plex Sans',system-ui,sans-serif;pointer-events:none;box-shadow:0 0 0 3px rgba(5,6,8,.65)}" +
+        ".aviso-ruedas svg{flex:none;width:118px;height:46px}.aviso-ruedas[hidden]{display:none}" +
+        "@media (max-width:480px){.aviso-ruedas{top:58px;font-size:.84rem;gap:8px;padding:7px 10px 7px 8px}.aviso-ruedas svg{width:96px;height:38px}}";
+      document.head.append(est);
+      avisoEl = document.createElement("div");
+      avisoEl.className = "aviso-ruedas"; avisoEl.setAttribute("role", "note");
+      // triángulo · rueda torcida tachada · rueda derecha con la flecha hacia abajo (como el dibujo 03)
+      avisoEl.innerHTML = '<svg viewBox="0 0 118 46" aria-hidden="true" fill="none" stroke-linecap="round" stroke-linejoin="round">' +
+        '<path d="M2 40 L13 20 L24 40 Z" stroke="#ffb547" stroke-width="2.2"/><path d="M13 27v6" stroke="#ffb547" stroke-width="2.4"/><circle cx="13" cy="36.6" r="1.3" fill="#ffb547" stroke="none"/>' +
+        '<g transform="rotate(-28 52 22)" stroke="#f2f4f7" stroke-width="1.8"><rect x="42" y="6" width="20" height="17" rx="7"/><path d="M52 23v9M49.5 32h5"/></g>' +
+        '<path d="M40 6l24 32M64 6L40 38" stroke="#ffb547" stroke-width="2.2"/>' +
+        '<g stroke="#f2f4f7" stroke-width="1.8"><rect x="80" y="4" width="20" height="17" rx="7"/><path d="M90 21v10M87.5 31h5"/><path d="M90 34v3M86 40.5h8"/></g>' +
+        '<path d="M110 8v20M105.5 23.5L110 28.5l4.5-5" stroke="#ffb547" stroke-width="2.2"/></svg>' +
+        '<span>Mete cada rueda derecha, no torcida.</span>';
+      base.parentElement.append(avisoEl);
+    }
+    if (avisoEl.hidden === ver) avisoEl.hidden = !ver;
+  }
   // sin teñir nada (Jon, 12-nov: «la pieza que señala la pone como en amarillo, no me gusta»): en el ensamble no se
   // resalta nada, el movimiento basta; en el recorrido del paso 0, la pieza nombrada lleva un contorno blanco fino y
   // las demás se oscurecen un poco
@@ -1240,6 +1291,7 @@ window.zoomSolidWorks = function (o) {
     }
     cantidades(k);
     if (SUBPASOS[k]) pintarSubpaso(k, tt); else subVisto = null;
+    avisoRuedas(k);
   }
   /* ---------- el recorrido de piezas, parada por parada con las flechas de la barra (Jon, 12-nov: «en el recorrido yo
      me puedo adelantar y volver en cada pieza para mirar cuánto era») ---------- */
@@ -1385,7 +1437,10 @@ window.zoomSolidWorks = function (o) {
   // la llave en T y los tornillos vecinos (a 20–36 mm), el reposabrazos que pasa junto al respaldo: sus cajas se cruzan
   // sin tocarse; se revisan malla contra malla
   // (#916) y la manija de la llave que gira junto al mecanismo en el paso 7 (D|G: sus cajas se cruzan, las mallas no)
-  const FINOS = ["B|F", "D|E", "D|G", "D|J", "D|K", "D|L", "D|M", "D|N", "H|I", "I|L", "M|N"];
+  // (#1028) y lo que se rehízo por las observaciones de Jon del 23-nov: la rueda con su espiga en la punta de la pata, la pata en
+  // su boca de C, J y K en la boca y en la pata, el buje en C, el pistón en C, y M y N en su asiento de la barra
+  const FINOS = ["B|F", "D|E", "D|G", "D|J", "D|K", "D|L", "D|M", "D|N", "H|I", "I|L", "M|N",
+    "A|E", "C|E", "C|J", "E|J", "C|K", "E|K", "J|K", "B|C", "C|F", "G|M", "G|N"];
   const tipoN = function (x) { return x.replace(/[_\d].*$/, ""); };
   function esFino(par) { const n = par.split("|").map(tipoN).sort().join("|"); return FINOS.indexOf(n) >= 0; }
   function trisMundo(o) {
@@ -1514,7 +1569,9 @@ window.zoomSolidWorks = function (o) {
   function seguir(u, padre, ini) {
     const P0 = poseEn(padre, padre.t0), qi = P0.q.clone().invert();
     const qRel = qi.clone().multiply(ini.q), cRel = ini.c.clone().sub(P0.c).applyQuaternion(qi);
-    const pts = [], n = Math.ceil((padre.t1 - padre.t0) * 30);
+    // (#1028) la tornillería cada 1/120 s (como los A del escritorio de vidrio): con 1/30 s, al voltear el asiento en el paso 9
+    // las arandelas N y los M, apoyados en su asiento de la barra, se corrían de él unas décimas entre punto y punto
+    const pts = [], n = Math.ceil((padre.t1 - padre.t0) * ("JKLMN".indexOf(u.tipo) >= 0 ? 120 : 30));
     for (let i = 1; i <= n; i++) {
       const P = poseEn(padre, padre.t0 + (padre.t1 - padre.t0) * i / n);
       pts.push({ c: cRel.clone().applyQuaternion(P.q).add(P.c), q: P.q.clone().multiply(qRel), d: (padre.t1 - padre.t0) / n, ease: lineal });
@@ -1527,8 +1584,10 @@ window.zoomSolidWorks = function (o) {
     const Dl = uni("D");
     // 0 · identificar las piezas: todas caen al piso, plano general, y la cámara recorre cada letra de la lista del manual
     //     (A a N) con la pieza marcada y su etiqueta «letra · nombre · cantidad»; al final vuelve al plano general
+    // (#1028) B cae junto con C: va metido en su agujero (antes era una tapa encima y podía caer a destiempo)
+    const iC = unidades.indexOf(uni("C"));
     const caidas = unidades.map(function (u, i) {
-      return recorrido(u, 0.03 * i, { q: u.qPiso, c: u.cPiso.clone().add(V(0, 0.18, 0)) }, [{ c: u.cPiso, q: u.qPiso, d: 0.55, ease: cae }]);
+      return recorrido(u, 0.03 * (u.tipo === "B" ? iC : i), { q: u.qPiso, c: u.cPiso.clone().add(V(0, 0.18, 0)) }, [{ c: u.cPiso, q: u.qPiso, d: 0.55, ease: cae }]);
     });
     const general = { at: 0, mira: V(0.05, 0.15, 0.4), dir: V(0.3, 0.95, 0.85), r: 1.45 };
     const tomas0 = [general];
@@ -1572,7 +1631,10 @@ window.zoomSolidWorks = function (o) {
     let t1 = 5.0;
     Es.forEach(function (u, i) {
       const F = u.volteada, rad = F.c.clone().sub(cV); rad.y = 0; rad.normalize();
-      const fuera = F.c.clone().addScaledVector(rad, 0.16);
+      // (#1028) la pata entra en su boca de C a lo largo del eje de la boca (`entra` del GLB: hacia adentro y subiendo, con la
+      // base derecha; aquí la base va boca abajo): la boca tiene la misma sección de la pata y en horizontal la pata la rozaba
+      const ent = u.ex.entra ? V(u.ex.entra[0], u.ex.entra[1], u.ex.entra[2]).applyQuaternion(Q_PATAS).normalize() : rad.clone().negate();
+      const fuera = F.c.clone().addScaledVector(ent, -0.16);
       r1.push(recorrido(u, t1 + 1.1 * i, enPiso(u), [{ c: V(u.cPiso.x, 0.4, u.cPiso.z), q: u.qPiso, d: 0.6 },
         { c: V(fuera.x, 0.4, fuera.z), q: Q_PATAS, d: 0.8 }, { c: fuera, q: Q_PATAS, d: 0.5 }, { c: F.c, q: Q_PATAS, d: 0.7 }]));
     });
@@ -1640,7 +1702,8 @@ window.zoomSolidWorks = function (o) {
     // ponga el tapón, y ahí sí nos alejamos»)
     const r3 = [], As = porTipo.A, CADA = 1.5, EMPUJE = 0.015, ESPERA_A = 1.2, T_RUEDA = 0.5 + 0.6 + 0.5 + 0.25;
     RUEDAS = [];
-    const tA1 = 0.4, tSale3 = tA1 + T_RUEDA + ESPERA_A;       // cuándo se aleja la cámara; las otras ruedas arrancan 0,3 s después
+    // (#1028) la primera rueda arranca 0,5 s después (0,9 en vez de 0,4): antes, la cámara se queda de cerca en el hueco de su pata
+    const tA1 = 0.9, tSale3 = tA1 + T_RUEDA + ESPERA_A;       // cuándo se aleja la cámara; las otras ruedas arrancan 0,3 s después
     As.forEach(function (u, i) {
       const F = u.volteada, ti = i === 0 ? tA1 : tSale3 + 0.3 + CADA * (i - 1), arriba = F.c.clone().add(V(0, 0.12, 0));
       r3.push(recorrido(u, ti, enPiso(u), [{ c: V(u.cPiso.x, F.c.y + 0.12, u.cPiso.z), q: Q_PATAS, d: 0.5 }, { c: arriba, q: Q_PATAS, d: 0.6 },
@@ -1651,7 +1714,9 @@ window.zoomSolidWorks = function (o) {
     const F1 = As[0].volteada, haciaFuera = F1.c.clone().sub(cV); haciaFuera.y = 0; haciaFuera.normalize();
     P.push({
       recs: r3,
-      tomas: [{ at: 0, mira: F1.c.clone().add(V(0, 0.03, 0)), dir: haciaFuera.clone().multiplyScalar(-0.7).add(V(0, 0.75, 0)).add(V(haciaFuera.z, 0, -haciaFuera.x).multiplyScalar(0.55)), r: 0.17 },
+      // (#1028, revisión: el hueco se veía como un puntico) la toma mira la boca de la punta de la pata (25 mm bajo el centro de la
+      // rueda puesta, con la base boca abajo) y está más cerca (r 0,07 en vez de 0,17, que miraba 3 cm sobre el centro de la rueda)
+      tomas: [{ at: 0, mira: F1.c.clone().add(V(0, -0.025, 0)), dir: haciaFuera.clone().multiplyScalar(-0.7).add(V(0, 0.75, 0)).add(V(haciaFuera.z, 0, -haciaFuera.x).multiplyScalar(0.55)), r: 0.07 },
         { at: tSale3, mira: V(-0.05, 0.12, 0.15), dir: V(0.4, 0.85, 0.85), r: 0.62 }],
       etiq: ["A", "E"]
     });
@@ -1773,10 +1838,15 @@ window.zoomSolidWorks = function (o) {
     });
     // 8.3 y 8.4: con el asiento apoyado, los tornillos M con las arandelas N de cada lado
     let tS8 = tBaja + BAJA_8 + 0.3;
+    // (#1028, Jon, 23-nov: «en el paso 8.4 no se ve dónde entran los tornillos») al arrancar 8.3 y 8.4 la cámara va de cerca a
+    // los dos agujeros de ese lado (con su asiento) y se queda VER_HUECOS sobre ellos; recién ahí llegan las arandelas y los M
+    const VER_HUECOS = 1.3, TOMA_HUECOS = [];
     porTipo.I.forEach(function (u, iLado) {
       const s = Math.sign(u.piv.x);
       const mios = Ms.filter(function (m) { return Math.sign(m.piv.x) === s; }), nn = Ns.filter(function (m) { return Math.sign(m.piv.x) === s; });
-      sub8.push({ t0: tS8 - 0.2, n: "8." + (iLado + 3), corto: "Tornillos M y arandelas N",
+      TOMA_HUECOS.push({ at: tS8 - 0.2, mios: mios });
+      tS8 += VER_HUECOS;
+      sub8.push({ t0: tS8 - 0.2 - VER_HUECOS, n: "8." + (iLado + 3), corto: "Tornillos M y arandelas N",
         txt: "Fija el reposabrazos " + (s < 0 ? "derecho" : "izquierdo") + " " + cod("I") + " con 2 tornillos " + cod("M") + " y 2 arandelas " + cod("N") + ". Aprieta con la llave " + cod("D") + "." });
       nn.forEach(function (w, i) {
         const Fw = w.banco, ew = V(0, 1, 0).applyQuaternion(banco.q);
@@ -1792,6 +1862,13 @@ window.zoomSolidWorks = function (o) {
     SUBPASOS[8] = sub8;
     const g8 = ENCAJES.filter(function (e) { return e.paso === 8; }), I1 = porTipo.I[0], I2 = porTipo.I[1];
     // la toma de cada M, de cerca y desde afuera del asiento (#929); el asiento ya está apoyado, en `banco`
+    // (#1028) los dos agujeros de un lado, de frente: desde el lado por donde llegan el tornillo y la arandela (−eje de M) y un
+    // poco desde afuera del asiento, a 0,13 m
+    const tomaHuecos = function (h) {
+      const c = h.mios[0].banco.c.clone().add(h.mios[1].banco.c).multiplyScalar(0.5), ew = V(0, 1, 0).applyQuaternion(banco.q);
+      const fuera = Math.sign(c.x - G.banco.c.x) || 1;
+      return { at: h.at, mira: c, dir: ew.clone().negate().multiplyScalar(0.85).add(V(fuera * 0.45, 0.25, 0.3)), r: 0.13 };
+    };
     const tomaM = function (m, at) {
       const fuera = Math.sign(m.banco.c.x - G.banco.c.x) || 1;
       return { at: at, mira: m.banco.c, dir: V(fuera * 0.66, 0.34, 0.66), r: 0.14 };
@@ -1802,7 +1879,9 @@ window.zoomSolidWorks = function (o) {
         TOMA_I[0],
         TOMA_I[1],
         { at: tBaja, mira: V(G.banco.c.x, 0.2, G.banco.c.z), dir: V(-0.95, 0.25, 0.35), r: 0.65 },
+        tomaHuecos(TOMA_HUECOS[0]),
         tomaM(Ms.filter(function (m) { return m.piv.x < 0; })[0], g8[0].t0 - 0.4),
+        tomaHuecos(TOMA_HUECOS[1]),
         tomaM(Ms.filter(function (m) { return m.piv.x > 0; })[0], g8[2].t0 - 0.4),
         { at: L8.t - 0.6, mira: V(G.banco.c.x, 0.2, G.banco.c.z), dir: V(-0.95, 0.25, 0.35), r: 0.65 }],
       etiq: ["I", "M", "N", "D"], cant: { M: "×4", N: "×4" }
