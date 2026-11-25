@@ -672,6 +672,7 @@ body { font-synthesis: none; }
 @media (max-width: 699.98px) and (orientation: portrait) {
   .anim-marco.en-pantalla .anim-textos { -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 36px), transparent); mask-image: linear-gradient(to bottom, #000 calc(100% - 36px), transparent); padding-bottom: 28px; }
 }
+.vs-mascara .eti-anim, .vs-mascara #anim-guias { visibility: hidden !important; }
 .anim-lista-btn[aria-current="true"] { background: color-mix(in srgb, currentColor 13%, transparent); font-weight: 550; }
 </style>
 <section id="animacion" aria-labelledby="t-anim">
@@ -983,7 +984,7 @@ window.zoomSolidWorks = function (o) {
   // iluminada … con mucha profundidad»): fondo casi negro en los dos temas, la cuadrícula tenue que se pierde en la
   // niebla, luz principal fuerte con sombras suaves, luces de borde celeste y magenta que recortan lo negro, un aro
   // neón en el piso bajo la silla y el contorno blanco fino que marca la pieza en el recorrido
-  const FONDO = 0x050608, NEON_CELESTE = 0x5cc8ff, NEON_VERDE = 0x3dff8a;
+  const FONDO = 0x151922, NEON_CELESTE = 0x5cc8ff, NEON_VERDE = 0x3dff8a;
   // cada cuadro, aunque la animación esté quieta: la niebla empieza detrás de lo que se mira (en el celular parado la
   // cámara queda más lejos y la silla no se puede perder en ella) y la barra dice la parada del recorrido
   const CELEBRA_S = 4.0;   // la cuadrícula verde titila 4 s antes de la tarjeta final (Jon, 19-nov)
@@ -1051,11 +1052,11 @@ window.zoomSolidWorks = function (o) {
     renderer.setClearColor(FONDO, 1); escena.background = new THREE.Color(FONDO);
     escena.fog = new THREE.Fog(FONDO, 2.2, 6.5);
     renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    renderer.toneMappingExposure = 1.25;
+    renderer.toneMappingExposure = 1.42;
     sol.castShadow = true; sol.intensity = 1.7; sol.position.set(1.0, 3.4, 2.0);
     sol.shadow.mapSize.set(2048, 2048); sol.shadow.radius = 5; sol.shadow.bias = -0.0015; sol.shadow.normalBias = 0.02;   // sin rayas de «acné» en el piso
     const cs = sol.shadow.camera; cs.left = -2; cs.right = 2.2; cs.top = 2; cs.bottom = -2; cs.near = 0.5; cs.far = 7; cs.updateProjectionMatrix();
-    escena.children.forEach(function (o) { if (o.isHemisphereLight) o.intensity = 0.3; });
+    escena.children.forEach(function (o) { if (o.isHemisphereLight) o.intensity = 0.48; });
     piso.geometry = new THREE.PlaneGeometry(16, 16);
     // el piso no toma luz (con luces tan fuertes, hasta un negro se aclaraba): negro plano, y encima un plano que
     // solo pinta las sombras de contacto
@@ -1068,7 +1069,7 @@ window.zoomSolidWorks = function (o) {
     // líneas en neón (Jon, 12-nov: «las líneas de la cuadrícula es lo que deben ser en neón»): la textura es blanca
     // con un halo suave sobre negro y el color lo pone el material (celeste; verde al terminar el ensamble)
     const cg = document.createElement("canvas"); cg.width = cg.height = 128;
-    const gx = cg.getContext("2d"); gx.fillStyle = "#000"; gx.fillRect(0, 0, 128, 128);
+    const gx = cg.getContext("2d"); gx.fillStyle = "#28343d"; gx.fillRect(0, 0, 128, 128);
     const linea = function (ancho, alfa) { gx.fillStyle = "rgba(255,255,255," + alfa + ")"; gx.fillRect(0, 0, 128, ancho); gx.fillRect(0, 0, ancho, 128); gx.fillRect(0, 128 - ancho / 2, 128, ancho / 2); gx.fillRect(128 - ancho / 2, 0, ancho / 2, 128); };
     linea(8, 0.035); linea(4, 0.08); linea(2, 0.4); linea(1, 0.75);
     const tex = new THREE.CanvasTexture(cg); tex.wrapS = tex.wrapT = THREE.RepeatWrapping; tex.repeat.set(64, 64);
@@ -1852,6 +1853,72 @@ window.zoomSolidWorks = function (o) {
     return 1.12 * r / Math.sin(Math.min(fovV, fovH) / 2);
   }
   function destino(tm) { return { p: tm.mira.clone().addScaledVector(tm.dir.clone().normalize(), distPara(tm.r)), m: tm.mira.clone() }; }
+  // Las etiquetas de piezas tapadas se comprueban cada ocho cuadros, solo durante el armado.
+  const marcaVersus = document.querySelector(".v40-marca");
+  let marcaOculta = false;
+  function actualizarDetalles571() {
+    cuadroEti++;
+    const ocultar = lienzo.clientWidth <= 420 && PASOS.length > 0 && paso === PASOS.length - 1 && t >= PASOS[paso].dur - 1e-6;
+    if (marcaVersus && ocultar !== marcaOculta) {
+      marcaVersus.style.visibility = ocultar ? "hidden" : "";
+      marcaOculta = ocultar;
+    }
+  }
+  const rayoEti = new THREE.Raycaster(), tapadas = {};
+  let cuadroEti = 0;
+  // Estas funciones permiten detener el paso y revisar las etiquetas en las pruebas.
+  window.__pausa = function () { enMarcha = false; };
+  window.__etiquetas = function () {
+    Object.keys(tapadas).forEach(function (q) { delete tapadas[q]; });
+    const m = {}; PASOS[paso].recs.forEach(function (r) { if (!r.quieto && r.t0 <= t && t <= r.t1) m[r.u.tipo] = true; });
+    const enPantalla = function (q) { const a = anclaDe(q, paso, t); if (!a) return false; const v = a.clone().project(camara); return v.z <= 1 && Math.abs(v.x) <= 1.02 && Math.abs(v.y) <= 1.02; };
+    return { etiq: PASOS[paso].etiq.slice(), moviendo: Object.keys(m).filter(function (q) { return PASOS[paso].etiq.indexOf(q) >= 0 && enPantalla(q); }) };
+  };
+  function unidadDe(tipo, k, tt) {
+    const p = PASOS[k]; let u = null, mejor = -1;
+    if (p.todas) return (porTipo[tipo] || [])[0] || null;
+    p.recs.forEach(function (r) { if (r.u.tipo === tipo && r.t0 <= tt && r.t0 > mejor) { mejor = r.t0; u = r.u; } });
+    return u;
+  }
+  function etiquetaTapada(tipo, k, tt, punto) {
+    if (k === 0 || !modelo) return false;
+    // la pieza que se mueve en este momento (entra o viaja) nunca se esconde (revisión de 704eb25: el cojín lumbar Q del
+    // paso 6 entraba a la vista y su etiqueta no salía); y lo que se mueve no cuenta como tapón de las demás
+    const enMovimiento = new Set();
+    let mueve = false;
+    PASOS[k].recs.forEach(function (r) {
+      if (r.quieto || r.t0 > tt || tt > r.t1) return;
+      r.u.objs.forEach(function (o) { enMovimiento.add(o); });
+      if (r.u.tipo === tipo) mueve = true;
+    });
+    if (mueve) return false;
+    const clave = k + ":" + tipo, c = tapadas[clave];
+    if (c && cuadroEti - c.cuadro < 8) return c.si;
+    const u = unidadDe(tipo, k, tt); let si = false;
+    if (u) {
+      // se ve si se ve CUALQUIERA de estos puntos: el ancla, el centro de la caja de la pieza, el centro de arriba y las
+      // cuatro esquinas de arriba (con solo el ancla, el reposabrazos del paso 4 salía tapado por el asiento)
+      const caja = new THREE.Box3(); u.objs.forEach(function (o) { caja.expandByObject(o); });
+      const c = caja.getCenter(new THREE.Vector3()), mx = caja.max, mn = caja.min, e = 0.15;
+      const lx = (mx.x - mn.x) * e, lz = (mx.z - mn.z) * e, ty = mx.y - (mx.y - mn.y) * e;
+      const pts = [punto, c, new THREE.Vector3(c.x, ty, c.z), new THREE.Vector3(mn.x + lx, ty, mn.z + lz), new THREE.Vector3(mx.x - lx, ty, mn.z + lz),
+        new THREE.Vector3(mn.x + lx, ty, mx.z - lz), new THREE.Vector3(mx.x - lx, ty, mx.z - lz)];
+      si = !pts.some(function (q) {
+        const dir = q.clone().sub(camara.position), d = dir.length();
+        rayoEti.set(camara.position, dir.normalize()); rayoEti.near = 0; rayoEti.far = d + 0.05;
+        const h = rayoEti.intersectObject(modelo, true).find(function (x) {
+          if (!x.object.isMesh || !x.object.visible || x.object.name === "contorno") return false;
+          let o = x.object; while (o.parent && o.parent !== modelo) o = o.parent;   // la propia pieza y lo que se mueve no tapan
+          return u.objs.indexOf(o) < 0 && !enMovimiento.has(o);
+        });
+        if (!h || h.distance >= d - 0.015) return true;
+        let o = h.object; while (o && u.objs.indexOf(o) < 0) o = o.parent === modelo ? null : o.parent;
+        return !!o;
+      });
+    }
+    tapadas[clave] = { cuadro: cuadroEti, si: si };
+    return si;
+  }
   function volarA(tm, ya) {
     const d = destino(tm);
     camara.near = 0.005; camara.far = 30; camara.updateProjectionMatrix();
@@ -2062,6 +2129,7 @@ window.zoomSolidWorks = function (o) {
       if (!a) return;
       tmp.copy(a).project(camara);
       if (tmp.z > 1 || Math.abs(tmp.x) > 1.02 || Math.abs(tmp.y) > 1.02) return;
+      if (etiquetaTapada(tipo, paso, t, a)) return;
       vivos[tipo] = true;
       pies.push({ tipo: tipo, x: (tmp.x + 1) / 2 * W, y: (1 - tmp.y) / 2 * H });
     });
@@ -2127,6 +2195,7 @@ window.zoomSolidWorks = function (o) {
     }
     avance.style.width = (100 * t / p.dur).toFixed(1) + "%";
     controles.update();
+    actualizarDetalles571();
     renderer.render(escena, camara);
     pintarEtiquetas();
   }
