@@ -1007,7 +1007,7 @@ window.zoomSolidWorks = function (o) {
   }
   function cajaDe(objs) { const b = new THREE.Box3(); objs.forEach(function (o) { o.geometry.computeBoundingBox(); b.union(o.geometry.boundingBox); }); return b; }
   let unidades = [], porTipo = {}, modelo = null;
-  const FONDO = 0x050608, NEON_CELESTE = 0x5cc8ff, NEON_VERDE = 0x3dff8a;
+  const FONDO = 0x151922, NEON_CELESTE = 0x5cc8ff, NEON_VERDE = 0x3dff8a;
   const CELEBRA_S = 4.0;   // la cuadrícula verde titila 4 s antes de la tarjeta final (Jon, 19-nov)
   let inicio = false, esperando = false, celebra = null, fin2 = null, hola = null, adios = null, focoAntes = null;
   function mostrarTarjeta(el) {
@@ -1065,18 +1065,18 @@ window.zoomSolidWorks = function (o) {
     renderer.setClearColor(FONDO, 1); escena.background = new THREE.Color(FONDO);
     escena.fog = new THREE.Fog(FONDO, 2.2, 6.5);
     renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    renderer.toneMappingExposure = 1.25;
+    renderer.toneMappingExposure = 1.42;
     sol.castShadow = true; sol.intensity = 1.7; sol.position.set(1.4, 3.6, 2.2);
     sol.shadow.mapSize.set(2048, 2048); sol.shadow.radius = 5; sol.shadow.bias = -0.0015; sol.shadow.normalBias = 0.02;
     const cs = sol.shadow.camera; cs.left = -2.2; cs.right = 2.4; cs.top = 2.2; cs.bottom = -2.2; cs.near = 0.5; cs.far = 8; cs.updateProjectionMatrix();
-    escena.children.forEach(function (o) { if (o.isHemisphereLight) o.intensity = 0.3; });
+    escena.children.forEach(function (o) { if (o.isHemisphereLight) o.intensity = 0.48; });
     piso.geometry = new THREE.PlaneGeometry(16, 16);
     piso.material = new THREE.MeshBasicMaterial({ color: 0x07080a });
     const sombras = new THREE.Mesh(new THREE.PlaneGeometry(16, 16), new THREE.ShadowMaterial({ opacity: 0.6, depthWrite: false }));
     sombras.rotation.x = -Math.PI / 2; sombras.position.y = -0.0002; sombras.receiveShadow = true; escena.add(sombras);
     rejilla.visible = false;
     const cg = document.createElement("canvas"); cg.width = cg.height = 128;
-    const gx = cg.getContext("2d"); gx.fillStyle = "#000"; gx.fillRect(0, 0, 128, 128);
+    const gx = cg.getContext("2d"); gx.fillStyle = "#28343d"; gx.fillRect(0, 0, 128, 128);
     const linea = function (ancho, alfa) { gx.fillStyle = "rgba(255,255,255," + alfa + ")"; gx.fillRect(0, 0, 128, ancho); gx.fillRect(0, 0, ancho, 128); gx.fillRect(0, 128 - ancho / 2, 128, ancho / 2); gx.fillRect(128 - ancho / 2, 0, ancho / 2, 128); };
     linea(8, 0.035); linea(4, 0.08); linea(2, 0.4); linea(1, 0.75);
     const tex = new THREE.CanvasTexture(cg); tex.wrapS = tex.wrapT = THREE.RepeatWrapping; tex.repeat.set(64, 64);
